@@ -16,8 +16,9 @@ export default function AppDriver(app) {
         e.callback(true);
       });
 
-    return {
-      events: eventName => Observable.fromEvent(app, eventName)
-    }
+    const events = eventName => Observable.fromEvent(app, eventName);
+    events.willFinishLaunching$ = events('will-finish-launching');
+
+    return { events }
   };
 }

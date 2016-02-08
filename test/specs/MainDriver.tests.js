@@ -37,6 +37,26 @@ describe('MainDriver', () => {
     });
   });
 
+  describe('events.willFinishLaunching$ source', () => {
+    let sources = null;
+
+    beforeEach(() => {
+      sources = driver();
+    });
+
+    it('emits when `will-finish-launching` events are emitted', done => {
+      const emittedEvent = {};
+      sources.events.willFinishLaunching$.forEach(verify);
+
+      app.emit('will-finish-launching', emittedEvent);
+
+      function verify(e) {
+        expect(e).to.equal(emittedEvent);
+        done();
+      }
+    });
+  });
+
   describe('exit$ sink', () => {
     it('causes an exit with code 0 by default', () => {
       driver({ exit$: Observable.just({}) });
