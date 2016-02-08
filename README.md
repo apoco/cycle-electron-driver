@@ -42,6 +42,10 @@ function main({ electron }) {
 Calling methods on `Event` objects, such as `preventDefault()` is antithetical to the Cycle.js philosophy; to enable
 preventing defaults, use the `preventedEvents` sink listed below.
 
+##### events.ready$
+
+This is equivalent to `events('ready')`.
+
 ##### events.willFinishLaunching$
 
 This is equivalent to `events('will-finish-launching')`.

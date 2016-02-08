@@ -37,23 +37,31 @@ describe('MainDriver', () => {
     });
   });
 
-  describe('events.willFinishLaunching$ source', () => {
-    let sources = null;
+  const eventShortcuts = {
+    ready$: 'ready',
+    willFinishLaunching$: 'will-finish-launching'
+  };
 
-    beforeEach(() => {
-      sources = driver();
-    });
+  Object.keys(eventShortcuts).forEach(key => {
+    describe(`events.${key} source`, () => {
+      const eventName = eventShortcuts[key];
+      let sources = null;
 
-    it('emits when `will-finish-launching` events are emitted', done => {
-      const emittedEvent = {};
-      sources.events.willFinishLaunching$.forEach(verify);
+      beforeEach(() => {
+        sources = driver();
+      });
 
-      app.emit('will-finish-launching', emittedEvent);
+      it(`emits when ${eventName} events are emitted`, done => {
+        const emittedEvent = {};
+        sources.events[key].forEach(verify);
 
-      function verify(e) {
-        expect(e).to.equal(emittedEvent);
-        done();
-      }
+        app.emit(eventName, emittedEvent);
+
+        function verify(e) {
+          expect(e).to.equal(emittedEvent);
+          done();
+        }
+      });
     });
   });
 

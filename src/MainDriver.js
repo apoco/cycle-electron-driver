@@ -1,5 +1,10 @@
 import { Observable } from 'rx';
 
+const eventShortcuts = {
+  willFinishLaunching$: 'will-finish-launching',
+  ready$: 'ready'
+};
+
 export default function AppDriver(app) {
   return ({ exit$, preventedEvent$, trustedCert$ } = {}) => {
 
@@ -17,7 +22,9 @@ export default function AppDriver(app) {
       });
 
     const events = eventName => Observable.fromEvent(app, eventName);
-    events.willFinishLaunching$ = events('will-finish-launching');
+    Object.keys(eventShortcuts).forEach(key => {
+      events[key] = events(eventShortcuts[key]);
+    });
 
     return { events }
   };
