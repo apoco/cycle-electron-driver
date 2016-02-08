@@ -1,0 +1,8 @@
+node_modules
+src
+test
+.babelrc
+.gitignore
+.npmignore
+LICENSE
+README.md
