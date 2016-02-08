@@ -39,13 +39,13 @@ describe('MainDriver', () => {
 
   describe('exits sink', () => {
     it('causes an exit with code 0 by default', () => {
-      driver({ exits: Observable.just({}) });
+      driver({ exit$: Observable.just({}) });
 
       expect(app.exit).to.have.been.calledWith(0);
     });
 
     it('exits with a numeric exit code when a value is sent', () => {
-      driver({ exits: Observable.just(-23) });
+      driver({ exit$: Observable.just(-23) });
 
       expect(app.exit).to.have.been.calledWith(-23);
     });
@@ -55,7 +55,7 @@ describe('MainDriver', () => {
     it('causes `preventDefault` to be called on each event', () => {
       const event = { preventDefault: spy() };
 
-      driver({ preventedEvents: Observable.just(event) });
+      driver({ preventedEvent$: Observable.just(event) });
 
       expect(event.preventDefault).to.have.been.called;
     });

@@ -45,12 +45,12 @@ preventing defaults, use the `preventedEvents` sink listed below.
 
 #### Sinks
 
-##### exits
+##### exit$
 
 When an exit value is received, it will cause the application to quit. If the value is a number, that number will be the
 exit code.
 
-##### preventedEvents
+##### preventedEvent$
 
 Events emitted by this `Observable` will have their `preventDefault` method invoked.
 
@@ -58,7 +58,7 @@ Events emitted by this `Observable` will have their `preventDefault` method invo
 function main({ electron }) {
   return {
     electron: {
-      preventedEvents: electron.events('before-quit')
+      preventedEvent$: electron.events('before-quit')
     }
   };
 };

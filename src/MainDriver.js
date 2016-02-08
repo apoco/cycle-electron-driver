@@ -1,13 +1,13 @@
 import { Observable } from 'rx';
 
 export default function AppDriver(app) {
-  return ({ exits, preventedEvents } = {}) => {
+  return ({ exit$, preventedEvent$ } = {}) => {
 
-    exits && exits
+    exit$ && exit$
       .map(val => isNaN(val) ? 0 : val)
       .forEach(code => app.exit(code));
 
-    preventedEvents && preventedEvents
+    preventedEvent$ && preventedEvent$
       .forEach(e => e.preventDefault());
 
     return {
