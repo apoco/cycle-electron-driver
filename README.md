@@ -38,3 +38,14 @@ function main({ electron }) {
   const readyEvent$ = electron.events('ready');
 }
 ```
+
+#### Sink
+
+An component using an electron driver should return an `Observable` that produces objects representing the application
+state. The `cycle-electron-driver` exports some functions to help create these state objects.
+
+##### Exiting
+
+When the sink `Observable` completes, the application will exit normally (exit code `0`). When the `Observable` emits an
+error, the application will print an error to `stderr` and return with exit code `1`. A different exit code can be
+specified by having a numeric `code` property in the error object.
