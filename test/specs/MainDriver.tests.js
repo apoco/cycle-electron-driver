@@ -38,9 +38,10 @@ describe('MainDriver', () => {
   });
 
   const eventShortcuts = {
+    allWindowsClosed$: 'window-all-closed',
+    beforeQuit$: 'before-quit',
     ready$: 'ready',
-    willFinishLaunching$: 'will-finish-launching',
-    allWindowsClosed$: 'window-all-closed'
+    willFinishLaunching$: 'will-finish-launching'
   };
 
   Object.keys(eventShortcuts).forEach(key => {

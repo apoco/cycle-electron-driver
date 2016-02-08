@@ -2,6 +2,7 @@ import { Observable } from 'rx';
 
 const eventShortcuts = {
   allWindowsClosed$: 'window-all-closed',
+  beforeQuit$: 'before-quit',
   ready$: 'ready',
   willFinishLaunching$: 'will-finish-launching'
 };

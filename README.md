@@ -54,6 +54,10 @@ This is equivalent to `events('will-finish-launching')`.
 
 This is equivalent to `events('window-all-closed')`.
 
+##### events.beforeQuit$
+
+This is equivalent to `events('before-quit')`.
+
 
 #### Sinks
 
