@@ -1,8 +1,9 @@
 import { Observable } from 'rx';
 
 const eventShortcuts = {
-  willFinishLaunching$: 'will-finish-launching',
-  ready$: 'ready'
+  allWindowsClosed$: 'window-all-closed',
+  ready$: 'ready',
+  willFinishLaunching$: 'will-finish-launching'
 };
 
 export default function AppDriver(app) {

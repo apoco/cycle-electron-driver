@@ -50,6 +50,10 @@ This is equivalent to `events('ready')`.
 
 This is equivalent to `events('will-finish-launching')`.
 
+##### events.allWindowsClosed$
+
+This is equivalent to `events('window-all-closed')`.
+
 
 #### Sinks
 
