@@ -40,21 +40,26 @@ function main({ electron }) {
 ```
 
 Calling methods on `Event` objects, such as `preventDefault()` is antithetical to the Cycle.js philosophy; to enable
-preventing defaults, you can subscribe to events with a second options parameter:
+preventing defaults, use the `preventedEvents` sink listed below.
+
+
+#### Sinks
+
+##### exits
+
+When an exit value is received, it will cause the application to quit. If the value is a number, that number will be the
+exit code.
+
+##### preventedEvents
+
+Events emitted by this `Observable` will have their `preventDefault` method invoked.
 
 ```js
-const beforeQuit$ = electron.events('before-quit', { prevented: true });
+function main({ electron }) {
+  return {
+    electron: {
+      preventedEvents: electron.events('before-quit')
+    }
+  };
+};
 ```
-
-When you receive these events, they will already have had their `preventDefault` called.
-
-#### Sink
-
-An component using an electron driver should return an `Observable` that produces objects representing the application
-state. The `cycle-electron-driver` exports some functions to help create these state objects.
-
-##### Exiting
-
-When the sink `Observable` completes, the application will exit normally (exit code `0`). When the `Observable` emits an
-error, the application will print an error to `stderr` and return with exit code `1`. A different exit code can be
-specified by having a numeric `code` property in the error object.

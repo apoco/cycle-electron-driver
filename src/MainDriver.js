@@ -1,22 +1,17 @@
 import { Observable } from 'rx';
 
 export default function AppDriver(app) {
-  return state$ => {
+  return ({ exits, preventedEvents } = {}) => {
 
-    state$.forEach(
-      state => {},
-      error => app.quit(error.code || 1),
-      end => app.quit(0)
-    );
+    exits && exits
+      .map(val => isNaN(val) ? 0 : val)
+      .forEach(code => app.exit(code));
+
+    preventedEvents && preventedEvents
+      .forEach(e => e.preventDefault());
 
     return {
-      events: (eventName, { prevented = false } = {}) => Observable
-        .fromEvent(app, eventName)
-        .tap(e => {
-          if (prevented && e.preventDefault) {
-            e.preventDefault()
-          }
-        })
+      events: eventName => Observable.fromEvent(app, eventName)
     }
   };
 }
