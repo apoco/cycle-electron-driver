@@ -10,7 +10,13 @@ export default function AppDriver(app) {
     );
 
     return {
-      events: eventName => Observable.fromEvent(app, eventName)
+      events: (eventName, { prevented = false } = {}) => Observable
+        .fromEvent(app, eventName)
+        .tap(e => {
+          if (prevented && e.preventDefault) {
+            e.preventDefault()
+          }
+        })
     }
   };
 }

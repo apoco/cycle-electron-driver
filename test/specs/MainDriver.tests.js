@@ -15,9 +15,14 @@ describe('MainDriver', () => {
   });
 
   describe('events source factory', () => {
-    it('listens to the specified event', done => {
+    let sources = null;
+
+    beforeEach(() => {
       const driver = new MainDriver(app);
-      const sources = driver(Observable.empty());
+      sources = driver(Observable.empty());
+    });
+
+    it('listens to the specified event', done => {
       const emittedEvent = {};
       sources
         .events('ready')
@@ -27,6 +32,22 @@ describe('MainDriver', () => {
 
       function verify(e) {
         expect(e).to.equal(emittedEvent);
+        done();
+      }
+    });
+
+    it('automatically prevents the default handling if the `prevented` option is `true`', done => {
+      const emittedEvent = {
+        preventDefault: spy()
+      };
+      sources
+        .events('before-quit', { prevented: true })
+        .forEach(verify);
+
+      app.emit('before-quit', emittedEvent);
+
+      function verify(e) {
+        expect(e.preventDefault).to.have.been.called;
         done();
       }
     });

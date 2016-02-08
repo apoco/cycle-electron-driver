@@ -39,6 +39,15 @@ function main({ electron }) {
 }
 ```
 
+Calling methods on `Event` objects, such as `preventDefault()` is antithetical to the Cycle.js philosophy; to enable
+preventing defaults, you can subscribe to events with a second options parameter:
+
+```js
+const beforeQuit$ = electron.events('before-quit', { prevented: true });
+```
+
+When you receive these events, they will already have had their `preventDefault` called.
+
 #### Sink
 
 An component using an electron driver should return an `Observable` that produces objects representing the application
