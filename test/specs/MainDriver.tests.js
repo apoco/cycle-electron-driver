@@ -37,7 +37,7 @@ describe('MainDriver', () => {
     });
   });
 
-  describe('exits sink', () => {
+  describe('exit$ sink', () => {
     it('causes an exit with code 0 by default', () => {
       driver({ exit$: Observable.just({}) });
 
@@ -51,13 +51,27 @@ describe('MainDriver', () => {
     });
   });
 
-  describe('preventedEvents sink', () => {
+  describe('preventedEvent$ sink', () => {
     it('causes `preventDefault` to be called on each event', () => {
       const event = { preventDefault: spy() };
 
       driver({ preventedEvent$: Observable.just(event) });
 
       expect(event.preventDefault).to.have.been.called;
+    });
+  });
+
+  describe('trustedCert$ sink', () => {
+    it('prevents the default behavior of an untrusted cert and trusts it instead', () => {
+      const event = {
+        preventDefault: spy(),
+        callback: spy()
+      };
+
+      driver({ trustedCert$: Observable.just(event) });
+
+      expect(event.preventDefault).to.have.been.called;
+      expect(event.callback).to.have.been.calledWith(true);
     });
   });
 });

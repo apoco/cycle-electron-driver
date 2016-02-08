@@ -61,5 +61,21 @@ function main({ electron }) {
       preventedEvent$: electron.events('before-quit')
     }
   };
-};
+}
+```
+
+##### trustedCert$
+
+This should be a filtering of `certificate-error` events that should be overridden as trusted.
+
+```js
+function main({ electron }) {
+  return {
+    electron: {
+      trustedCert$: electron
+        .events('certificate-error')
+        .filter(e => e.certificate.issuerName === 'example.com')
+    }
+  };
+}
 ```

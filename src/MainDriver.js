@@ -1,7 +1,7 @@
 import { Observable } from 'rx';
 
 export default function AppDriver(app) {
-  return ({ exit$, preventedEvent$ } = {}) => {
+  return ({ exit$, preventedEvent$, trustedCert$ } = {}) => {
 
     exit$ && exit$
       .map(val => isNaN(val) ? 0 : val)
@@ -9,6 +9,12 @@ export default function AppDriver(app) {
 
     preventedEvent$ && preventedEvent$
       .forEach(e => e.preventDefault());
+
+    trustedCert$ && trustedCert$
+      .forEach(e => {
+        e.preventDefault();
+        e.callback(true);
+      });
 
     return {
       events: eventName => Observable.fromEvent(app, eventName)
