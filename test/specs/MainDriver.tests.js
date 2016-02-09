@@ -68,7 +68,7 @@ describe('MainDriver', () => {
     });
   });
 
-  describe('quit$ source', () => {
+  describe('events.quit$ source', () => {
     it('contains the quit event merged with the exit code', done => {
       const { events: { quit$ } } = driver();
       quit$.first().forEach(verify);
@@ -78,6 +78,20 @@ describe('MainDriver', () => {
       function verify(e) {
         expect(e).to.have.property('name', 'quit');
         expect(e).to.have.property('exitCode', -3289);
+        done();
+      }
+    });
+  });
+
+  describe('events.fileOpen$ source', () => {
+    it('contains open-file events with a path property', done => {
+      const { events: { fileOpen$ } } = driver();
+      fileOpen$.first().forEach(verify);
+
+      app.emit('open-file', { }, '/home/user/file.txt');
+
+      function verify(e) {
+        expect(e).to.have.property('path', '/home/user/file.txt');
         done();
       }
     });

@@ -42,14 +42,6 @@ function main({ electron }) {
 Calling methods on `Event` objects, such as `preventDefault()` is antithetical to the Cycle.js philosophy; to enable
 preventing defaults, use the `preventedEvents` sink listed below.
 
-##### events.ready$
-
-This is equivalent to `events('ready')`.
-
-##### events.willFinishLaunching$
-
-This is equivalent to `events('will-finish-launching')`.
-
 ##### events.allWindowsClosed$
 
 This is equivalent to `events('window-all-closed')`.
@@ -58,13 +50,25 @@ This is equivalent to `events('window-all-closed')`.
 
 This is equivalent to `events('before-quit')`.
 
-##### events.willQuit$
+##### events.fileOpen$
 
-This is equivalent to `events('will-quit')`.
+This is equivalent to `events('open-file')`, except an additional `path` property is added to the event object.
 
 ##### events.quit$
 
 This is equivalent to `events('quit')`, except an additional `exitCode` is added to the event object. 
+
+##### events.ready$
+
+This is equivalent to `events('ready')`.
+
+##### events.willFinishLaunching$
+
+This is equivalent to `events('will-finish-launching')`.
+
+##### events.willQuit$
+
+This is equivalent to `events('will-quit')`.
 
 
 #### Sinks
