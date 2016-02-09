@@ -25,6 +25,7 @@ export default function AppDriver(app) {
       });
 
     const events = eventName => Observable.fromEvent(app, eventName);
+    events.quit$ = Observable.fromEvent(app, 'quit', (e, exitCode) => Object.assign({ exitCode }, e));
     Object.keys(eventShortcuts).forEach(key => {
       events[key] = events(eventShortcuts[key]);
     });

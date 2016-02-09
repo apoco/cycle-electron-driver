@@ -62,6 +62,10 @@ This is equivalent to `events('before-quit')`.
 
 This is equivalent to `events('will-quit')`.
 
+##### events.quit$
+
+This is equivalent to `events('quit')`, except an additional `exitCode` is added to the event object. 
+
 
 #### Sinks
 

@@ -68,6 +68,21 @@ describe('MainDriver', () => {
     });
   });
 
+  describe('quit$ source', () => {
+    it('contains the quit event merged with the exit code', done => {
+      const { events: { quit$ } } = driver();
+      quit$.first().forEach(verify);
+
+      app.emit('quit', { name: 'quit' }, -3289);
+
+      function verify(e) {
+        expect(e).to.have.property('name', 'quit');
+        expect(e).to.have.property('exitCode', -3289);
+        done();
+      }
+    });
+  });
+
   describe('exit$ sink', () => {
     it('causes an exit with code 0 by default', () => {
       driver({ exit$: Observable.just({}) });
