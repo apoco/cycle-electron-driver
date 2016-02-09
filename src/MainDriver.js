@@ -1,11 +1,11 @@
 import { Observable } from 'rx';
 
 const eventShortcuts = {
-  allWindowsClosed$: 'window-all-closed',
-  beforeQuit$: 'before-quit',
-  ready$: 'ready',
   willFinishLaunching$: 'will-finish-launching',
-  willQuit$: 'will-quit'
+  ready$: 'ready',
+  beforeAllWindowClose$: 'before-quit',
+  allWindowsClose$: 'window-all-closed',
+  beforeExit$: 'will-quit'
 };
 
 export default function AppDriver(app) {
@@ -25,9 +25,14 @@ export default function AppDriver(app) {
       });
 
     const events = eventName => Observable.fromEvent(app, eventName);
-    events.quit$ = Observable.fromEvent(app, 'quit', (e, exitCode) => Object.assign({ exitCode }, e));
-    events.fileOpen$ = Observable.fromEvent(app, 'open-file', (e, path) => Object.assign({ path }, e));
-    events.urlOpen$ = Observable.fromEvent(app, 'open-url', (e, url) => Object.assign({ url }, e));
+    events.activation$ = Observable
+      .fromEvent(app, 'activate', (e, hasVisibleWindows) => Object.assign(e, { hasVisibleWindows }));
+    events.fileOpen$ = Observable
+      .fromEvent(app, 'open-file', (e, path) => Object.assign(e, { path }));
+    events.urlOpen$ = Observable
+      .fromEvent(app, 'open-url', (e, url) => Object.assign(e, { url }));
+    events.exit$ = Observable
+      .fromEvent(app, 'quit', (e, exitCode) => Object.assign(e, { exitCode }));
     Object.keys(eventShortcuts).forEach(key => {
       events[key] = events(eventShortcuts[key]);
     });

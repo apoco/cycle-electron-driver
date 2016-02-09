@@ -38,11 +38,11 @@ describe('MainDriver', () => {
   });
 
   const eventShortcuts = {
-    allWindowsClosed$: 'window-all-closed',
-    beforeQuit$: 'before-quit',
+    allWindowsClose$: 'window-all-closed',
+    beforeAllWindowClose$: 'before-quit',
     ready$: 'ready',
     willFinishLaunching$: 'will-finish-launching',
-    willQuit$: 'will-quit'
+    beforeExit$: 'will-quit'
   };
 
   Object.keys(eventShortcuts).forEach(key => {
@@ -68,16 +68,15 @@ describe('MainDriver', () => {
     });
   });
 
-  describe('events.quit$ source', () => {
-    it('contains the quit event merged with the exit code', done => {
-      const { events: { quit$ } } = driver();
-      quit$.first().forEach(verify);
+  describe('events.activation$ source', () => {
+    it('contains activate events with a hasVisibleWindows property', done => {
+      const { events: { activation$ } } = driver();
+      activation$.first().forEach(verify);
 
-      app.emit('quit', { name: 'quit' }, -3289);
+      app.emit('activate', { }, true);
 
       function verify(e) {
-        expect(e).to.have.property('name', 'quit');
-        expect(e).to.have.property('exitCode', -3289);
+        expect(e).to.have.property('hasVisibleWindows', true);
         done();
       }
     });
@@ -106,6 +105,21 @@ describe('MainDriver', () => {
 
       function verify(e) {
         expect(e).to.have.property('url', 'http://somedomain.com/');
+        done();
+      }
+    });
+  });
+
+  describe('events.exit$ source', () => {
+    it('contains the quit event merged with the exit code', done => {
+      const { events: { exit$ } } = driver();
+      exit$.first().forEach(verify);
+
+      app.emit('quit', { name: 'quit' }, -3289);
+
+      function verify(e) {
+        expect(e).to.have.property('name', 'quit');
+        expect(e).to.have.property('exitCode', -3289);
         done();
       }
     });
