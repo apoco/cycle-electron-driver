@@ -110,6 +110,29 @@ describe('MainDriver', () => {
     });
   });
 
+  describe('events.certError$ source', () => {
+    it('contains certificate-error events containing additional details', done => {
+      const { events: { certError$ } } = driver();
+      certError$.first().forEach(verify);
+
+      const webContents = {};
+      const url = 'https://somedomain.com/';
+      const error = new Error();
+      const certificate = { data: 'PEM data', issuerName: 'issuer' };
+      const callback = trust => { };
+
+      app.emit('certificate-error', { }, webContents, url, error, certificate, callback);
+
+      function verify(e) {
+        expect(e).to.have.property('url', url);
+        expect(e).to.have.property('error', error);
+        expect(e).to.have.property('certificate', certificate);
+        expect(e).to.not.have.property('callback');
+        done();
+      }
+    });
+  });
+
   describe('events.windowOpen$ source', () => {
     it('contains browser-window-created events with a window property', done => {
       const window = {};

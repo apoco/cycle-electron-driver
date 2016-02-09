@@ -102,6 +102,16 @@ These events are raised when a window, identified by the `window` property, lose
 See the [`browser-window-blur`](http://electron.atom.io/docs/v0.36.5/api/app/#event-browser-window-blur) event 
 documentation for more information.
 
+##### events.certError$
+
+These events are raised when the certificate for a URL is not trusted. To override trust failure, first inspect the 
+`webContents`, `url`, `error` string, `certificate.data` PEM buffer, and `certificate.issuerName` properties attached
+to the event. If you want to trust the cert, pipe the event into the `trustedCert$` sink.
+
+
+See the [`certificate-error`](http://electron.atom.io/docs/v0.36.5/api/app/#event-certificate-error) event 
+documentation for more information.
+
 ##### events.beforeAllWindowClose$
 
 These are raised before the application starts closing its windows in response to an exit. To prevent an exit occurring,
@@ -178,14 +188,14 @@ function main({ electron }) {
 
 ##### trustedCert$
 
-This should be a filtering of `certificate-error` events that should be overridden as trusted.
+This should be a filtering of the `events.certError$` events that should be overridden as trusted.
 
 ```js
 function main({ electron }) {
   return {
     electron: {
-      trustedCert$: electron
-        .events('certificate-error')
+      trustedCert$: electron.events
+        .certError$
         .filter(e => e.certificate.issuerName === 'example.com')
     }
   };
