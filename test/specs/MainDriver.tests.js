@@ -110,6 +110,21 @@ describe('MainDriver', () => {
     });
   });
 
+  describe('events.windowOpen$ source', () => {
+    it('contains browser-window-created events with a window property', done => {
+      const window = {};
+      const { events: { windowOpen$ } } = driver();
+      windowOpen$.first().forEach(verify);
+
+      app.emit('browser-window-created', { }, window);
+
+      function verify(e) {
+        expect(e).to.have.property('window', window);
+        done();
+      }
+    });
+  });
+
   describe('events.windowFocus$ source', () => {
     it('contains browser-window-focus events with a window property', done => {
       const window = {};

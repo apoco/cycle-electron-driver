@@ -31,6 +31,8 @@ export default function AppDriver(app) {
       .fromEvent(app, 'open-file', (e, path) => Object.assign(e, { path }));
     events.urlOpen$ = Observable
       .fromEvent(app, 'open-url', (e, url) => Object.assign(e, { url }));
+    events.windowOpen$ = Observable
+      .fromEvent(app, 'browser-window-created', (e, window) => Object.assign(e, { window }));
     events.windowFocus$ = Observable
       .fromEvent(app, 'browser-window-focus', (e, window) => Object.assign(e, { window }));
     events.windowBlur$ = Observable
