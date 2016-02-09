@@ -5,6 +5,9 @@ npm-debug.log*
 node_modules
 .npm
 
+# Test artifacts
+coverage
+
 # Build artifacts
 lib
 

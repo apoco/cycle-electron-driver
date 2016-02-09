@@ -58,6 +58,10 @@ This is equivalent to `events('window-all-closed')`.
 
 This is equivalent to `events('before-quit')`.
 
+##### events.willQuit$
+
+This is equivalent to `events('will-quit')`.
+
 
 #### Sinks
 

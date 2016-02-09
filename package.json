@@ -27,6 +27,7 @@
     "babel-preset-es2015": "^6.5.0",
     "babel-register": "^6.5.0",
     "chai": "^3.5.0",
+    "istanbul": "^1.0.0-alpha.2",
     "mocha": "^2.4.5",
     "rx": "^4.0.7",
     "sinon": "^1.17.3",
@@ -34,6 +35,7 @@
   },
   "scripts": {
     "test": "mocha --compilers js:babel-register --recursive ./test/specs",
+    "coverage": "istanbul cover _mocha -- --compilers js:babel-register --recursive ./test/specs",
     "build": "babel src -d lib",
     "prepublish": "npm run build"
   }

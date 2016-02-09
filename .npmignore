@@ -6,3 +6,4 @@ test
 .npmignore
 LICENSE
 README.md
+coverage

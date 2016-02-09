@@ -41,7 +41,8 @@ describe('MainDriver', () => {
     allWindowsClosed$: 'window-all-closed',
     beforeQuit$: 'before-quit',
     ready$: 'ready',
-    willFinishLaunching$: 'will-finish-launching'
+    willFinishLaunching$: 'will-finish-launching',
+    willQuit$: 'will-quit'
   };
 
   Object.keys(eventShortcuts).forEach(key => {
