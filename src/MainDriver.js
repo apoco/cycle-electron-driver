@@ -31,6 +31,8 @@ export default function AppDriver(app) {
       .fromEvent(app, 'open-file', (e, path) => Object.assign(e, { path }));
     events.urlOpen$ = Observable
       .fromEvent(app, 'open-url', (e, url) => Object.assign(e, { url }));
+    events.windowBlur$ = Observable
+      .fromEvent(app, 'browser-window-blur', (e, window) => Object.assign(e, { window }));
     events.exit$ = Observable
       .fromEvent(app, 'quit', (e, exitCode) => Object.assign(e, { exitCode }));
     Object.keys(eventShortcuts).forEach(key => {

@@ -110,6 +110,21 @@ describe('MainDriver', () => {
     });
   });
 
+  describe('events.windowBlur$ source', () => {
+    it('contains browser-window-blur events with a window property', done => {
+      const window = {};
+      const { events: { windowBlur$ } } = driver();
+      windowBlur$.first().forEach(verify);
+
+      app.emit('browser-window-blur', { }, window);
+
+      function verify(e) {
+        expect(e).to.have.property('window', window);
+        done();
+      }
+    });
+  });
+
   describe('events.exit$ source', () => {
     it('contains the quit event merged with the exit code', done => {
       const { events: { exit$ } } = driver();
