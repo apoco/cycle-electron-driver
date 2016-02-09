@@ -97,6 +97,20 @@ describe('MainDriver', () => {
     });
   });
 
+  describe('events.urlOpen$ source', () => {
+    it('contains open-url events with a url property', done => {
+      const { events: { urlOpen$ } } = driver();
+      urlOpen$.first().forEach(verify);
+
+      app.emit('open-url', { }, 'http://somedomain.com/');
+
+      function verify(e) {
+        expect(e).to.have.property('url', 'http://somedomain.com/');
+        done();
+      }
+    });
+  });
+
   describe('exit$ sink', () => {
     it('causes an exit with code 0 by default', () => {
       driver({ exit$: Observable.just({}) });

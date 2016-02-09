@@ -62,6 +62,10 @@ This is equivalent to `events('quit')`, except an additional `exitCode` is added
 
 This is equivalent to `events('ready')`.
 
+##### events.urlOpen$
+
+This is equivalent to `events('open-url')`, with an additional `url` property added to the event object.
+
 ##### events.willFinishLaunching$
 
 This is equivalent to `events('will-finish-launching')`.
