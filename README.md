@@ -84,6 +84,12 @@ pipe these to the `preventedEvent$` sink if you are overriding the default behav
 See the [`open-url`](http://electron.atom.io/docs/v0.36.5/api/app/#event-open-url) event documentation
 for more information.
 
+##### events.windowFocus$
+
+These events are raised when a window, identified by the `window` property, receives focus. 
+See the [`browser-window-focus`](http://electron.atom.io/docs/v0.36.5/api/app/#event-browser-window-focus) event 
+documentation for more information.
+
 ##### events.windowBlur$
 
 These events are raised when a window, identified by the `window` property, loses focus. 

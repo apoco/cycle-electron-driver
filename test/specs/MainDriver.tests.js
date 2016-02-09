@@ -110,6 +110,21 @@ describe('MainDriver', () => {
     });
   });
 
+  describe('events.windowFocus$ source', () => {
+    it('contains browser-window-focus events with a window property', done => {
+      const window = {};
+      const { events: { windowFocus$ } } = driver();
+      windowFocus$.first().forEach(verify);
+
+      app.emit('browser-window-focus', { }, window);
+
+      function verify(e) {
+        expect(e).to.have.property('window', window);
+        done();
+      }
+    });
+  });
+
   describe('events.windowBlur$ source', () => {
     it('contains browser-window-blur events with a window property', done => {
       const window = {};
