@@ -12,32 +12,38 @@ export default function AppDriver(app) {
       subscriptions = setupSinkSubscriptions(app, state);
     });
 
-    const paths = {
-      get app$() { return Observable.just(app.getAppPath()); }
-    };
-
-    pathNames.forEach(prop => {
-      const observableName = `${prop}$`;
-      Object.defineProperty(paths, observableName, {
-        get() {
-          const pathUpdates = state$
-            .flatMapLatest(state => {
-              return (state && state.pathUpdates && state.pathUpdates[observableName]) || Observable.empty()
-            });
-          return Observable.just(app.getPath(prop)).merge(pathUpdates);
-        }
-      });
-    });
-
     return {
       appInfo: {
         get name() { return app.getName() },
-        get version() { return app.getVersion() }
+        get version() { return app.getVersion() },
+        get locale() { return app.getLocale() }
       },
-      paths,
+      paths: setupPathSources(app, state$),
       events: setupEventSources(app)
     }
   };
+}
+
+function setupPathSources(app, state$) {
+  const paths = {
+    get app$() {
+      return Observable.just(app.getAppPath());
+    }
+  };
+
+  pathNames.forEach(prop => {
+    const observableName = `${prop}$`;
+    Object.defineProperty(paths, observableName, {
+      get() {
+        const pathUpdates = state$
+          .flatMapLatest(state => {
+            return (state && state.pathUpdates && state.pathUpdates[observableName]) || Observable.empty()
+          });
+        return Observable.just(app.getPath(prop)).merge(pathUpdates);
+      }
+    });
+  });
+  return paths;
 }
 
 const eventShortcuts = {

@@ -35,6 +35,7 @@ The appInfo object provides the following metadata about the electron app:
 
 * `name`
 * `version`
+* `locale`
 
 ##### events
 

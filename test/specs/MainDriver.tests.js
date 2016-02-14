@@ -20,6 +20,7 @@ describe('MainDriver', () => {
     app = new EventEmitter();
     app.getName = stub();
     app.getVersion = stub();
+    app.getLocale = stub();
     app.getAppPath = stub();
     app.getPath = stub();
     app.setPath = stub();
@@ -65,6 +66,26 @@ describe('MainDriver', () => {
 
           function verify(value) {
             expect(value).to.equal('5.2.4');
+            done();
+          }
+        });
+      });
+
+      describe('locale property', () => {
+        it('calls the getLocale method of the electron app', done => {
+          app.getLocale.returns('fr-CA');
+
+          Cycle.run(({ electron }) => {
+            return {
+              output: Observable.just(electron.appInfo.locale)
+            };
+          }, {
+            electron: driver,
+            output: value$ => value$.first().forEach(verify)
+          });
+
+          function verify(value) {
+            expect(value).to.equal('fr-CA');
             done();
           }
         });
