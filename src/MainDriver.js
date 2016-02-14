@@ -5,34 +5,9 @@ export default function AppDriver(app) {
 
     let subscriptions = [];
 
-    state$.forEach(({ exit$, preventedEvent$, trustedCert$ }) => {
-      subscriptions.forEach(s => s.dispose());
-
-      subscriptions = [];
-
-      if (exit$) {
-        subscriptions.push(
-          exit$
-            .map(val => isNaN(val) ? 0 : val)
-            .forEach(code => app.exit(code))
-        );
-      }
-
-      if (preventedEvent$) {
-        subscriptions.push(
-          preventedEvent$.forEach(e => e.preventDefault())
-        );
-      }
-
-      if (trustedCert$) {
-        subscriptions.push(
-          trustedCert$
-            .forEach(e => {
-              e.preventDefault();
-              e.callback(true);
-            })
-        );
-      }
+    state$.forEach(state => {
+      subscriptions.filter(Boolean).forEach(s => s.dispose());
+      subscriptions = setupSinkSubscriptions(app, state);
     });
 
     return {
@@ -63,6 +38,10 @@ function setupEventSources(app) {
       .fromEvent(app, 'certificate-error', (e, webContents, url, error, certificate, callback) => {
         return Object.assign(e, { webContents, url, error, certificate, callback })
       }),
+    clientCertPrompt$: Observable
+      .fromEvent(app, 'select-client-certificate', (e, webContents, url, certificateList, callback) => {
+        return Object.assign(e, { webContents, url, certificateList, callback })
+      }),
     windowOpen$: Observable
       .fromEvent(app, 'browser-window-created', (e, window) => Object.assign(e, {window})),
     windowFocus$: Observable
@@ -78,4 +57,39 @@ function setupEventSources(app) {
   });
 
   return events;
+}
+
+function setupSinkSubscriptions(app, state) {
+  return []
+    .concat(setupExitSubscriptions(app, state.exit$))
+    .concat(setupPreventedEventSubscriptions(state.preventedEvent$))
+    .concat(setupTrustedCertSubscriptions(state.trustedCert$))
+    .concat(setupClientCertSelectionSubscriptions(state.clientCertSelection$));
+}
+
+function setupExitSubscriptions(app, exit$) {
+  return exit$ && exit$
+    .map(val => isNaN(val) ? 0 : val)
+    .forEach(code => app.exit(code));
+}
+
+function setupPreventedEventSubscriptions(preventedEvent$) {
+  return preventedEvent$ && preventedEvent$
+    .forEach(e => e.preventDefault());
+}
+
+function setupTrustedCertSubscriptions(trustedCert$) {
+  return trustedCert$ && trustedCert$
+    .forEach(e => {
+      e.preventDefault();
+      e.callback(true);
+    });
+}
+
+function setupClientCertSelectionSubscriptions(clientCertSelection$) {
+  return clientCertSelection$ && clientCertSelection$
+    .forEach(({ prompt, cert }) => {
+      prompt.preventDefault();
+      prompt.callback(cert);
+    });
 }

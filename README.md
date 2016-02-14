@@ -88,7 +88,7 @@ for more information.
 ##### events.windowOpen$
 
 These events are raised when a window, identified by the `window` property, has been created. 
-See the [`browser-window-create`](http://electron.atom.io/docs/v0.36.5/api/app/#event-browser-window-create) event 
+See the [`browser-window-created`](http://electron.atom.io/docs/v0.36.5/api/app/#event-browser-window-created) event 
 documentation for more information.
 
 ##### events.windowFocus$
@@ -103,12 +103,28 @@ These events are raised when a window, identified by the `window` property, lose
 See the [`browser-window-blur`](http://electron.atom.io/docs/v0.36.5/api/app/#event-browser-window-blur) event 
 documentation for more information.
 
+##### events.clientCertPrompt$
+
+These events are raised when a browser window is prompting for a client certificate selection. By default, electron will
+automatically select the first available client certificate. To override this behavior, you should inspect the
+`webContents` and/or `url`, choose a certificate object from `certificateList`, then pipe an object of this format into
+the `clientCertSelection$` property of the sink:
+
+```
+{
+  prompt: <event object>,
+  cert: <object from event.certificateList>
+}
+```
+
+See the [`select-client-certificate`](http://electron.atom.io/docs/v0.36.5/api/app/#event-select-client-certificate)
+event documentation for more information.
+
 ##### events.certError$
 
 These events are raised when the certificate for a URL is not trusted. To override trust failure, first inspect the 
 `webContents`, `url`, `error` string, `certificate.data` PEM buffer, and `certificate.issuerName` properties attached
 to the event. If you want to trust the cert, pipe the event into the `trustedCert$` sink.
-
 
 See the [`certificate-error`](http://electron.atom.io/docs/v0.36.5/api/app/#event-certificate-error) event 
 documentation for more information.
@@ -184,6 +200,18 @@ function main({ electron }) {
       preventedEvent$: electron.events('before-quit')
     })
   };
+}
+```
+
+##### clientCertSelection$
+
+If overriding client certificate selections, read from the `events.clientCertPrompt$` source, select a certificate from
+the `certificateList` property of those events, then emit an object of the format:
+
+```
+{
+  prompt: <source event object>,
+  cert: <object from certificateList property>
 }
 ```
 

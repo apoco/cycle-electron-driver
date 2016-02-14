@@ -131,6 +131,34 @@ describe('MainDriver', () => {
     });
   });
 
+  describe('events.clientCertPrompt$ source', () => {
+    it('contains select-client-certificate events with additional details', done => {
+      Cycle.run(({ electron }) => {
+        return {
+          output: electron.events.clientCertPrompt$
+        }
+      }, {
+        electron: driver,
+        output: event$ => event$.first().forEach(verify)
+      });
+
+      const webContents = {};
+      const url = 'https://somedomain.com/';
+      const certificateList = [
+        { data: 'PEM data', issuerName: 'issuer' },
+        { data: 'PEM data 2', issuerName: 'issuer2' }
+      ];
+      const callback = trust => { };
+      setTimeout(() => app.emit('select-client-certificate', { }, webContents, url, certificateList, callback), 1);
+
+      function verify(e) {
+        expect(e).to.have.property('url', url);
+        expect(e).to.have.property('certificateList', certificateList);
+        done();
+      }
+    });
+  });
+
   describe('events.certError$ source', () => {
     it('contains certificate-error events containing additional details', done => {
       Cycle.run(({ electron }) => {
@@ -294,6 +322,35 @@ describe('MainDriver', () => {
       setTimeout(() => {
         app.emit('open-file', event);
         expect(event.preventDefault).to.have.been.called;
+        done();
+      }, 1);
+    });
+  });
+
+  describe('clientCertSelection$ sink', () => {
+    it('prevents the default cert selection behavior and uses a custom certificate selection', done => {
+      Cycle.run(({ electron }) => {
+        return {
+          electron: Observable.just({
+            clientCertSelection$: electron.events.clientCertPrompt$
+              .map(e => ({ prompt: e, cert: e.certificateList[1] }))
+          })
+        }
+      }, {
+        electron: driver
+      });
+
+      const event1 = {
+        event: { preventDefault: spy() },
+        certs: [{ }, { }],
+        callback: spy()
+      };
+
+      setTimeout(() => {
+        app.emit('select-client-certificate', event1.event, {}, '', event1.certs, event1.callback);
+        expect(event1.event.preventDefault).to.have.been.called;
+        expect(event1.callback).to.have.been.calledWith(event1.certs[1]);
+
         done();
       }, 1);
     });
