@@ -11,7 +11,10 @@ export default function AppDriver(app) {
     });
 
     return {
-      getAppPath: app.getAppPath.bind(app),
+      paths: {
+        get app() { return app.getAppPath() },
+        get home() { return app.getPath('home') }
+      },
       events: setupEventSources(app)
     }
   };

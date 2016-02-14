@@ -14,6 +14,7 @@ describe('MainDriver', () => {
   beforeEach(() => {
     app = new EventEmitter();
     app.getAppPath = stub();
+    app.getPath = stub();
     app.exit = spy();
     app.quit = spy();
     driver = new MainDriver(app);
@@ -322,23 +323,45 @@ describe('MainDriver', () => {
       });
     });
 
-    describe('getAppPath method', () => {
-      it('calls the getAppPath app method', done => {
-        app.getAppPath.returns('/some/path');
+    describe('path', () => {
+      describe('.app property', () => {
+        it('calls the getAppPath app method', done => {
+          app.getAppPath.returns('/some/path');
 
-        Cycle.run(({ electron }) => {
-          return {
-            output: Observable.just(electron.getAppPath())
+          Cycle.run(({ electron }) => {
+            return {
+              output: Observable.just(electron.paths.app)
+            }
+          }, {
+            electron: driver,
+            output: path$ => path$.first().forEach(verify)
+          });
+
+          function verify(path) {
+            expect(path).to.equal('/some/path');
+            done();
           }
-        }, {
-          electron: driver,
-          output: path$ => path$.first().forEach(verify)
         });
+      });
 
-        function verify(path) {
-          expect(path).to.equal('/some/path');
-          done();
-        }
+      describe('.home property', () => {
+        it('calls the getPath app method with a "home" parameter', done => {
+          app.getPath.withArgs('home').returns('/some/path');
+
+          Cycle.run(({ electron }) => {
+            return {
+              output: Observable.just(electron.paths.home)
+            }
+          }, {
+            electron: driver,
+            output: path$ => path$.first().forEach(verify)
+          });
+
+          function verify(path) {
+            expect(path).to.equal('/some/path');
+            done();
+          }
+        });
       });
     });
   });

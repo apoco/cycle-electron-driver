@@ -204,10 +204,12 @@ These events are raised when the electron app has exited. It has an `exitCode` p
 See the [`quit`](http://electron.atom.io/docs/v0.36.5/api/app/#event-quit) event documentation
 for more information.
 
-#### getAppPath()
+#### paths
 
-The `getAppPath()` method returns the current application directory.
+The `paths` property is an object giving the various file paths used by the electron app:
 
+* `app`   - The current application directory
+* `home`  - The user's home directory
 
 #### Sinks
 
