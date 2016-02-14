@@ -344,23 +344,25 @@ describe('MainDriver', () => {
         });
       });
 
-      describe('.home property', () => {
-        it('calls the getPath app method with a "home" parameter', done => {
-          app.getPath.withArgs('home').returns('/some/path');
+      ['home', 'appData'].forEach(key => {
+        describe(`.${key} property`, () => {
+          it(`calls the getPath app method with a "${key}" parameter`, done => {
+            app.getPath.withArgs(key).returns('/some/path');
 
-          Cycle.run(({ electron }) => {
-            return {
-              output: Observable.just(electron.paths.home)
+            Cycle.run(({ electron }) => {
+              return {
+                output: Observable.just(electron.paths[key])
+              }
+            }, {
+              electron: driver,
+              output: path$ => path$.first().forEach(verify)
+            });
+
+            function verify(path) {
+              expect(path).to.equal('/some/path');
+              done();
             }
-          }, {
-            electron: driver,
-            output: path$ => path$.first().forEach(verify)
           });
-
-          function verify(path) {
-            expect(path).to.equal('/some/path');
-            done();
-          }
         });
       });
     });

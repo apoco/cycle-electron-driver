@@ -10,11 +10,18 @@ export default function AppDriver(app) {
       subscriptions = setupSinkSubscriptions(app, state);
     });
 
+    const paths = {
+      get app() { return app.getAppPath() }
+    };
+
+    ['home', 'appData'].forEach(prop => {
+      Object.defineProperty(paths, prop, {
+        get() { return app.getPath(prop) }
+      })
+    });
+
     return {
-      paths: {
-        get app() { return app.getAppPath() },
-        get home() { return app.getPath('home') }
-      },
+      paths,
       events: setupEventSources(app)
     }
   };

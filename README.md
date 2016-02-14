@@ -208,8 +208,9 @@ for more information.
 
 The `paths` property is an object giving the various file paths used by the electron app:
 
-* `app`   - The current application directory
-* `home`  - The user's home directory
+* `app`     - The current application directory
+* `home`    - The user's home directory
+* `appData` - The directory for application data
 
 #### Sinks
 
