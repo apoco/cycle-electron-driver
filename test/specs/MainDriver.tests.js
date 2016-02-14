@@ -8,6 +8,11 @@ import Cycle from '@cycle/core';
 import { Observable } from 'rx';
 import EventEmitter from 'events';
 
+const pathNames = [
+  'appData', 'desktop', 'documents', 'downloads', 'exe',
+  'home', 'module', 'music', 'pictures', 'temp', 'userData', 'videos'
+];
+
 describe('MainDriver', () => {
   let app = null, driver = null;
 
@@ -15,6 +20,7 @@ describe('MainDriver', () => {
     app = new EventEmitter();
     app.getAppPath = stub();
     app.getPath = stub();
+    app.setPath = stub();
     app.exit = spy();
     app.quit = spy();
     driver = new MainDriver(app);
@@ -324,13 +330,13 @@ describe('MainDriver', () => {
     });
 
     describe('path', () => {
-      describe('.app property', () => {
+      describe('.app$ property', () => {
         it('calls the getAppPath app method', done => {
           app.getAppPath.returns('/some/path');
 
           Cycle.run(({ electron }) => {
             return {
-              output: Observable.just(electron.paths.app)
+              output: electron.paths.app$
             }
           }, {
             electron: driver,
@@ -344,17 +350,14 @@ describe('MainDriver', () => {
         });
       });
 
-      [
-        'appData', 'desktop', 'documents', 'downloads', 'exe',
-        'home', 'module', 'music', 'pictures', 'temp', 'userData', 'videos'
-      ].forEach(key => {
-        describe(`.${key} property`, () => {
+      pathNames.forEach(key => {
+        describe(`.${key}$ property`, () => {
           it(`calls the getPath app method with a "${key}" parameter`, done => {
             app.getPath.withArgs(key).returns('/some/path');
 
             Cycle.run(({ electron }) => {
               return {
-                output: Observable.just(electron.paths[key])
+                output: electron.paths[`${key}$`]
               }
             }, {
               electron: driver,
@@ -371,170 +374,203 @@ describe('MainDriver', () => {
     });
   });
 
-  describe('quit$ sink', () => {
-    it('causes the electron app to quit', done => {
-      Cycle.run(() => {
-        return {
-          electron: Observable.just({
-            quit$: Observable.just({})
-          })
-        }
-      }, {
-        electron: driver
+  describe('sink', () => {
+    describe('quit$', () => {
+      it('causes the electron app to quit', done => {
+        Cycle.run(() => {
+          return {
+            electron: Observable.just({
+              quit$: Observable.just({})
+            })
+          }
+        }, {
+          electron: driver
+        });
+
+        setTimeout(() => {
+          expect(app.quit).to.have.been.called;
+          done();
+        }, 1);
       });
-
-      setTimeout(() => {
-        expect(app.quit).to.have.been.called;
-        done();
-      }, 1);
-    });
-  });
-
-  describe('exit$ sink', () => {
-    it('causes an exit with code 0 by default', done => {
-      Cycle.run(() => {
-        return {
-          electron: Observable.just({
-            exit$: Observable.just({})
-          })
-        }
-      }, {
-        electron: driver
-      });
-
-      setTimeout(() => {
-        expect(app.exit).to.have.been.calledWith(0);
-        done();
-      }, 1);
     });
 
-    it('exits with a numeric exit code when a value is sent', done => {
-      Cycle.run(() => {
-        return {
-          electron: Observable.just({
-            exit$: Observable.just(-23)
-          })
-        }
-      }, {
-        electron: driver
+    describe('exit$', () => {
+      it('causes an exit with code 0 by default', done => {
+        Cycle.run(() => {
+          return {
+            electron: Observable.just({
+              exit$: Observable.just({})
+            })
+          }
+        }, {
+          electron: driver
+        });
+
+        setTimeout(() => {
+          expect(app.exit).to.have.been.calledWith(0);
+          done();
+        }, 1);
       });
 
-      setTimeout(() => {
-        expect(app.exit).to.have.been.calledWith(-23);
-        done();
-      }, 1);
+      it('exits with a numeric exit code when a value is sent', done => {
+        Cycle.run(() => {
+          return {
+            electron: Observable.just({
+              exit$: Observable.just(-23)
+            })
+          }
+        }, {
+          electron: driver
+        });
+
+        setTimeout(() => {
+          expect(app.exit).to.have.been.calledWith(-23);
+          done();
+        }, 1);
+      });
     });
-  });
 
-  describe('preventedEvent$ sink', () => {
-    it('causes `preventDefault` to be called on each event', done => {
-      Cycle.run(({ electron }) => {
-        return {
-          electron: Observable.just({
-            preventedEvent$: electron.events.fileOpen$
-          })
-        }
-      }, {
-        electron: driver
+    describe('preventedEvent$', () => {
+      it('causes `preventDefault` to be called on each event', done => {
+        Cycle.run(({ electron }) => {
+          return {
+            electron: Observable.just({
+              preventedEvent$: electron.events.fileOpen$
+            })
+          }
+        }, {
+          electron: driver
+        });
+
+        const event = { preventDefault: spy() };
+        setTimeout(() => {
+          app.emit('open-file', event);
+          expect(event.preventDefault).to.have.been.called;
+          done();
+        }, 1);
       });
-
-      const event = { preventDefault: spy() };
-      setTimeout(() => {
-        app.emit('open-file', event);
-        expect(event.preventDefault).to.have.been.called;
-        done();
-      }, 1);
     });
-  });
 
-  describe('clientCertSelection$ sink', () => {
-    it('prevents the default cert selection behavior and uses a custom certificate selection', done => {
-      Cycle.run(({ electron }) => {
-        return {
-          electron: Observable.just({
-            clientCertSelection$: electron.events.clientCertPrompt$
-              .map(e => ({ prompt: e, cert: e.certificateList[1] }))
-          })
-        }
-      }, {
-        electron: driver
+    describe('clientCertSelection$', () => {
+      it('prevents the default cert selection behavior and uses a custom certificate selection', done => {
+        Cycle.run(({ electron }) => {
+          return {
+            electron: Observable.just({
+              clientCertSelection$: electron.events.clientCertPrompt$
+                .map(e => ({ prompt: e, cert: e.certificateList[1] }))
+            })
+          }
+        }, {
+          electron: driver
+        });
+
+        const event1 = {
+          event: { preventDefault: spy() },
+          certs: [{ }, { }],
+          callback: spy()
+        };
+
+        setTimeout(() => {
+          app.emit('select-client-certificate', event1.event, {}, '', event1.certs, event1.callback);
+          expect(event1.event.preventDefault).to.have.been.called;
+          expect(event1.callback).to.have.been.calledWith(event1.certs[1]);
+
+          done();
+        }, 1);
       });
-
-      const event1 = {
-        event: { preventDefault: spy() },
-        certs: [{ }, { }],
-        callback: spy()
-      };
-
-      setTimeout(() => {
-        app.emit('select-client-certificate', event1.event, {}, '', event1.certs, event1.callback);
-        expect(event1.event.preventDefault).to.have.been.called;
-        expect(event1.callback).to.have.been.calledWith(event1.certs[1]);
-
-        done();
-      }, 1);
     });
-  });
 
-  describe('trustedCert$ sink', () => {
-    it('prevents the default behavior of an untrusted cert and trusts it instead', done => {
-      Cycle.run(({ electron }) => {
-        return {
-          electron: Observable.just({
-            trustedCert$: electron.events.certError$.filter(e => e.certificate.issuerName === 'trusted.issuer.com')
-          })
-        }
-      }, {
-        electron: driver
+    describe('trustedCert$', () => {
+      it('prevents the default behavior of an untrusted cert and trusts it instead', done => {
+        Cycle.run(({ electron }) => {
+          return {
+            electron: Observable.just({
+              trustedCert$: electron.events.certError$.filter(e => e.certificate.issuerName === 'trusted.issuer.com')
+            })
+          }
+        }, {
+          electron: driver
+        });
+
+        const event1 = {
+          event: { preventDefault: spy() },
+          cert: { issuerName: 'trusted.issuer.com' },
+          callback: spy()
+        };
+        const event2 = {
+          event: { preventDefault: spy() },
+          cert: { issuerName: 'other.issuer.com' },
+          callback: spy()
+        };
+
+        setTimeout(() => {
+          app.emit('certificate-error', event1.event, {}, '', {}, event1.cert, event1.callback);
+          expect(event1.event.preventDefault).to.have.been.called;
+          expect(event1.callback).to.have.been.calledWith(true);
+
+          app.emit('certificate-error', event2.event, {}, '', {}, event2.cert, event2.callback);
+          expect(event2.event.preventDefault).to.have.not.been.called;
+          expect(event2.callback).to.have.not.been.called;
+
+          done();
+        }, 1);
       });
-
-      const event1 = {
-        event: { preventDefault: spy() },
-        cert: { issuerName: 'trusted.issuer.com' },
-        callback: spy()
-      };
-      const event2 = {
-        event: { preventDefault: spy() },
-        cert: { issuerName: 'other.issuer.com' },
-        callback: spy()
-      };
-
-      setTimeout(() => {
-        app.emit('certificate-error', event1.event, {}, '', {}, event1.cert, event1.callback);
-        expect(event1.event.preventDefault).to.have.been.called;
-        expect(event1.callback).to.have.been.calledWith(true);
-
-        app.emit('certificate-error', event2.event, {}, '', {}, event2.cert, event2.callback);
-        expect(event2.event.preventDefault).to.have.not.been.called;
-        expect(event2.callback).to.have.not.been.called;
-
-        done();
-      }, 1);
     });
-  });
 
-  describe('login$ sink', () => {
-    it('prevents the default behavior and sends the username & password', done => {
-      Cycle.run(({ electron }) => {
-        return {
-          electron: Observable.just({
-            login$: electron.events.loginPrompt$.map(e => ({ prompt: e, username: 'foo', password: 'bar' }))
-          })
-        }
-      }, {
-        electron: driver
+    describe('login$', () => {
+      it('prevents the default behavior and sends the username & password', done => {
+        Cycle.run(({ electron }) => {
+          return {
+            electron: Observable.just({
+              login$: electron.events.loginPrompt$.map(e => ({ prompt: e, username: 'foo', password: 'bar' }))
+            })
+          }
+        }, {
+          electron: driver
+        });
+
+        const event = { preventDefault: spy() };
+        const callback = spy();
+
+        setTimeout(() => {
+          app.emit('login', event, {}, {}, {}, callback);
+          expect(event.preventDefault).to.have.been.called;
+          expect(callback).to.have.been.calledWith('foo', 'bar');
+
+          done();
+        }, 1);
       });
+    });
 
-      const event = { preventDefault: spy() };
-      const callback = spy();
+    describe('pathUpdates', () => {
+      pathNames.forEach(key => {
+        const prop = `${key}$`;
+        describe(prop, () => {
+          it(`updates the ${key} electron path`, done => {
+            app.getPath.withArgs(key).returns('/old/value');
 
-      setTimeout(() => {
-        app.emit('login', event, {}, {}, {}, callback);
-        expect(event.preventDefault).to.have.been.called;
-        expect(callback).to.have.been.calledWith('foo', 'bar');
+            Cycle.run(({ electron }) => {
+              return {
+                electron: Observable.just({
+                  pathUpdates: {
+                    [prop]: Observable.just('/new/value')
+                  }
+                }),
+                output: electron.paths[prop]
+              }
+            }, {
+              electron: driver,
+              output: $values => $values.skip(1).first().forEach(assert)
+            });
 
-        done();
-      }, 1);
+            function assert(value) {
+              expect(value).to.equal('/new/value');
+              expect(app.setPath).to.have.been.calledWith(key, value);
+              done();
+            }
+          });
+        });
+      });
     });
   });
 });

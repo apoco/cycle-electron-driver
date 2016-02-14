@@ -1,5 +1,7 @@
 import { Observable } from 'rx';
 
+import pathNames from './pathNames';
+
 export default function AppDriver(app) {
   return state$ => {
 
@@ -11,14 +13,20 @@ export default function AppDriver(app) {
     });
 
     const paths = {
-      get app() { return app.getAppPath() }
+      get app$() { return Observable.just(app.getAppPath()); }
     };
 
-    [
-      'appData', 'desktop', 'documents', 'downloads', 'exe',
-      'home', 'module', 'music', 'pictures', 'temp', 'userData', 'videos'
-    ].forEach(prop => {
-      Object.defineProperty(paths, prop, { get() { return app.getPath(prop) } });
+    pathNames.forEach(prop => {
+      const observableName = `${prop}$`;
+      Object.defineProperty(paths, observableName, {
+        get() {
+          const pathUpdates = state$
+            .flatMapLatest(state => {
+              return (state && state.pathUpdates && state.pathUpdates[observableName]) || Observable.empty()
+            });
+          return Observable.just(app.getPath(prop)).merge(pathUpdates);
+        }
+      });
     });
 
     return {
@@ -83,7 +91,8 @@ function setupSinkSubscriptions(app, state) {
     .concat(setupPreventedEventSubscriptions(state.preventedEvent$))
     .concat(setupTrustedCertSubscriptions(state.trustedCert$))
     .concat(setupClientCertSelectionSubscriptions(state.clientCertSelection$))
-    .concat(setupLoginSubscriptions(state.login$));
+    .concat(setupLoginSubscriptions(state.login$))
+    .concat(setupPathUpdateSubscriptions(app, state.pathUpdates));
 }
 
 function setupQuitSubscriptions(app, quit$) {
@@ -121,5 +130,16 @@ function setupLoginSubscriptions(login$) {
   return login$ && login$.forEach(({ prompt, username, password }) => {
     prompt.preventDefault();
     prompt.callback(username, password);
+  });
+}
+
+function setupPathUpdateSubscriptions(app, pathUpdates) {
+  if (!pathUpdates) {
+    return null;
+  }
+
+  return pathNames.map(name => {
+    const prop = `${name}$`;
+    return pathUpdates[prop] && pathUpdates[prop].forEach(value => app.setPath(name, value));
   });
 }
