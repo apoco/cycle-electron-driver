@@ -18,6 +18,7 @@ describe('MainDriver', () => {
 
   beforeEach(() => {
     app = new EventEmitter();
+    app.getName = stub();
     app.getVersion = stub();
     app.getAppPath = stub();
     app.getPath = stub();
@@ -28,23 +29,45 @@ describe('MainDriver', () => {
   });
 
   describe('source', () => {
-    describe('version property', () => {
-      it('calls the getVersion method of the electron app', done => {
-        app.getVersion.returns('5.2.4');
+    describe('appInfo', () => {
+      describe('name property', () => {
+        it('calls the getName method of the electron app', done => {
+          app.getName.returns('The app name');
 
-        Cycle.run(({ electron }) => {
-          return {
-            output: Observable.just(electron.version)
-          };
-        }, {
-          electron: driver,
-          output: value$ => value$.first().forEach(verify)
+          Cycle.run(({ electron }) => {
+            return {
+              output: Observable.just(electron.appInfo.name)
+            };
+          }, {
+            electron: driver,
+            output: value$ => value$.first().forEach(verify)
+          });
+
+          function verify(value) {
+            expect(value).to.equal('The app name');
+            done();
+          }
         });
+      });
 
-        function verify(value) {
-          expect(value).to.equal('5.2.4');
-          done();
-        }
+      describe('version property', () => {
+        it('calls the getVersion method of the electron app', done => {
+          app.getVersion.returns('5.2.4');
+
+          Cycle.run(({ electron }) => {
+            return {
+              output: Observable.just(electron.appInfo.version)
+            };
+          }, {
+            electron: driver,
+            output: value$ => value$.first().forEach(verify)
+          });
+
+          function verify(value) {
+            expect(value).to.equal('5.2.4');
+            done();
+          }
+        });
       });
     });
 

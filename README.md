@@ -29,9 +29,12 @@ Cycle.run(main, {
 
 #### Sources
 
-##### version
+##### appInfo
 
-The `version` property provides the version of the app.
+The appInfo object provides the following metadata about the electron app:
+
+* `name`
+* `version`
 
 ##### events
 
