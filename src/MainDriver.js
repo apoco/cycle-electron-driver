@@ -11,6 +11,7 @@ export default function AppDriver(app) {
     });
 
     return {
+      getAppPath: app.getAppPath.bind(app),
       events: setupEventSources(app)
     }
   };
