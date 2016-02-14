@@ -14,10 +14,11 @@ export default function AppDriver(app) {
       get app() { return app.getAppPath() }
     };
 
-    ['home', 'appData'].forEach(prop => {
-      Object.defineProperty(paths, prop, {
-        get() { return app.getPath(prop) }
-      })
+    [
+      'appData', 'desktop', 'documents', 'downloads', 'exe',
+      'home', 'module', 'music', 'pictures', 'temp', 'userData', 'videos'
+    ].forEach(prop => {
+      Object.defineProperty(paths, prop, { get() { return app.getPath(prop) } });
     });
 
     return {

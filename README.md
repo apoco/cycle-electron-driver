@@ -208,9 +208,19 @@ for more information.
 
 The `paths` property is an object giving the various file paths used by the electron app:
 
-* `app`     - The current application directory
-* `home`    - The user's home directory
-* `appData` - The directory for application data
+* `app`       - The current application directory
+* `appData`   - The directory for application data
+* `desktop`   - The directory for the user's desktop files
+* `documents` - The directory for the user's documents
+* `downloads` - The directory for the user's downloaded files
+* `exe`       - The path to the application executable
+* `home`      - The user's home directory
+* `module`    - The path to the `libchromiumcontent` library
+* `music`     - The directory for the user's music files
+* `pictures`  - The directory for the user's image files
+* `temp`      - The directory for storing temporary data
+* `userData`  - The directory for storing user-specific application data
+* `videos`    - The directory for the user's video files
 
 #### Sinks
 

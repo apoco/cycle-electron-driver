@@ -344,7 +344,10 @@ describe('MainDriver', () => {
         });
       });
 
-      ['home', 'appData'].forEach(key => {
+      [
+        'appData', 'desktop', 'documents', 'downloads', 'exe',
+        'home', 'module', 'music', 'pictures', 'temp', 'userData', 'videos'
+      ].forEach(key => {
         describe(`.${key} property`, () => {
           it(`calls the getPath app method with a "${key}" parameter`, done => {
             app.getPath.withArgs(key).returns('/some/path');
