@@ -3,6 +3,8 @@ import MainDriver from '../../src/MainDriver';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 
+import Promise from 'bluebird';
+import Cycle from '@cycle/core';
 import { Observable } from 'rx';
 import EventEmitter from 'events';
 
@@ -16,19 +18,18 @@ describe('MainDriver', () => {
   });
 
   describe('events source', () => {
-    let sources = null;
-
-    beforeEach(() => {
-      sources = driver();
-    });
-
     it('listens to the specified event', done => {
-      const emittedEvent = {};
-      sources
-        .events('ready')
-        .forEach(verify);
+      Cycle.run(({ electron }) => {
+        return {
+          receivedEvent$: electron.events('ready')
+        }
+      }, {
+        electron: driver,
+        receivedEvent$: events$ => events$.first().forEach(verify)
+      });
 
-      app.emit('ready', emittedEvent);
+      const emittedEvent = {};
+      setTimeout(() => app.emit('ready', emittedEvent), 1);
 
       function verify(e) {
         expect(e).to.equal(emittedEvent);
@@ -48,17 +49,19 @@ describe('MainDriver', () => {
   Object.keys(eventShortcuts).forEach(key => {
     describe(`events.${key} source`, () => {
       const eventName = eventShortcuts[key];
-      let sources = null;
-
-      beforeEach(() => {
-        sources = driver();
-      });
 
       it(`emits when ${eventName} events are emitted`, done => {
-        const emittedEvent = {};
-        sources.events[key].forEach(verify);
+        Cycle.run(({ electron }) => {
+          return {
+            receivedEvent$: electron.events[key]
+          }
+        }, {
+          electron: driver,
+          receivedEvent$: events$ => events$.first().forEach(verify)
+        });
 
-        app.emit(eventName, emittedEvent);
+        const emittedEvent = {};
+        setTimeout(() => app.emit(eventName, emittedEvent), 1);
 
         function verify(e) {
           expect(e).to.equal(emittedEvent);
@@ -70,10 +73,16 @@ describe('MainDriver', () => {
 
   describe('events.activation$ source', () => {
     it('contains activate events with a hasVisibleWindows property', done => {
-      const { events: { activation$ } } = driver();
-      activation$.first().forEach(verify);
+      Cycle.run(({ electron }) => {
+        return {
+          verify: electron.events.activation$
+        }
+      }, {
+        electron: driver,
+        verify: events$ => events$.first().forEach(verify)
+      });
 
-      app.emit('activate', { }, true);
+      setTimeout(() => app.emit('activate', { }, true), 1);
 
       function verify(e) {
         expect(e).to.have.property('hasVisibleWindows', true);
@@ -84,10 +93,16 @@ describe('MainDriver', () => {
 
   describe('events.fileOpen$ source', () => {
     it('contains open-file events with a path property', done => {
-      const { events: { fileOpen$ } } = driver();
-      fileOpen$.first().forEach(verify);
+      Cycle.run(({ electron }) => {
+        return {
+          output: electron.events.fileOpen$
+        }
+      }, {
+        electron: driver,
+        output: event$ => event$.first().forEach(verify)
+      });
 
-      app.emit('open-file', { }, '/home/user/file.txt');
+      setTimeout(() => app.emit('open-file', { }, '/home/user/file.txt'), 1);
 
       function verify(e) {
         expect(e).to.have.property('path', '/home/user/file.txt');
@@ -98,10 +113,16 @@ describe('MainDriver', () => {
 
   describe('events.urlOpen$ source', () => {
     it('contains open-url events with a url property', done => {
-      const { events: { urlOpen$ } } = driver();
-      urlOpen$.first().forEach(verify);
+      Cycle.run(({ electron }) => {
+        return {
+          output: electron.events.urlOpen$
+        }
+      }, {
+        electron: driver,
+        output: event$ => event$.first().forEach(verify)
+      });
 
-      app.emit('open-url', { }, 'http://somedomain.com/');
+      setTimeout(() => app.emit('open-url', { }, 'http://somedomain.com/'), 1);
 
       function verify(e) {
         expect(e).to.have.property('url', 'http://somedomain.com/');
@@ -112,22 +133,26 @@ describe('MainDriver', () => {
 
   describe('events.certError$ source', () => {
     it('contains certificate-error events containing additional details', done => {
-      const { events: { certError$ } } = driver();
-      certError$.first().forEach(verify);
+      Cycle.run(({ electron }) => {
+        return {
+          output: electron.events.certError$
+        }
+      }, {
+        electron: driver,
+        output: event$ => event$.first().forEach(verify)
+      });
 
       const webContents = {};
       const url = 'https://somedomain.com/';
       const error = new Error();
       const certificate = { data: 'PEM data', issuerName: 'issuer' };
       const callback = trust => { };
-
-      app.emit('certificate-error', { }, webContents, url, error, certificate, callback);
+      setTimeout(() => app.emit('certificate-error', { }, webContents, url, error, certificate, callback), 1);
 
       function verify(e) {
         expect(e).to.have.property('url', url);
         expect(e).to.have.property('error', error);
         expect(e).to.have.property('certificate', certificate);
-        expect(e).to.not.have.property('callback');
         done();
       }
     });
@@ -135,11 +160,17 @@ describe('MainDriver', () => {
 
   describe('events.windowOpen$ source', () => {
     it('contains browser-window-created events with a window property', done => {
-      const window = {};
-      const { events: { windowOpen$ } } = driver();
-      windowOpen$.first().forEach(verify);
+      Cycle.run(({ electron }) => {
+        return {
+          output: electron.events.windowOpen$
+        }
+      }, {
+        electron: driver,
+        output: event$ => event$.first().forEach(verify)
+      });
 
-      app.emit('browser-window-created', { }, window);
+      const window = {};
+      setTimeout(() => app.emit('browser-window-created', { }, window), 1);
 
       function verify(e) {
         expect(e).to.have.property('window', window);
@@ -150,11 +181,17 @@ describe('MainDriver', () => {
 
   describe('events.windowFocus$ source', () => {
     it('contains browser-window-focus events with a window property', done => {
-      const window = {};
-      const { events: { windowFocus$ } } = driver();
-      windowFocus$.first().forEach(verify);
+      Cycle.run(({ electron }) => {
+        return {
+          output: electron.events.windowFocus$
+        }
+      }, {
+        electron: driver,
+        output: event$ => event$.first().forEach(verify)
+      });
 
-      app.emit('browser-window-focus', { }, window);
+      const window = {};
+      setTimeout(() => app.emit('browser-window-focus', { }, window), 1);
 
       function verify(e) {
         expect(e).to.have.property('window', window);
@@ -165,11 +202,17 @@ describe('MainDriver', () => {
 
   describe('events.windowBlur$ source', () => {
     it('contains browser-window-blur events with a window property', done => {
-      const window = {};
-      const { events: { windowBlur$ } } = driver();
-      windowBlur$.first().forEach(verify);
+      Cycle.run(({ electron }) => {
+        return {
+          output: electron.events.windowBlur$
+        }
+      }, {
+        electron: driver,
+        output: event$ => event$.first().forEach(verify)
+      });
 
-      app.emit('browser-window-blur', { }, window);
+      const window = {};
+      setTimeout(() => app.emit('browser-window-blur', { }, window), 1);
 
       function verify(e) {
         expect(e).to.have.property('window', window);
@@ -180,10 +223,16 @@ describe('MainDriver', () => {
 
   describe('events.exit$ source', () => {
     it('contains the quit event merged with the exit code', done => {
-      const { events: { exit$ } } = driver();
-      exit$.first().forEach(verify);
+      Cycle.run(({ electron }) => {
+        return {
+          output: electron.events.exit$
+        }
+      }, {
+        electron: driver,
+        output: event$ => event$.first().forEach(verify)
+      });
 
-      app.emit('quit', { name: 'quit' }, -3289);
+      setTimeout(() => app.emit('quit', { name: 'quit' }, -3289), 1);
 
       function verify(e) {
         expect(e).to.have.property('name', 'quit');
@@ -194,40 +243,96 @@ describe('MainDriver', () => {
   });
 
   describe('exit$ sink', () => {
-    it('causes an exit with code 0 by default', () => {
-      driver({ exit$: Observable.just({}) });
+    it('causes an exit with code 0 by default', done => {
+      Cycle.run(() => {
+        return {
+          electron: Observable.just({
+            exit$: Observable.just({})
+          })
+        }
+      }, {
+        electron: driver
+      });
 
-      expect(app.exit).to.have.been.calledWith(0);
+      setTimeout(() => {
+        expect(app.exit).to.have.been.calledWith(0);
+        done();
+      }, 1);
     });
 
-    it('exits with a numeric exit code when a value is sent', () => {
-      driver({ exit$: Observable.just(-23) });
+    it('exits with a numeric exit code when a value is sent', done => {
+      Cycle.run(() => {
+        return {
+          electron: Observable.just({
+            exit$: Observable.just(-23)
+          })
+        }
+      }, {
+        electron: driver
+      });
 
-      expect(app.exit).to.have.been.calledWith(-23);
+      setTimeout(() => {
+        expect(app.exit).to.have.been.calledWith(-23);
+        done();
+      }, 1);
     });
   });
 
   describe('preventedEvent$ sink', () => {
-    it('causes `preventDefault` to be called on each event', () => {
+    it('causes `preventDefault` to be called on each event', done => {
+      Cycle.run(({ electron }) => {
+        return {
+          electron: Observable.just({
+            preventedEvent$: electron.events.fileOpen$
+          })
+        }
+      }, {
+        electron: driver
+      });
+
       const event = { preventDefault: spy() };
-
-      driver({ preventedEvent$: Observable.just(event) });
-
-      expect(event.preventDefault).to.have.been.called;
+      setTimeout(() => {
+        app.emit('open-file', event);
+        expect(event.preventDefault).to.have.been.called;
+        done();
+      }, 1);
     });
   });
 
   describe('trustedCert$ sink', () => {
-    it('prevents the default behavior of an untrusted cert and trusts it instead', () => {
-      const event = {
-        preventDefault: spy(),
+    it('prevents the default behavior of an untrusted cert and trusts it instead', done => {
+      Cycle.run(({ electron }) => {
+        return {
+          electron: Observable.just({
+            trustedCert$: electron.events.certError$.filter(e => e.certificate.issuerName === 'trusted.issuer.com')
+          })
+        }
+      }, {
+        electron: driver
+      });
+
+      const event1 = {
+        event: { preventDefault: spy() },
+        cert: { issuerName: 'trusted.issuer.com' },
+        callback: spy()
+      };
+      const event2 = {
+        event: { preventDefault: spy() },
+        cert: { issuerName: 'other.issuer.com' },
         callback: spy()
       };
 
-      driver({ trustedCert$: Observable.just(event) });
+      setTimeout(() => {
+        app.emit('certificate-error', event1.event, {}, '', {}, event1.cert, event1.callback);
+        expect(event1.event.preventDefault).to.have.been.called;
+        expect(event1.callback).to.have.been.calledWith(true);
 
-      expect(event.preventDefault).to.have.been.called;
-      expect(event.callback).to.have.been.calledWith(true);
+        app.emit('certificate-error', event2.event, {}, '', {}, event2.cert, event2.callback);
+        expect(event2.event.preventDefault).to.have.not.been.called;
+        expect(event2.callback).to.have.not.been.called;
+
+        done();
+      }, 1);
     });
   });
 });

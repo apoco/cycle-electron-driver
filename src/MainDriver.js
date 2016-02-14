@@ -1,20 +1,39 @@
 import { Observable } from 'rx';
 
 export default function AppDriver(app) {
-  return ({ exit$, preventedEvent$, trustedCert$ } = {}) => {
+  return state$ => {
 
-    exit$ && exit$
-      .map(val => isNaN(val) ? 0 : val)
-      .forEach(code => app.exit(code));
+    let subscriptions = [];
 
-    preventedEvent$ && preventedEvent$
-      .forEach(e => e.preventDefault());
+    state$.forEach(({ exit$, preventedEvent$, trustedCert$ }) => {
+      subscriptions.forEach(s => s.dispose());
 
-    trustedCert$ && trustedCert$
-      .forEach(e => {
-        e.preventDefault();
-        e.callback(true);
-      });
+      subscriptions = [];
+
+      if (exit$) {
+        subscriptions.push(
+          exit$
+            .map(val => isNaN(val) ? 0 : val)
+            .forEach(code => app.exit(code))
+        );
+      }
+
+      if (preventedEvent$) {
+        subscriptions.push(
+          preventedEvent$.forEach(e => e.preventDefault())
+        );
+      }
+
+      if (trustedCert$) {
+        subscriptions.push(
+          trustedCert$
+            .forEach(e => {
+              e.preventDefault();
+              e.callback(true);
+            })
+        );
+      }
+    });
 
     return {
       events: setupEventSources(app)
@@ -41,8 +60,8 @@ function setupEventSources(app) {
     urlOpen$: Observable
       .fromEvent(app, 'open-url', (e, url) => Object.assign(e, {url})),
     certError$: Observable
-      .fromEvent(app, 'certificate-error', (e, webContents, url, error, certificate) => {
-        return Object.assign(e, { webContents, url, error, certificate })
+      .fromEvent(app, 'certificate-error', (e, webContents, url, error, certificate, callback) => {
+        return Object.assign(e, { webContents, url, error, certificate, callback })
       }),
     windowOpen$: Observable
       .fromEvent(app, 'browser-window-created', (e, window) => Object.assign(e, {window})),
