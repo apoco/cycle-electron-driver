@@ -34,6 +34,10 @@ function setupEventSources(app) {
       .fromEvent(app, 'open-file', (e, path) => Object.assign(e, {path})),
     urlOpen$: Observable
       .fromEvent(app, 'open-url', (e, url) => Object.assign(e, {url})),
+    loginPrompt$: Observable
+      .fromEvent(app, 'login', (e, webContents, request, authInfo, callback) => {
+        return Object.assign(e, { webContents, request, authInfo, callback });
+      }),
     certError$: Observable
       .fromEvent(app, 'certificate-error', (e, webContents, url, error, certificate, callback) => {
         return Object.assign(e, { webContents, url, error, certificate, callback })
@@ -64,7 +68,8 @@ function setupSinkSubscriptions(app, state) {
     .concat(setupExitSubscriptions(app, state.exit$))
     .concat(setupPreventedEventSubscriptions(state.preventedEvent$))
     .concat(setupTrustedCertSubscriptions(state.trustedCert$))
-    .concat(setupClientCertSelectionSubscriptions(state.clientCertSelection$));
+    .concat(setupClientCertSelectionSubscriptions(state.clientCertSelection$))
+    .concat(setupLoginSubscriptions(state.login$));
 }
 
 function setupExitSubscriptions(app, exit$) {
@@ -92,4 +97,11 @@ function setupClientCertSelectionSubscriptions(clientCertSelection$) {
       prompt.preventDefault();
       prompt.callback(cert);
     });
+}
+
+function setupLoginSubscriptions(login$) {
+  return login$ && login$.forEach(({ prompt, username, password }) => {
+    prompt.preventDefault();
+    prompt.callback(username, password);
+  });
 }

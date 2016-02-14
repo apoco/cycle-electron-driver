@@ -131,6 +131,32 @@ describe('MainDriver', () => {
     });
   });
 
+  describe('events.loginPrompt$ source', () => {
+    it('contains login events with additional details', done => {
+      Cycle.run(({ electron }) => {
+        return {
+          output: electron.events.loginPrompt$
+        }
+      }, {
+        electron: driver,
+        output: event$ => event$.first().forEach(verify)
+      });
+
+      const webContents = {};
+      const request = { url: 'https://somedomain.com/' };
+      const authInfo = { };
+      const callback = () => { };
+      setTimeout(() => app.emit('login', { }, webContents, request, authInfo, callback), 1);
+
+      function verify(e) {
+        expect(e).to.have.property('webContents', webContents);
+        expect(e).to.have.property('request', request);
+        expect(e).to.have.property('authInfo', authInfo);
+        done();
+      }
+    });
+  });
+
   describe('events.clientCertPrompt$ source', () => {
     it('contains select-client-certificate events with additional details', done => {
       Cycle.run(({ electron }) => {
@@ -387,6 +413,31 @@ describe('MainDriver', () => {
         app.emit('certificate-error', event2.event, {}, '', {}, event2.cert, event2.callback);
         expect(event2.event.preventDefault).to.have.not.been.called;
         expect(event2.callback).to.have.not.been.called;
+
+        done();
+      }, 1);
+    });
+  });
+
+  describe('login$ sink', () => {
+    it('prevents the default behavior and sends the username & password', done => {
+      Cycle.run(({ electron }) => {
+        return {
+          electron: Observable.just({
+            login$: electron.events.loginPrompt$.map(e => ({ prompt: e, username: 'foo', password: 'bar' }))
+          })
+        }
+      }, {
+        electron: driver
+      });
+
+      const event = { preventDefault: spy() };
+      const callback = spy();
+
+      setTimeout(() => {
+        app.emit('login', event, {}, {}, {}, callback);
+        expect(event.preventDefault).to.have.been.called;
+        expect(callback).to.have.been.calledWith('foo', 'bar');
 
         done();
       }, 1);

@@ -103,6 +103,22 @@ These events are raised when a window, identified by the `window` property, lose
 See the [`browser-window-blur`](http://electron.atom.io/docs/v0.36.5/api/app/#event-browser-window-blur) event 
 documentation for more information.
 
+##### events.loginPrompt$
+
+These events are raised when being prompted to login (with HTTP basic auth). By default, the prompt is cancelled and no
+login takes place. To override this behavior, inspect the `webContents`, `request`, and `authInfo` properties, and pipe
+events to the `login$` property of the sink with the following properties:
+
+```
+{
+  request: <the loginPrompt$ event>,
+  username: <the username to use for logging in>
+  password: <the password>
+}
+```
+
+See the [`login`](http://electron.atom.io/docs/v0.36.5/api/app/#event-login) event documentation for more information.
+
 ##### events.clientCertPrompt$
 
 These events are raised when a browser window is prompting for a client certificate selection. By default, electron will
@@ -200,6 +216,18 @@ function main({ electron }) {
       preventedEvent$: electron.events('before-quit')
     })
   };
+}
+```
+
+##### login$
+
+To perform a login, this `Observable` should emit objects of this format:
+
+```
+{
+  request: <a loginPrompt$ event>,
+  username: <the username to use for logging in>
+  password: <the password>
 }
 ```
 
