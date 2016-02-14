@@ -145,6 +145,13 @@ to the event. If you want to trust the cert, pipe the event into the `trustedCer
 See the [`certificate-error`](http://electron.atom.io/docs/v0.36.5/api/app/#event-certificate-error) event 
 documentation for more information.
 
+##### events.gpuProcessCrash$
+
+These are raised when the GPU process crashes. 
+See the [`gpu-process-crashed`](http://electron.atom.io/docs/v0.36.5/api/app/#event-gpu-process-crashed) event 
+documentation for more information.
+
+
 ##### events.beforeAllWindowClose$
 
 These are raised before the application starts closing its windows in response to an exit. To prevent an exit occurring,

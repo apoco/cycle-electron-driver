@@ -296,6 +296,28 @@ describe('MainDriver', () => {
     });
   });
 
+
+  describe('events.gpuProcessCrash$ source', () => {
+    it('emits when gpu-process-crashed events occur', done => {
+      Cycle.run(({ electron }) => {
+        return {
+          output: electron.events.gpuProcessCrash$
+        }
+      }, {
+        electron: driver,
+        output: event$ => event$.first().forEach(verify)
+      });
+
+      const event = { };
+      setTimeout(() => app.emit('gpu-process-crashed', event), 1);
+
+      function verify(e) {
+        expect(e).to.equal(event);
+        done();
+      }
+    });
+  });
+
   describe('exit$ sink', () => {
     it('causes an exit with code 0 by default', done => {
       Cycle.run(() => {
