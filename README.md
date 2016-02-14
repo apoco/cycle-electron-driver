@@ -305,6 +305,12 @@ Provide one of the following sinks to change the file path used by electron:
 * `userData$`  - The directory for storing user-specific application data
 * `videos$`    - The directory for the user's video files
 
+##### recentDocs
+
+The recentDocs object has the following available sinks:
+
+* `add$`  - The strings produced by this observable will be added to the OS's recent documents for the app
+
 ##### quit$
 
 When this `Observable` produces a value, an application quit is issued. Use `exit$` instead to forcefully terminate.

@@ -102,7 +102,8 @@ function setupSinkSubscriptions(app, state) {
     .concat(setupTrustedCertSubscriptions(state.trustedCert$))
     .concat(setupClientCertSelectionSubscriptions(state.clientCertSelection$))
     .concat(setupLoginSubscriptions(state.login$))
-    .concat(setupPathUpdateSubscriptions(app, state.pathUpdates));
+    .concat(setupPathUpdateSubscriptions(app, state.pathUpdates))
+    .concat(setupRecentDocsSubscriptions(app, state.recentDocs));
 }
 
 function setupQuitSubscriptions(app, quit$) {
@@ -152,4 +153,14 @@ function setupPathUpdateSubscriptions(app, pathUpdates) {
     const prop = `${name}$`;
     return pathUpdates[prop] && pathUpdates[prop].forEach(value => app.setPath(name, value));
   });
+}
+
+function setupRecentDocsSubscriptions(app, recentDocs) {
+  if (!recentDocs) {
+    return null;
+  }
+
+  return [
+    recentDocs.add$ && recentDocs.add$.forEach(path => app.addRecentDocument(path))
+  ];
 }

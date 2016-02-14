@@ -23,7 +23,8 @@ describe('MainDriver', () => {
     app.getLocale = stub();
     app.getAppPath = stub();
     app.getPath = stub();
-    app.setPath = stub();
+    app.setPath = spy();
+    app.addRecentDocument = spy();
     app.exit = spy();
     app.quit = spy();
     driver = new MainDriver(app);
@@ -634,6 +635,27 @@ describe('MainDriver', () => {
               done();
             }
           });
+        });
+      });
+    });
+
+    describe('recentDocs', () => {
+      describe('add$', () => {
+        it('calls the addRecentDocument app method', done => {
+          Cycle.run(() => {
+            return {
+              electron: Observable.just({
+                recentDocs: {
+                  add$: Observable.just('/some/path')
+                }
+              })
+            }
+          }, { electron: driver });
+
+          setTimeout(() => {
+            expect(app.addRecentDocument).to.have.been.calledWith('/some/path');
+            done();
+          }, 1)
         });
       });
     });
