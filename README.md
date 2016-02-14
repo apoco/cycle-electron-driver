@@ -11,18 +11,19 @@ of modules they interact with. Thus, two different drivers are provided by `cycl
 
 ### Main process driver
 
-To create the driver for the main process, use the `createMainDriver` function:
+To create the driver for the main process, call the `MainDriver` function with the Electron app:
 
 ```js
 import Cycle from '@cycle/core';
-import { createMainDriver } from 'cycle-electron-driver';
+import { app } from 'electron';
+import { MainDriver } from 'cycle-electron-driver';
 
 function main(sources) {
   //...
 }
 
 Cycle.run(main, {
-  electron: createMainDriver()
+  electron: MainDriver(app)
 });
 ```
 
@@ -120,9 +121,9 @@ pipe these into the `preventedEvent$` sink:
 ```js
 function main({ electron: { events: { beforeAllWindowClose$ } } }) {
   return {
-    electron: {
+    electron: Observable.just({
       preventedEvent$: beforeAllWindowClose$
-    }
+    })
   };
 }
 ```
@@ -139,9 +140,9 @@ force these events to provoke an exit:
 ```js
 function main({ electron: { events: { allWindowsClose$ } } }) {
   return {
-    electron: {
+    electron: Observable.just({
       exit$: allWindowsClose$
-    }
+    })
   }
 }
 ```
@@ -179,9 +180,9 @@ Events emitted by this `Observable` will have their `preventDefault` method invo
 ```js
 function main({ electron }) {
   return {
-    electron: {
+    electron: Observable.just({
       preventedEvent$: electron.events('before-quit')
-    }
+    })
   };
 }
 ```
@@ -193,11 +194,11 @@ This should be a filtering of the `events.certError$` events that should be over
 ```js
 function main({ electron }) {
   return {
-    electron: {
+    electron: Observable.just({
       trustedCert$: electron.events
         .certError$
         .filter(e => e.certificate.issuerName === 'example.com')
-    }
+    })
   };
 }
 ```
