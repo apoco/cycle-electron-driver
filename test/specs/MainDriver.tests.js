@@ -14,6 +14,7 @@ describe('MainDriver', () => {
   beforeEach(() => {
     app = new EventEmitter();
     app.exit = spy();
+    app.quit = spy();
     driver = new MainDriver(app);
   });
 
@@ -315,6 +316,25 @@ describe('MainDriver', () => {
         expect(e).to.equal(event);
         done();
       }
+    });
+  });
+
+  describe('quit$ sink', () => {
+    it('causes the electron app to quit', done => {
+      Cycle.run(() => {
+        return {
+          electron: Observable.just({
+            quit$: Observable.just({})
+          })
+        }
+      }, {
+        electron: driver
+      });
+
+      setTimeout(() => {
+        expect(app.quit).to.have.been.called;
+        done();
+      }, 1);
     });
   });
 

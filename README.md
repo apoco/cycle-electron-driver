@@ -207,10 +207,14 @@ for more information.
 
 #### Sinks
 
+##### quit$
+
+When this `Observable` produces a value, an application quit is issued. Use `exit$` instead to forcefully terminate.
+
 ##### exit$
 
-When an exit value is received, it will cause the application to quit. If the value is a number, that number will be the
-exit code.
+When an exit value is received, it will cause the application to immediately exit. If the value is a number, that number
+will be the exit code. Use `quit$` for a more graceful way to end an application.
 
 ##### preventedEvent$
 

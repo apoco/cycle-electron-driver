@@ -66,11 +66,16 @@ function setupEventSources(app) {
 
 function setupSinkSubscriptions(app, state) {
   return []
+    .concat(setupQuitSubscriptions(app, state.quit$))
     .concat(setupExitSubscriptions(app, state.exit$))
     .concat(setupPreventedEventSubscriptions(state.preventedEvent$))
     .concat(setupTrustedCertSubscriptions(state.trustedCert$))
     .concat(setupClientCertSelectionSubscriptions(state.clientCertSelection$))
     .concat(setupLoginSubscriptions(state.login$));
+}
+
+function setupQuitSubscriptions(app, quit$) {
+  return quit$ && quit$.forEach(() => app.quit());
 }
 
 function setupExitSubscriptions(app, exit$) {
