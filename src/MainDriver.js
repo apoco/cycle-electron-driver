@@ -30,6 +30,7 @@ export default function AppDriver(app) {
     });
 
     return {
+      get version() { return app.getVersion() },
       paths,
       events: setupEventSources(app)
     }

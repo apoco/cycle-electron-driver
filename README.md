@@ -29,6 +29,10 @@ Cycle.run(main, {
 
 #### Sources
 
+##### version
+
+The `version` property provides the version of the app.
+
 ##### events
 
 The `events` source factory creates an `Observable` for raw

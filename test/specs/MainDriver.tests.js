@@ -18,6 +18,7 @@ describe('MainDriver', () => {
 
   beforeEach(() => {
     app = new EventEmitter();
+    app.getVersion = stub();
     app.getAppPath = stub();
     app.getPath = stub();
     app.setPath = stub();
@@ -27,6 +28,26 @@ describe('MainDriver', () => {
   });
 
   describe('source', () => {
+    describe('version property', () => {
+      it('calls the getVersion method of the electron app', done => {
+        app.getVersion.returns('5.2.4');
+
+        Cycle.run(({ electron }) => {
+          return {
+            output: Observable.just(electron.version)
+          };
+        }, {
+          electron: driver,
+          output: value$ => value$.first().forEach(verify)
+        });
+
+        function verify(value) {
+          expect(value).to.equal('5.2.4');
+          done();
+        }
+      });
+    });
+
     describe('events', () => {
       describe('function', () => {
         it('listens to the specified event', done => {
