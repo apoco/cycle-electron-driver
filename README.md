@@ -312,6 +312,18 @@ The recentDocs object has the following available sinks:
 * `add$`    - The strings produced by this observable will be added to the OS's recent documents for the app
 * `clear$`  - When this observable produces values, it clears the recent documents for the app
 
+##### userTask$
+
+This sink should emit array of task objects to set the user tasks for the application (Windows only). The objects should
+have the following properties:
+
+* `program` - The application executable; use `process.execPath` to use the currently-executing app executable.
+* `arguments` - An array of strings to use as program arguments
+* `title` - The title to give the task
+* `description` - The full description of the task
+* `iconPath` - Path to the icon to show for the task
+* `iconIndex` - If `iconPath` contains multiple icons, the index of the icon to use for the task
+
 ##### quit$
 
 When this `Observable` produces a value, an application quit is issued. Use `exit$` instead to forcefully terminate.

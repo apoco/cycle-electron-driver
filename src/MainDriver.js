@@ -103,7 +103,8 @@ function setupSinkSubscriptions(app, state) {
     .concat(setupClientCertSelectionSubscriptions(state.clientCertSelection$))
     .concat(setupLoginSubscriptions(state.login$))
     .concat(setupPathUpdateSubscriptions(app, state.pathUpdates))
-    .concat(setupRecentDocsSubscriptions(app, state.recentDocs));
+    .concat(setupRecentDocsSubscriptions(app, state.recentDocs))
+    .concat(setupUserTasksSubscriptions(app, state.userTask$));
 }
 
 function setupQuitSubscriptions(app, quit$) {
@@ -164,4 +165,8 @@ function setupRecentDocsSubscriptions(app, recentDocs) {
     recentDocs.add$ && recentDocs.add$.forEach(path => app.addRecentDocument(path)),
     recentDocs.clear$ && recentDocs.clear$.forEach(() => app.clearRecentDocuments())
   ];
+}
+
+function setupUserTasksSubscriptions(app, userTask$) {
+  return userTask$ && userTask$.forEach(tasks => app.setUserTasks(tasks));
 }

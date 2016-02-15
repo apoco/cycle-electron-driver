@@ -26,6 +26,7 @@ describe('MainDriver', () => {
     app.setPath = spy();
     app.addRecentDocument = spy();
     app.clearRecentDocuments = spy();
+    app.setUserTasks = spy();
     app.exit = spy();
     app.quit = spy();
     driver = new MainDriver(app);
@@ -679,5 +680,24 @@ describe('MainDriver', () => {
         });
       });
     });
+
+    describe('userTask$', () => {
+      const tasks = [{ title: 'Task 1' }, { title: 'Task 2' }];
+
+      it('calls the setUserTasks method of the app', done => {
+        Cycle.run(() => {
+          return {
+            electron: Observable.just({
+              userTask$: Observable.just(tasks)
+            })
+          };
+        }, { electron: driver });
+
+        setTimeout(() => {
+          expect(app.setUserTasks).to.have.been.calledWith(tasks);
+          done();
+        }, 1);
+      });
+    })
   });
 });
