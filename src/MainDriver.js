@@ -1,8 +1,22 @@
-import { Observable } from 'rx';
+import { Observable, Subject } from 'rx';
 
 import pathNames from './pathNames';
 
-export default function AppDriver(app) {
+export default function AppDriver(app, opts = {}) {
+  let extraLaunch$ = null;
+
+  if (opts.isSingleInstance) {
+    extraLaunch$ = new Subject();
+    const shouldQuit = app.makeSingleInstance((argv, cwd) => extraLaunch$.onNext({ argv, cwd }));
+
+    if (shouldQuit) {
+      app.quit();
+    }
+
+  } else {
+    extraLaunch$ = Observable.empty();
+  }
+
   return state$ => {
 
     let subscriptions = [];
@@ -19,7 +33,7 @@ export default function AppDriver(app) {
         get locale() { return app.getLocale() }
       },
       paths: setupPathSources(app, state$),
-      events: setupEventSources(app)
+      events: setupEventSources(app, extraLaunch$)
     }
   };
 }
@@ -55,43 +69,73 @@ const eventShortcuts = {
   gpuProcessCrash$: 'gpu-process-crashed'
 };
 
-function setupEventSources(app) {
-  const events = eventName => Observable.fromEvent(app, eventName);
-
-  Object.assign(events, {
-    activation$: Observable
-      .fromEvent(app, 'activate', (e, hasVisibleWindows) => Object.assign(e, {hasVisibleWindows})),
-    fileOpen$: Observable
-      .fromEvent(app, 'open-file', (e, path) => Object.assign(e, {path})),
-    urlOpen$: Observable
-      .fromEvent(app, 'open-url', (e, url) => Object.assign(e, {url})),
-    loginPrompt$: Observable
-      .fromEvent(app, 'login', (e, webContents, request, authInfo, callback) => {
-        return Object.assign(e, { webContents, request, authInfo, callback });
-      }),
-    certError$: Observable
-      .fromEvent(app, 'certificate-error', (e, webContents, url, error, certificate, callback) => {
-        return Object.assign(e, { webContents, url, error, certificate, callback })
-      }),
-    clientCertPrompt$: Observable
-      .fromEvent(app, 'select-client-certificate', (e, webContents, url, certificateList, callback) => {
-        return Object.assign(e, { webContents, url, certificateList, callback })
-      }),
-    windowOpen$: Observable
-      .fromEvent(app, 'browser-window-created', (e, window) => Object.assign(e, {window})),
-    windowFocus$: Observable
-      .fromEvent(app, 'browser-window-focus', (e, window) => Object.assign(e, {window})),
-    windowBlur$: Observable
-      .fromEvent(app, 'browser-window-blur', (e, window) => Object.assign(e, {window})),
-    exit$: Observable
-      .fromEvent(app, 'quit', (e, exitCode) => Object.assign(e, {exitCode}))
-  });
+function setupEventSources(app, extraLaunch$) {
+  const events = Object.assign(
+    eventName => Observable.fromEvent(app, eventName),
+    setupCertEventSources(app),
+    setupWindowEventSources(app),
+    setupLifecycleEventSources(app),
+    {
+      extraLaunch$,
+      get fileOpen$() {
+        return Observable.fromEvent(app, 'open-file', (e, path) => Object.assign(e, {path}))
+      },
+      get urlOpen$() {
+        return Observable.fromEvent(app, 'open-url', (e, url) => Object.assign(e, {url}))
+      },
+      get loginPrompt$() {
+        return Observable.fromEvent(app, 'login', (e, webContents, request, authInfo, callback) => {
+          return Object.assign(e, {webContents, request, authInfo, callback});
+        })
+      }
+    }
+  );
 
   Object.keys(eventShortcuts).forEach(key => {
     events[key] = events(eventShortcuts[key]);
   });
 
   return events;
+}
+
+function setupLifecycleEventSources(app) {
+  return {
+    get activation$() {
+      return Observable.fromEvent(app, 'activate', (e, hasVisibleWindows) => Object.assign(e, {hasVisibleWindows}))
+    },
+    get exit$() {
+      return Observable.fromEvent(app, 'quit', (e, exitCode) => Object.assign(e, {exitCode}))
+    }
+  };
+}
+
+function setupWindowEventSources(app) {
+  return {
+    get windowOpen$() {
+      return Observable.fromEvent(app, 'browser-window-created', (e, window) => Object.assign(e, {window}));
+    },
+    get windowFocus$() {
+      return Observable.fromEvent(app, 'browser-window-focus', (e, window) => Object.assign(e, {window}));
+    },
+    get windowBlur$() {
+      return Observable.fromEvent(app, 'browser-window-blur', (e, window) => Object.assign(e, {window}));
+    }
+  };
+}
+
+function setupCertEventSources(app) {
+  return {
+    get certError$() {
+      return Observable.fromEvent(app, 'certificate-error', (e, webContents, url, error, certificate, callback) => {
+        return Object.assign(e, {webContents, url, error, certificate, callback})
+      })
+    },
+    get clientCertPrompt$() {
+      return Observable.fromEvent(app, 'select-client-certificate', (e, webContents, url, certificateList, callback) => {
+        return Object.assign(e, {webContents, url, certificateList, callback})
+      })
+    }
+  };
 }
 
 function setupSinkSubscriptions(app, state) {

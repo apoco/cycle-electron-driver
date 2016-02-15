@@ -23,6 +23,7 @@ describe('MainDriver', () => {
     app.getLocale = stub();
     app.getAppPath = stub();
     app.getPath = stub();
+    app.makeSingleInstance = stub();
     app.setPath = spy();
     app.addRecentDocument = spy();
     app.clearRecentDocuments = spy();
@@ -31,6 +32,23 @@ describe('MainDriver', () => {
     app.exit = spy();
     app.quit = spy();
     driver = new MainDriver(app);
+  });
+
+  it('quits if isSingleInstance option is true and makeSingleInstance returns true', done => {
+    app.makeSingleInstance.returns(true);
+
+    Cycle.run(() => {
+      return {
+        electron: Observable.just({})
+      }
+    }, {
+      electron: new MainDriver(app, { isSingleInstance: true })
+    });
+
+    setTimeout(() => {
+      expect(app.quit).to.have.been.called;
+      done();
+    }, 1);
   });
 
   describe('source', () => {
@@ -148,6 +166,33 @@ describe('MainDriver', () => {
               done();
             }
           });
+        });
+      });
+
+      describe('extraLaunch$', () => {
+        it('indicates when additional launches are requested in single-instance mode', done => {
+          const args = ['arg1', 'arg2'];
+          const workingDir = '/some/path';
+          app.makeSingleInstance.returns(false);
+
+          Cycle.run(({ electron }) => {
+            return {
+              output: electron.events.extraLaunch$
+            }
+          }, {
+            electron: new MainDriver(app, { isSingleInstance: true }),
+            output: value$ => value$.forEach(assert)
+          });
+
+          setTimeout(() => {
+            app.makeSingleInstance.lastCall.args[0].call(null, args, workingDir);
+          }, 1);
+
+          function assert({ argv, cwd }) {
+            expect(argv).to.equal(args);
+            expect(cwd).to.equal(workingDir);
+            done();
+          }
         });
       });
 

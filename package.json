@@ -18,7 +18,7 @@
   ],
   "peerDependencies": {
     "@cycle/core": "^6.0.0",
-    "electron": "^0.4.0",
+    "electron-prebuilt": "^0.36.0",
     "rx": "^4.0.0"
   },
   "devDependencies": {
@@ -28,7 +28,7 @@
     "babel-register": "^6.5.0",
     "bluebird": "^3.3.1",
     "chai": "^3.5.0",
-    "electron": "^0.4.1",
+    "electron-prebuilt": "^0.36.7",
     "istanbul": "^1.0.0-alpha.2",
     "mocha": "^2.4.5",
     "rx": "^4.0.7",

@@ -27,6 +27,13 @@ Cycle.run(main, {
 });
 ```
 
+#### Options
+
+When constructing the main process driver, an optional second argument can provide the following options:
+
+* `isSingleInstance` - If set to `true`, only one instance of the application can be created. The `extraLaunch$` source
+  will emit when additional launches are attempted. This defaults to `false`.
+
 #### Sources
 
 ##### appInfo
@@ -53,6 +60,14 @@ It is recommended that you use one of the more normalized event sources listed b
 
 Calling methods on `Event` objects, such as `preventDefault()` is antithetical to the Cycle.js philosophy; to enable
 preventing defaults, use the `preventedEvents` sink listed below.
+
+###### events.extraLaunch$
+
+When the `isSingleInstance` option is `true`, this observable indicates when blocked additional launches are attempted.
+Values are objects with the following properties:
+
+* `argv`  - Array of command-line arguments used when this was launched
+* `cwd`   - The working directory of the process that was launched
 
 ###### events.willFinishLaunching$
 
