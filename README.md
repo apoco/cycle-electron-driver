@@ -309,7 +309,8 @@ Provide one of the following sinks to change the file path used by electron:
 
 The recentDocs object has the following available sinks:
 
-* `add$`  - The strings produced by this observable will be added to the OS's recent documents for the app
+* `add$`    - The strings produced by this observable will be added to the OS's recent documents for the app
+* `clear$`  - When this observable produces values, it clears the recent documents for the app
 
 ##### quit$
 

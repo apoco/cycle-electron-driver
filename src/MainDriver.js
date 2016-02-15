@@ -161,6 +161,7 @@ function setupRecentDocsSubscriptions(app, recentDocs) {
   }
 
   return [
-    recentDocs.add$ && recentDocs.add$.forEach(path => app.addRecentDocument(path))
+    recentDocs.add$ && recentDocs.add$.forEach(path => app.addRecentDocument(path)),
+    recentDocs.clear$ && recentDocs.clear$.forEach(() => app.clearRecentDocuments())
   ];
 }

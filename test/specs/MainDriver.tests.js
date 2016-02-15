@@ -25,6 +25,7 @@ describe('MainDriver', () => {
     app.getPath = stub();
     app.setPath = spy();
     app.addRecentDocument = spy();
+    app.clearRecentDocuments = spy();
     app.exit = spy();
     app.quit = spy();
     driver = new MainDriver(app);
@@ -654,6 +655,25 @@ describe('MainDriver', () => {
 
           setTimeout(() => {
             expect(app.addRecentDocument).to.have.been.calledWith('/some/path');
+            done();
+          }, 1)
+        });
+      });
+
+      describe('clear$', () => {
+        it('calls the clearRecentDocuments app method', done => {
+          Cycle.run(() => {
+            return {
+              electron: Observable.just({
+                recentDocs: {
+                  clear$: Observable.just({})
+                }
+              })
+            }
+          }, { electron: driver });
+
+          setTimeout(() => {
+            expect(app.clearRecentDocuments).to.have.been.called;
             done();
           }, 1)
         });
