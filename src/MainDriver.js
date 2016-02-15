@@ -104,7 +104,8 @@ function setupSinkSubscriptions(app, state) {
     .concat(setupLoginSubscriptions(state.login$))
     .concat(setupPathUpdateSubscriptions(app, state.pathUpdates))
     .concat(setupRecentDocsSubscriptions(app, state.recentDocs))
-    .concat(setupUserTasksSubscriptions(app, state.userTask$));
+    .concat(setupUserTasksSubscriptions(app, state.userTask$))
+    .concat(setupNTLMOverrideSubscriptions(app, state.ntlmAllowedOverride$));
 }
 
 function setupQuitSubscriptions(app, quit$) {
@@ -169,4 +170,8 @@ function setupRecentDocsSubscriptions(app, recentDocs) {
 
 function setupUserTasksSubscriptions(app, userTask$) {
   return userTask$ && userTask$.forEach(tasks => app.setUserTasks(tasks));
+}
+
+function setupNTLMOverrideSubscriptions(app, override$) {
+  return override$ && override$.forEach(enabled => app.allowNTLMCredentialsForAllDomains(enabled));
 }

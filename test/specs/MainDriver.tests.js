@@ -27,6 +27,7 @@ describe('MainDriver', () => {
     app.addRecentDocument = spy();
     app.clearRecentDocuments = spy();
     app.setUserTasks = spy();
+    app.allowNTLMCredentialsForAllDomains = spy();
     app.exit = spy();
     app.quit = spy();
     driver = new MainDriver(app);
@@ -699,5 +700,22 @@ describe('MainDriver', () => {
         }, 1);
       });
     })
+
+    describe('ntlmAllowedOverride$', () => {
+      it('calls the allowNTLMCredentialsForAllDomains app method', done => {
+        Cycle.run(() => {
+          return {
+            electron: Observable.just({
+              ntlmAllowedOverride$: Observable.just(true)
+            })
+          }
+        }, { electron: driver });
+
+        setTimeout(() => {
+          expect(app.allowNTLMCredentialsForAllDomains).to.have.been.calledWith(true);
+          done();
+        }, 1)
+      });
+    });
   });
 });

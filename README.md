@@ -324,6 +324,11 @@ have the following properties:
 * `iconPath` - Path to the icon to show for the task
 * `iconIndex` - If `iconPath` contains multiple icons, the index of the icon to use for the task
 
+##### ntlmAllowedOverride$
+
+This sink should be an `Observable` of boolean values; when true, NTLM authentication is enabled for sites not 
+recognized as being part of the local intranet.
+
 ##### quit$
 
 When this `Observable` produces a value, an application quit is issued. Use `exit$` instead to forcefully terminate.
