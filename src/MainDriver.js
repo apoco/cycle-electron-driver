@@ -18,7 +18,6 @@ export default function AppDriver(app, opts = {}) {
   }
 
   return state$ => {
-
     let subscriptions = [];
 
     state$.forEach(state => {
@@ -153,7 +152,8 @@ function setupSinkSubscriptions(app, state) {
     .concat(subscribeToRecentDocChanges(app, state.recentDocs))
     .concat(subscribeToUserTaskChanges(app, state.userTask$))
     .concat(subscribeToNTMLSettingChanges(app, state.ntlmAllowedOverride$))
-    .concat(subscribeToAppUserModelIdChanges(app, state.appUserModelId$));
+    .concat(subscribeToAppUserModelIdChanges(app, state.appUserModelId$))
+    .concat(subscribeToNewChromiumParams(app, state.newChromiumParam$));
 }
 
 function subscribeToQuits(app, quit$) {
@@ -226,4 +226,18 @@ function subscribeToNTMLSettingChanges(app, override$) {
 
 function subscribeToAppUserModelIdChanges(app, id$) {
   return id$ && id$.forEach(id => app.setAppUserModelId(id));
+}
+
+function subscribeToNewChromiumParams(app, param$) {
+  return param$ && param$.forEach(({ switches = [], args = [] } = {}) => {
+    switches.forEach(obj => {
+      const applyArgs = [obj.switch];
+      if ('value' in obj) {
+        applyArgs.push(obj.value);
+      }
+      app.appendSwitch.apply(app, applyArgs);
+    });
+
+    args.forEach(arg => app.appendArgument(arg));
+  });
 }

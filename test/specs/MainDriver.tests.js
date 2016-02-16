@@ -29,6 +29,8 @@ describe('MainDriver', () => {
     app.addRecentDocument = spy();
     app.clearRecentDocuments = spy();
     app.setUserTasks = spy();
+    app.appendSwitch = spy();
+    app.appendArgument = spy();
     app.allowNTLMCredentialsForAllDomains = spy();
     app.setAppUserModelId = spy();
     app.exit = spy();
@@ -765,6 +767,31 @@ describe('MainDriver', () => {
         }, 1);
       });
     })
+
+    describe('newChromiumParam$', () => {
+      it('calls appendSwitch and appendArgument for each switch & argument', done => {
+        Cycle.run(() => ({
+          electron: Observable.just({
+            newChromiumParam$: Observable.just({
+              switches: [
+                { 'switch': 'prefetch', value: 1 },
+                { 'switch': 'aggressive-cache-discard' }
+              ],
+              args: [
+                'some arg'
+              ]
+            })
+          })
+        }), { electron: driver });
+
+        setTimeout(() => {
+          expect(app.appendSwitch).to.have.been.calledWith('prefetch', 1);
+          expect(app.appendSwitch).to.have.been.calledWith('aggressive-cache-discard');
+          expect(app.appendArgument).to.have.been.calledWith('some arg');
+          done();
+        }, 1);
+      });
+    });
 
     describe('ntlmAllowedOverride$', () => {
       it('calls the allowNTLMCredentialsForAllDomains app method', done => {

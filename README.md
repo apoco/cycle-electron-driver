@@ -328,10 +328,21 @@ Provide one of the following sinks to change the file path used by electron:
 
 ##### recentDocs
 
-The recentDocs object has the following available sinks:
+The `recentDocs` object has the following available sinks:
 
 * `add$`    - The strings produced by this observable will be added to the OS's recent documents for the app
 * `clear$`  - When this observable produces values, it clears the recent documents for the app
+
+##### newChromiumParam$
+
+The `newChromiumParam$` sink should produce objects with the following properties:
+
+* `switches`  - An `Array` of objects with a required `switch` and optional `value` property to be appended to the
+                Chromium parameters
+* `args`      - An `Array` of strings that will be used for additional command-line arguments to Chromium
+
+Note that these are write-only and cannot be undone. In other words, you cannot remove a switch or argument once it has
+been included.
 
 ##### userTask$
 
