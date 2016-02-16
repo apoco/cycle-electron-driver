@@ -23,6 +23,7 @@ describe('MainDriver', () => {
     app.getLocale = stub();
     app.getAppPath = stub();
     app.getPath = stub();
+    app.isAeroGlassEnabled = stub();
     app.makeSingleInstance = stub();
     app.setPath = spy();
     app.addRecentDocument = spy();
@@ -111,6 +112,24 @@ describe('MainDriver', () => {
             expect(value).to.equal('fr-CA');
             done();
           }
+        });
+      });
+    });
+
+    describe('platformInfo', () => {
+      describe('isAeroGlassEnabled property', () => {
+        it('calls the isAeroGlassEnabled method of the app', done => {
+          app.isAeroGlassEnabled.returns(true);
+
+          Cycle.run(({ electron }) => ({
+            output: Observable.just(electron.platformInfo.isAeroGlassEnabled)
+          }), {
+            electron: driver,
+            output: value$ => value$.first().forEach(isEnabled => {
+              expect(isEnabled).to.be.true;
+              done();
+            })
+          });
         });
       });
     });

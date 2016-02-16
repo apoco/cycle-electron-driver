@@ -32,6 +32,9 @@ export default function AppDriver(app, opts = {}) {
         get version() { return app.getVersion() },
         get locale() { return app.getLocale() }
       },
+      platformInfo: {
+        get isAeroGlassEnabled() { return app.isAeroGlassEnabled(); }
+      },
       paths: setupPathSources(app, state$),
       events: setupEventSources(app, extraLaunch$)
     }

@@ -38,11 +38,17 @@ When constructing the main process driver, an optional second argument can provi
 
 ##### appInfo
 
-The appInfo object provides the following metadata about the electron app:
+The `appInfo` object provides the following metadata about the electron app:
 
 * `name`
 * `version`
 * `locale`
+
+##### platformInfo
+
+The `platformInfo` object provides the following information about the runtime platform:
+
+* `isAeroGlassEnabled`  - (Windows only) whether DWM composition is enabled 
 
 ##### events
 
