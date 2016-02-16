@@ -140,34 +140,35 @@ function setupCertEventSources(app) {
 
 function setupSinkSubscriptions(app, state) {
   return []
-    .concat(setupQuitSubscriptions(app, state.quit$))
-    .concat(setupExitSubscriptions(app, state.exit$))
-    .concat(setupPreventedEventSubscriptions(state.preventedEvent$))
-    .concat(setupTrustedCertSubscriptions(state.trustedCert$))
-    .concat(setupClientCertSelectionSubscriptions(state.clientCertSelection$))
-    .concat(setupLoginSubscriptions(state.login$))
-    .concat(setupPathUpdateSubscriptions(app, state.pathUpdates))
-    .concat(setupRecentDocsSubscriptions(app, state.recentDocs))
-    .concat(setupUserTasksSubscriptions(app, state.userTask$))
-    .concat(setupNTLMOverrideSubscriptions(app, state.ntlmAllowedOverride$));
+    .concat(subscribeToQuits(app, state.quit$))
+    .concat(subscribeToExits(app, state.exit$))
+    .concat(subscribeToPreventedEvents(state.preventedEvent$))
+    .concat(subscribeToCertTrustOverrides(state.trustedCert$))
+    .concat(subscribeToClientCertSelections(state.clientCertSelection$))
+    .concat(subscribeToLogins(state.login$))
+    .concat(subscribeToPathUpdates(app, state.pathUpdates))
+    .concat(subscribeToRecentDocChanges(app, state.recentDocs))
+    .concat(subscribeToUserTaskChanges(app, state.userTask$))
+    .concat(subscribeToNTMLSettingChanges(app, state.ntlmAllowedOverride$))
+    .concat(subscribeToAppUserModelIdChanges(app, state.appUserModelId$));
 }
 
-function setupQuitSubscriptions(app, quit$) {
+function subscribeToQuits(app, quit$) {
   return quit$ && quit$.forEach(() => app.quit());
 }
 
-function setupExitSubscriptions(app, exit$) {
+function subscribeToExits(app, exit$) {
   return exit$ && exit$
     .map(val => isNaN(val) ? 0 : val)
     .forEach(code => app.exit(code));
 }
 
-function setupPreventedEventSubscriptions(preventedEvent$) {
+function subscribeToPreventedEvents(preventedEvent$) {
   return preventedEvent$ && preventedEvent$
     .forEach(e => e.preventDefault());
 }
 
-function setupTrustedCertSubscriptions(trustedCert$) {
+function subscribeToCertTrustOverrides(trustedCert$) {
   return trustedCert$ && trustedCert$
     .forEach(e => {
       e.preventDefault();
@@ -175,7 +176,7 @@ function setupTrustedCertSubscriptions(trustedCert$) {
     });
 }
 
-function setupClientCertSelectionSubscriptions(clientCertSelection$) {
+function subscribeToClientCertSelections(clientCertSelection$) {
   return clientCertSelection$ && clientCertSelection$
     .forEach(({ prompt, cert }) => {
       prompt.preventDefault();
@@ -183,14 +184,14 @@ function setupClientCertSelectionSubscriptions(clientCertSelection$) {
     });
 }
 
-function setupLoginSubscriptions(login$) {
+function subscribeToLogins(login$) {
   return login$ && login$.forEach(({ prompt, username, password }) => {
     prompt.preventDefault();
     prompt.callback(username, password);
   });
 }
 
-function setupPathUpdateSubscriptions(app, pathUpdates) {
+function subscribeToPathUpdates(app, pathUpdates) {
   if (!pathUpdates) {
     return null;
   }
@@ -201,7 +202,7 @@ function setupPathUpdateSubscriptions(app, pathUpdates) {
   });
 }
 
-function setupRecentDocsSubscriptions(app, recentDocs) {
+function subscribeToRecentDocChanges(app, recentDocs) {
   if (!recentDocs) {
     return null;
   }
@@ -212,10 +213,14 @@ function setupRecentDocsSubscriptions(app, recentDocs) {
   ];
 }
 
-function setupUserTasksSubscriptions(app, userTask$) {
+function subscribeToUserTaskChanges(app, userTask$) {
   return userTask$ && userTask$.forEach(tasks => app.setUserTasks(tasks));
 }
 
-function setupNTLMOverrideSubscriptions(app, override$) {
+function subscribeToNTMLSettingChanges(app, override$) {
   return override$ && override$.forEach(enabled => app.allowNTLMCredentialsForAllDomains(enabled));
+}
+
+function subscribeToAppUserModelIdChanges(app, id$) {
+  return id$ && id$.forEach(id => app.setAppUserModelId(id));
 }

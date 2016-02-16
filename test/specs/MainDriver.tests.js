@@ -29,6 +29,7 @@ describe('MainDriver', () => {
     app.clearRecentDocuments = spy();
     app.setUserTasks = spy();
     app.allowNTLMCredentialsForAllDomains = spy();
+    app.setAppUserModelId = spy();
     app.exit = spy();
     app.quit = spy();
     driver = new MainDriver(app);
@@ -760,6 +761,21 @@ describe('MainDriver', () => {
           expect(app.allowNTLMCredentialsForAllDomains).to.have.been.calledWith(true);
           done();
         }, 1)
+      });
+    });
+
+    describe('appUserModelId$', () => {
+      it('causes the setAppUserModelId method of the app to be called', done => {
+        Cycle.run(() => ({
+          electron: Observable.just({
+            appUserModelId$: Observable.just('new-user-model-id')
+          })
+        }), { electron: driver });
+
+        setTimeout(() => {
+          expect(app.setAppUserModelId).to.have.been.calledWith('new-user-model-id');
+          done();
+        }, 1);
       });
     });
   });

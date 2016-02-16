@@ -344,6 +344,12 @@ have the following properties:
 This sink should be an `Observable` of boolean values; when true, NTLM authentication is enabled for sites not 
 recognized as being part of the local intranet.
 
+##### appUserModelId$
+
+This causes the Windows 
+[Application User Model ID](https://msdn.microsoft.com/en-us/library/windows/desktop/dd378459(v=vs.85).aspx) to change
+to the values of the `Observable`.
+
 ##### quit$
 
 When this `Observable` produces a value, an application quit is issued. Use `exit$` instead to forcefully terminate.
