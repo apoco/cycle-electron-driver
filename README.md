@@ -382,6 +382,12 @@ This `Observable` should contain boolean values; `true` values will cause the do
 
 This sink causes the OS X badge label to be updated.
 
+###### menu$
+
+This sink sets the menu in the OS X dock for the application. See 
+[the electron documentation](http://electron.atom.io/docs/v0.36.7/api/app/#appdocksetmenumenu-os-x) for details on what
+these values should be.
+
 ##### ntlmAllowedOverride$
 
 This sink should be an `Observable` of boolean values; when true, NTLM authentication is enabled for sites not 

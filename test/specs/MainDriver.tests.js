@@ -41,7 +41,8 @@ describe('MainDriver', () => {
       getBadge: stub(),
       setBadge: spy(),
       show: spy(),
-      hide: spy()
+      hide: spy(),
+      setMenu: spy()
     };
     driver = new MainDriver(app);
   });
@@ -889,7 +890,26 @@ describe('MainDriver', () => {
             }, 1);
           });
         }
-      })
+      });
+
+      describe('menu$', () => {
+        it('causes app.dock.setMenu to be called', done => {
+          const menu = {};
+
+          Cycle.run(() => ({
+            electron: Observable.just({
+              dock: {
+                menu$: Observable.just(menu)
+              }
+            })
+          }), { electron: driver });
+
+          setTimeout(() => {
+            expect(app.dock.setMenu).to.have.been.calledWith(menu);
+            done();
+          }, 1);
+        });
+      });
     });
 
     describe('newChromiumParam$', () => {
