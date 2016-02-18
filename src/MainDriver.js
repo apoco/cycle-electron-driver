@@ -35,7 +35,12 @@ export default function AppDriver(app, opts = {}) {
         get isAeroGlassEnabled() { return app.isAeroGlassEnabled(); }
       },
       paths: setupPathSources(app, state$),
-      events: setupEventSources(app, extraLaunch$)
+      events: setupEventSources(app, extraLaunch$),
+      get badgeLabel$() {
+        return Observable
+          .just(app.dock.getBadge())
+          .concat(state$.flatMap(({ dock: { badgeLabel$ = Observable.empty() } = {} } = {}) => badgeLabel$));
+      }
     }
   };
 }
@@ -248,12 +253,13 @@ function subscribeToDockSinks(app, dock) {
     return null;
   }
 
-  return subscribeToDockBounceSinks(app, dock.bounce);
+  return subscribeToDockBounceSinks(app, dock.bounce)
+    .concat(subscribeToDockBadgeLabels(app, dock.badgeLabel$));
 }
 
 function subscribeToDockBounceSinks(app, bounce) {
   if (!bounce) {
-    return null;
+    return [];
   }
 
   const nativeIds = {};
@@ -270,4 +276,8 @@ function subscribeToDockBounceSinks(app, bounce) {
       delete nativeIds[id];
     })
   ];
+}
+
+function subscribeToDockBadgeLabels(app, badgeLabel$) {
+  return badgeLabel$ && badgeLabel$.forEach(label => app.dock.setBadge(label));
 }

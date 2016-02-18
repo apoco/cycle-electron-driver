@@ -253,6 +253,10 @@ The `paths` property contains observables for various file paths used by the ele
 
 Changing these paths can be done through the `paths` sinks, except for `app$` which is read-only.
 
+##### badgeLabel$
+
+This `Observable` gives the current and future badge labels of the OS X dock icon.
+
 #### Sinks
 
 ##### login$
@@ -369,6 +373,10 @@ The bounce property of `dock` has the following observable properties:
   and kept track of if you wish to cancel the bounce at a later time. Otherwise, it may be omitted.
 * `cancel$` - This should be an `Observable` of string IDs; these IDs should correlate to the `id` used in the `start$`
   observable objects.
+
+###### badgeLabel$
+
+This sink causes the OS X badge label to be updated.
 
 ##### ntlmAllowedOverride$
 

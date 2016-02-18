@@ -37,7 +37,9 @@ describe('MainDriver', () => {
     app.quit = spy();
     app.dock = {
       bounce: stub(),
-      cancelBounce: spy()
+      cancelBounce: spy(),
+      getBadge: stub(),
+      setBadge: spy()
     };
     driver = new MainDriver(app);
   });
@@ -512,6 +514,32 @@ describe('MainDriver', () => {
         });
       });
     });
+
+    describe('badgeLabel$', () => {
+      it('reflects the current and future badge labels', done => {
+        app.dock.getBadge.returns('Label 1');
+        let valueCount = 0;
+
+        Cycle.run(({ electron }) => ({
+          electron: Observable.just({
+            dock: {
+              badgeLabel$: Observable.timer(5).map('Label 2')
+            }
+          }),
+          output: electron.badgeLabel$
+        }), {
+          electron: driver,
+          output: value$ => value$.forEach(label => {
+            valueCount++;
+            expect(label).to.equal(`Label ${valueCount}`);
+            if (valueCount === 2) {
+              expect(app.dock.setBadge).to.have.been.calledWith('Label 2');
+              done();
+            }
+          })
+        });
+      });
+    })
   });
 
   describe('sink', () => {
