@@ -367,6 +367,8 @@ The bounce property of `dock` has the following observable properties:
 * `start$` - This should be an `Observable` of objects with an `id` and `type` property. The `type` property should be
   a string equalling either `critical` or `informational`. `id` is an arbitrary string that should be unique
   and kept track of if you wish to cancel the bounce at a later time. Otherwise, it may be omitted.
+* `cancel$` - This should be an `Observable` of string IDs; these IDs should correlate to the `id` used in the `start$`
+  observable objects.
 
 ##### ntlmAllowedOverride$
 

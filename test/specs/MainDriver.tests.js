@@ -36,7 +36,8 @@ describe('MainDriver', () => {
     app.exit = spy();
     app.quit = spy();
     app.dock = {
-      bounce: stub()
+      bounce: stub(),
+      cancelBounce: spy()
     };
     driver = new MainDriver(app);
   });
@@ -804,6 +805,28 @@ describe('MainDriver', () => {
               }, 1)
             });
           }
+        });
+
+        describe('cancel$', () => {
+          it('causes previously-started bounces to be cancelled', done => {
+            app.dock.bounce.returns(8346);
+
+            Cycle.run(() => ({
+              electron: Observable.just({
+                dock: {
+                  bounce: {
+                    start$: Observable.just({ id: 'auth-has-expired', type: 'critical' }),
+                    cancel$: Observable.timer(5).map(() => 'auth-has-expired')
+                  }
+                }
+              })
+            }), { electron: driver });
+
+            setTimeout(() => {
+              expect(app.dock.cancelBounce).to.have.been.calledWith(8346);
+              done();
+            }, 10)
+          });
         });
       });
     });

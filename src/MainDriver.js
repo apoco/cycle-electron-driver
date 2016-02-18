@@ -256,5 +256,18 @@ function subscribeToDockBounceSinks(app, bounce) {
     return null;
   }
 
-  return bounce.start$ && bounce.start$.forEach(({ type = 'informational' } = {}) => app.dock.bounce(type));
+  const nativeIds = {};
+
+  return [
+    bounce.start$ && bounce.start$.forEach(({ id, type = 'informational' } = {}) => {
+      nativeIds[id] = app.dock.bounce(type);
+    }),
+    bounce.cancel$ && bounce.cancel$.forEach(id => {
+      const nativeId = nativeIds[id];
+      if (nativeId) {
+        app.dock.cancelBounce(nativeId);
+      }
+      delete nativeIds[id];
+    })
+  ];
 }
