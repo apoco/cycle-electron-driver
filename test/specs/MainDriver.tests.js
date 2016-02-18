@@ -39,7 +39,9 @@ describe('MainDriver', () => {
       bounce: stub(),
       cancelBounce: spy(),
       getBadge: stub(),
-      setBadge: spy()
+      setBadge: spy(),
+      show: spy(),
+      hide: spy()
     };
     driver = new MainDriver(app);
   });
@@ -857,6 +859,37 @@ describe('MainDriver', () => {
           });
         });
       });
+
+      describe('visibility$', () => {
+        it('hides the dock when producing `false` values', () => {
+          return testVisibility(false, () => {
+            expect(app.dock.hide).to.have.been.called;
+          })
+        });
+
+        it('shows the dock when producing `true` values', () => {
+          return testVisibility(true, () => {
+            expect(app.dock.show).to.have.been.called;
+          })
+        });
+
+        function testVisibility(value, assertions) {
+          return new Promise(resolve => {
+            Cycle.run(() => ({
+              electron: Observable.just({
+                dock: {
+                  visibility$: Observable.just(value)
+                }
+              })
+            }), { electron: driver });
+
+            setTimeout(() => {
+              assertions();
+              resolve();
+            }, 1);
+          });
+        }
+      })
     });
 
     describe('newChromiumParam$', () => {

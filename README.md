@@ -374,6 +374,10 @@ The bounce property of `dock` has the following observable properties:
 * `cancel$` - This should be an `Observable` of string IDs; these IDs should correlate to the `id` used in the `start$`
   observable objects.
 
+###### visibility$
+
+This `Observable` should contain boolean values; `true` values will cause the dock icon to show, `false` to hide.
+
 ###### badgeLabel$
 
 This sink causes the OS X badge label to be updated.

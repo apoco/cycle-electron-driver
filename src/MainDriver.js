@@ -254,7 +254,8 @@ function subscribeToDockSinks(app, dock) {
   }
 
   return subscribeToDockBounceSinks(app, dock.bounce)
-    .concat(subscribeToDockBadgeLabels(app, dock.badgeLabel$));
+    .concat(subscribeToDockBadgeLabels(app, dock.badgeLabel$))
+    .concat(subscribeToDockVisibility(app, dock.visibility$));
 }
 
 function subscribeToDockBounceSinks(app, bounce) {
@@ -280,4 +281,15 @@ function subscribeToDockBounceSinks(app, bounce) {
 
 function subscribeToDockBadgeLabels(app, badgeLabel$) {
   return badgeLabel$ && badgeLabel$.forEach(label => app.dock.setBadge(label));
+}
+
+function subscribeToDockVisibility(app, visibility$) {
+  if (!visibility$) {
+    return [];
+  }
+
+  return [
+    visibility$.filter(value => value === false).forEach(() => app.dock.hide()),
+    visibility$.filter(value => value === true).forEach(() => app.dock.show())
+  ];
 }
