@@ -42,7 +42,8 @@ describe('MainDriver', () => {
       setBadge: spy(),
       show: spy(),
       hide: spy(),
-      setMenu: spy()
+      setMenu: spy(),
+      setIcon: spy()
     };
     driver = new MainDriver(app);
   });
@@ -890,6 +891,25 @@ describe('MainDriver', () => {
             }, 1);
           });
         }
+      });
+
+      describe('icon$', () => {
+        it('causes app.dock.setIcon to be called', done => {
+          const img = {};
+
+          Cycle.run(() => ({
+            electron: Observable.just({
+              dock: {
+                icon$: Observable.just(img)
+              }
+            })
+          }), { electron: driver });
+
+          setTimeout(() => {
+            expect(app.dock.setIcon).to.have.been.calledWith(img);
+            done();
+          }, 1)
+        });
       });
 
       describe('menu$', () => {
