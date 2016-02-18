@@ -35,6 +35,9 @@ describe('MainDriver', () => {
     app.setAppUserModelId = spy();
     app.exit = spy();
     app.quit = spy();
+    app.dock = {
+      bounce: stub()
+    };
     driver = new MainDriver(app);
   });
 
@@ -767,6 +770,43 @@ describe('MainDriver', () => {
         }, 1);
       });
     })
+
+    describe('dock', () => {
+      describe('bounce', () => {
+        describe('start$', () => {
+          it('invokes app.dock.bounce method with "informational" type by default', () => {
+            return testBounceStart({}, () => {
+              expect(app.dock.bounce).to.have.been.calledWith('informational');
+            })
+          });
+
+          it('invokes app.dock.bounce method with a specific type if provided', () => {
+            return testBounceStart({ type: 'critical' }, () => {
+              expect(app.dock.bounce).to.have.been.calledWith('critical');
+            })
+          });
+
+          function testBounceStart(bounce, assertions) {
+            return new Promise(resolve => {
+              Cycle.run(() => ({
+                electron: Observable.just({
+                  dock: {
+                    bounce: {
+                      start$: Observable.just(bounce)
+                    }
+                  }
+                })
+              }), { electron: driver });
+
+              setTimeout(() => {
+                assertions();
+                resolve();
+              }, 1)
+            });
+          }
+        });
+      });
+    });
 
     describe('newChromiumParam$', () => {
       it('calls appendSwitch and appendArgument for each switch & argument', done => {

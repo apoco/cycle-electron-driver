@@ -356,6 +356,18 @@ have the following properties:
 * `iconPath` - Path to the icon to show for the task
 * `iconIndex` - If `iconPath` contains multiple icons, the index of the icon to use for the task
 
+##### dock
+
+The `dock` property is a container for multiple OSX-specific sinks.
+
+###### bounce
+
+The bounce property of `dock` has the following observable properties:
+
+* `start$` - This should be an `Observable` of objects with an `id` and `type` property. The `type` property should be
+  a string equalling either `critical` or `informational`. `id` is an arbitrary string that should be unique
+  and kept track of if you wish to cancel the bounce at a later time. Otherwise, it may be omitted.
+
 ##### ntlmAllowedOverride$
 
 This sink should be an `Observable` of boolean values; when true, NTLM authentication is enabled for sites not 

@@ -153,7 +153,8 @@ function setupSinkSubscriptions(app, state) {
     .concat(subscribeToUserTaskChanges(app, state.userTask$))
     .concat(subscribeToNTMLSettingChanges(app, state.ntlmAllowedOverride$))
     .concat(subscribeToAppUserModelIdChanges(app, state.appUserModelId$))
-    .concat(subscribeToNewChromiumParams(app, state.newChromiumParam$));
+    .concat(subscribeToNewChromiumParams(app, state.newChromiumParam$))
+    .concat(subscribeToDockSinks(app, state.dock));
 }
 
 function subscribeToQuits(app, quit$) {
@@ -240,4 +241,20 @@ function subscribeToNewChromiumParams(app, param$) {
 
     args.forEach(arg => app.appendArgument(arg));
   });
+}
+
+function subscribeToDockSinks(app, dock) {
+  if (!dock) {
+    return null;
+  }
+
+  return subscribeToDockBounceSinks(app, dock.bounce);
+}
+
+function subscribeToDockBounceSinks(app, bounce) {
+  if (!bounce) {
+    return null;
+  }
+
+  return bounce.start$ && bounce.start$.forEach(({ type = 'informational' } = {}) => app.dock.bounce(type));
 }
