@@ -9,6 +9,7 @@ If you are already familiar with the `electron` API, here's a map of its interfa
 * app
   * events
     * `will-finish-launching` - [AppEventsDriver](#appeventsdriver)
+    * `ready` - [AppEventsDriver](#appeventsdriver)
 
 ## Drivers
 
@@ -24,7 +25,7 @@ To create the driver, simply call the constructor with the electron `app`:
 import Cycle from '@cycle/core';
 import { app } from 'electron';
 
-Cycle.run(({ app }) => ({
+Cycle.run(({ appEvent$ }) => ({
   ready$: appEvent$.filter(e => e.type === 'ready')
 }), {
   appEvent$: AppEventsDriver(app)
@@ -76,7 +77,6 @@ platformInfo:
   isAeroGlassEnabled
 events() :: String -> Observable
   extraLaunch$
-  ready$
   activation$
   fileOpen$
   urlOpen$
@@ -146,13 +146,6 @@ Values are objects with the following properties:
 
 * `argv`  - Array of command-line arguments used when this was launched
 * `cwd`   - The working directory of the process that was launched
-
-###### events.ready$
-
-These events are raised once the application is ready.
-
-See the [`ready`](http://electron.atom.io/docs/v0.36.5/api/app/#event-ready) event documentation
-for more information.
 
 ###### events.activation$
 

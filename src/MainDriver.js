@@ -68,7 +68,6 @@ function setupPathSources(app, state$) {
 }
 
 const eventShortcuts = {
-  ready$: 'ready',
   beforeAllWindowClose$: 'before-quit',
   allWindowsClose$: 'window-all-closed',
   beforeExit$: 'will-quit',

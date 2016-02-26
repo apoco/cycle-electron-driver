@@ -145,7 +145,6 @@ describe('MainDriver', () => {
       const eventShortcuts = {
         allWindowsClose$: 'window-all-closed',
         beforeAllWindowClose$: 'before-quit',
-        ready$: 'ready',
         beforeExit$: 'will-quit'
       };
 

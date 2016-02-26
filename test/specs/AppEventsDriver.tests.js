@@ -14,21 +14,26 @@ describe('AppEventsDriver', () => {
     driver = new AppEventsDriver(app);
   });
 
-  it('provides `will-finish-launching` events', done => {
-    Cycle.run(({ app: appEvent$ }) => ({
-      output: appEvent$.filter(e => e.type === 'will-finish-launching')
-    }), {
-      app: driver,
-      output: event$ => event$.first().forEach(assert)
+  [
+    'will-finish-launching',
+    'ready'
+  ].forEach(eventName => {
+    it(`provides ${eventName} events`, done => {
+      Cycle.run(({ app: appEvent$ }) => ({
+        output: appEvent$.filter(e => e.type === eventName)
+      }), {
+        app: driver,
+        output: event$ => event$.first().forEach(assert)
+      });
+
+      setTimeout(() => {
+        app.emit(eventName);
+      }, 1);
+
+      function assert(event) {
+        expect(event).to.exist;
+        done();
+      }
     });
-
-    setTimeout(() => {
-      app.emit('will-finish-launching');
-    }, 1);
-
-    function assert(event) {
-      expect(event).to.exist;
-      done();
-    }
   });
 });
