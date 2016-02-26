@@ -36,6 +36,51 @@ When constructing the main process driver, an optional second argument can provi
 
 #### Sources
 
+The source object provided by `MainDriver` contains multiple properties and observables, most of which you will never
+need to use. To summarize the overall structure, it looks something like this:
+
+```
+appInfo:
+  name
+  version
+  locale
+platformInfo:
+  isAeroGlassEnabled
+events() :: String -> Observable
+  extraLaunch$
+  willFinishLaunching$
+  ready$
+  activation$
+  fileOpen$
+  urlOpen$
+  windowOpen$
+  windowFocus$
+  windowBlur$
+  loginPrompt$
+  clientCertPrompt$
+  certError$
+  gpuProcessCrash$
+  beforeAllWindowClose$
+  allWindowsClose$
+  beforeExit$
+  exit$
+paths:
+  app$
+  appData$
+  desktop$
+  documents$
+  downloads$
+  exe$
+  home$
+  module$
+  music$
+  pictures$
+  temp$
+  userData$
+  videos$
+badgeLabel$
+```
+
 ##### appInfo
 
 The `appInfo` object provides the following metadata about the electron app:
@@ -258,6 +303,46 @@ Changing these paths can be done through the `paths` sinks, except for `app$` wh
 This `Observable` gives the current and future badge labels of the OS X dock icon.
 
 #### Sinks
+
+The sink for the driver should be an observable that produces an object containing multiple sink observables. Any of
+these sinks can be omitted if not needed. The object properties can be summarized as follows:
+
+```
+login$
+clientCertSelection$
+trustedCert$
+preventedEvent$
+pathUpdates:
+  appData$
+  desktop$
+  documents$
+  downloads$
+  exe$
+  home$
+  module$
+  music$
+  pictures$
+  temp$
+  userData$
+  videos$
+recentDocs:
+  add$
+  clear$
+newChromiumParam$
+userTask$
+dock:
+  bounce:
+    start$
+    cancel$
+  visibility$
+  badgeLabel$
+  menu$
+  icon$
+ntlmAllowedOverride$
+appUserModelId$
+quit$
+exit$
+```
 
 ##### login$
 
