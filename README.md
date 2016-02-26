@@ -10,6 +10,7 @@ If you are already familiar with the `electron` API, here's a map of its interfa
   * events
     * `will-finish-launching` - [AppEventsDriver](#appeventsdriver)
     * `ready` - [AppEventsDriver](#appeventsdriver)
+    * `window-all-closed` - [AppEventsDriver](#appeventsdriver)
 
 ## Drivers
 
@@ -37,6 +38,8 @@ These events have a `type` property that matches
 event arguments are normalized into the event object properties as follows:
 
 * `will-finish-launching` (no properties)
+* `ready` (no properties)
+* `window-all-closed` (no properties)
 
 ### Main process driver
 
@@ -88,7 +91,6 @@ events() :: String -> Observable
   certError$
   gpuProcessCrash$
   beforeAllWindowClose$
-  allWindowsClose$
   beforeExit$
   exit$
 paths:
@@ -255,25 +257,6 @@ function main({ electron: { events: { beforeAllWindowClose$ } } }) {
 ```
 
 See the [`before-quit`](http://electron.atom.io/docs/v0.36.5/api/app/#event-before-quit) event documentation
-for more information.
-
-###### events.allWindowsClose$
-
-These events are raised whenever all windows have closed and the application does not automatically quit after its
-windows have closed. OSX, for example, does not automatically quit when its windows have closed. Here's how you can
-force these events to provoke an exit:
-
-```js
-function main({ electron: { events: { allWindowsClose$ } } }) {
-  return {
-    electron: Observable.just({
-      exit$: allWindowsClose$
-    })
-  }
-}
-```
-
-See the [`window-all-closed`](http://electron.atom.io/docs/v0.36.5/api/app/#event-window-all-closed) event documentation
 for more information.
 
 ###### events.beforeExit$

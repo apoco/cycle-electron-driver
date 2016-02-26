@@ -16,7 +16,8 @@ describe('AppEventsDriver', () => {
 
   [
     'will-finish-launching',
-    'ready'
+    'ready',
+    'window-all-closed'
   ].forEach(eventName => {
     it(`provides ${eventName} events`, done => {
       Cycle.run(({ app: appEvent$ }) => ({

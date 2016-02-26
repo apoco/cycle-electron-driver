@@ -2,7 +2,8 @@ import { Observable } from 'rx';
 
 const eventTypes = [
   'will-finish-launching',
-  'ready'
+  'ready',
+  'window-all-closed'
 ];
 
 export default function AppEventsDriver(app) {

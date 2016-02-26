@@ -69,7 +69,6 @@ function setupPathSources(app, state$) {
 
 const eventShortcuts = {
   beforeAllWindowClose$: 'before-quit',
-  allWindowsClose$: 'window-all-closed',
   beforeExit$: 'will-quit',
   gpuProcessCrash$: 'gpu-process-crashed'
 };
