@@ -1,13 +1,41 @@
 # cycle-electron-driver
 
-Cycle.js drivers for electron apps
+The `cycle-electron-driver` module provides Cycle.js drivers for building Electron apps.
 
+## API mappings
+
+If you are already familiar with the `electron` API, here's a map of its interface to drivers:
+
+* app
+  * events
+    * `will-finish-launching` - [AppEventsDriver](#appeventsdriver)
 
 ## Drivers
 
 An electron application is made up of two processes; the main process and the render process. Each have different sets
 of modules they interact with. Thus, two different drivers are provided by `cycle-electron-driver`.
 
+### AppEventsDriver
+
+`AppEventsDriver` provides access to electron app events. It only provides a source observable containing all events.
+To create the driver, simply call the constructor with the electron `app`:
+
+```js
+import Cycle from '@cycle/core';
+import { app } from 'electron';
+
+Cycle.run(({ app }) => ({
+  ready$: appEvent$.filter(e => e.type === 'ready')
+}), {
+  appEvent$: AppEventsDriver(app)
+});
+```
+
+These events have a `type` property that matches
+[the names of the electron events](https://github.com/atom/electron/blob/master/docs/api/app.md#events). Additional
+event arguments are normalized into the event object properties as follows:
+
+* `will-finish-launching` (no properties)
 
 ### Main process driver
 
@@ -48,7 +76,6 @@ platformInfo:
   isAeroGlassEnabled
 events() :: String -> Observable
   extraLaunch$
-  willFinishLaunching$
   ready$
   activation$
   fileOpen$
@@ -119,13 +146,6 @@ Values are objects with the following properties:
 
 * `argv`  - Array of command-line arguments used when this was launched
 * `cwd`   - The working directory of the process that was launched
-
-###### events.willFinishLaunching$
-
-This is equivalent to `events('will-finish-launching')`.
-
-See the [`will-finish-launching`](http://electron.atom.io/docs/v0.36.5/api/app/#event-will-finish-launching) event 
-documentation for more information.
 
 ###### events.ready$
 

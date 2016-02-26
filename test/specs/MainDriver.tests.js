@@ -1,12 +1,13 @@
 import MainDriver from '../../src/MainDriver';
 
 import { expect } from 'chai';
-import { spy, stub } from 'sinon';
+import { spy } from 'sinon';
 
 import Promise from 'bluebird';
 import Cycle from '@cycle/core';
 import { Observable } from 'rx';
-import EventEmitter from 'events';
+
+import AppStub from '../stubs/App';
 
 const pathNames = [
   'appData', 'desktop', 'documents', 'downloads', 'exe',
@@ -17,34 +18,7 @@ describe('MainDriver', () => {
   let app = null, driver = null;
 
   beforeEach(() => {
-    app = new EventEmitter();
-    app.getName = stub();
-    app.getVersion = stub();
-    app.getLocale = stub();
-    app.getAppPath = stub();
-    app.getPath = stub();
-    app.isAeroGlassEnabled = stub();
-    app.makeSingleInstance = stub();
-    app.setPath = spy();
-    app.addRecentDocument = spy();
-    app.clearRecentDocuments = spy();
-    app.setUserTasks = spy();
-    app.appendSwitch = spy();
-    app.appendArgument = spy();
-    app.allowNTLMCredentialsForAllDomains = spy();
-    app.setAppUserModelId = spy();
-    app.exit = spy();
-    app.quit = spy();
-    app.dock = {
-      bounce: stub(),
-      cancelBounce: spy(),
-      getBadge: stub(),
-      setBadge: spy(),
-      show: spy(),
-      hide: spy(),
-      setMenu: spy(),
-      setIcon: spy()
-    };
+    app = new AppStub();
     driver = new MainDriver(app);
   });
 
@@ -172,7 +146,6 @@ describe('MainDriver', () => {
         allWindowsClose$: 'window-all-closed',
         beforeAllWindowClose$: 'before-quit',
         ready$: 'ready',
-        willFinishLaunching$: 'will-finish-launching',
         beforeExit$: 'will-quit'
       };
 
@@ -857,7 +830,7 @@ describe('MainDriver', () => {
             setTimeout(() => {
               expect(app.dock.cancelBounce).to.have.been.calledWith(8346);
               done();
-            }, 10)
+            }, 11)
           });
         });
       });
