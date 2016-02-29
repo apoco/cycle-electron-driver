@@ -96,9 +96,6 @@ function setupEventSources(app, extraLaunch$) {
 
 function setupLifecycleEventSources(app) {
   return {
-    get activation$() {
-      return Observable.fromEvent(app, 'activate', (e, hasVisibleWindows) => Object.assign(e, {hasVisibleWindows}))
-    },
     get exit$() {
       return Observable.fromEvent(app, 'quit', (e, exitCode) => Object.assign(e, {exitCode}))
     }

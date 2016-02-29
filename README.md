@@ -15,6 +15,8 @@ If you are already familiar with the `electron` API, here's a map of its interfa
     * `will-quit` - [AppEventsDriver](#appeventsdriver)
     * `quit` - [AppEventsDriver](#appeventsdriver)
     * `open-file` - [AppEventsDriver](#appeventsdriver)
+    * `open-url` - [AppEventsDriver](#appeventsdriver)
+    * `activate` - [AppEventsDriver](#appeventsdriver)
 
 ## Drivers
 
@@ -44,6 +46,7 @@ event arguments are normalized into the event object properties as follows:
 * `quit` - `exitCode`
 * `open-file` - `path`
 * `open-url` - `url`
+* `activate` - `hasVisibleWindows`
 
 Additionally, you can provide a sink observable for controlling the behavior of events. The `prevented` Array 
 property of the observable value objects lists the event types that should automatically have their default
@@ -103,7 +106,6 @@ platformInfo:
   isAeroGlassEnabled
 events() :: String -> Observable
   extraLaunch$
-  activation$
   windowOpen$
   windowFocus$
   windowBlur$
@@ -169,15 +171,6 @@ Values are objects with the following properties:
 
 * `argv`  - Array of command-line arguments used when this was launched
 * `cwd`   - The working directory of the process that was launched
-
-###### events.activation$
-
-These events are raised, for OS X, when the application is activated (clicked on the dock, for example). It has a
-`hasVisibleWindows` property.
-
-See the [`activate`](http://electron.atom.io/docs/v0.36.5/api/app/#event-activate) event documentation
-for more information.
-
 
 ###### events.windowOpen$
 

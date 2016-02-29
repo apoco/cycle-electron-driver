@@ -169,26 +169,6 @@ describe('MainDriver', () => {
         });
       });
 
-      describe('activation$', () => {
-        it('contains activate events with a hasVisibleWindows property', done => {
-          Cycle.run(({ electron }) => {
-            return {
-              verify: electron.events.activation$
-            }
-          }, {
-            electron: driver,
-            verify: events$ => events$.first().forEach(verify)
-          });
-
-          setTimeout(() => app.emit('activate', { }, true), 1);
-
-          function verify(e) {
-            expect(e).to.have.property('hasVisibleWindows', true);
-            done();
-          }
-        });
-      });
-
       describe('loginPrompt$', () => {
         it('contains login events with additional details', done => {
           Cycle.run(({ electron }) => {

@@ -97,6 +97,24 @@ describe('AppEventsDriver', () => {
     }
   });
 
+  it('adds a hasVisibleWindows property to activate events', done => {
+    Cycle.run(({ appEvent$ }) => ({
+      output: appEvent$.filter(e => e.type === 'activate')
+    }), {
+      appEvent$: driver,
+      output: event$ => event$.first().forEach(assert)
+    });
+
+    setTimeout(() => {
+      app.emit('activate', {}, true);
+    }, 1);
+
+    function assert(event) {
+      expect(event).to.have.property('hasVisibleWindows', true);
+      done();
+    }
+  });
+
   it('can prevent default behaviors for events', done => {
     Cycle.run(() => ({
       appEvent$: Observable.just({
