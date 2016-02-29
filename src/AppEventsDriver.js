@@ -9,13 +9,18 @@ const eventTypes = [
   'quit'
 ];
 
+const eventConstructors = {
+  'quit': (e, exitCode) => Object.assign(e, { exitCode })
+};
+
 export default function AppEventsDriver(app) {
   return eventBehavior$ => {
 
     const event$ = Observable
       .merge(eventTypes.map(type => Observable
-        .fromEvent(app, type)
-        .map(e => Object.assign(e, { type }))
+        .fromEvent(app, type, (...args) => Object.assign(
+          (type in eventConstructors) ? eventConstructors[type].apply(null, args) : args[0],
+          { type }))
       ));
 
     event$

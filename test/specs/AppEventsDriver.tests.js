@@ -43,6 +43,26 @@ describe('AppEventsDriver', () => {
     });
   });
 
+  describe('quit events', () => {
+    it('contain an exitCode property', done => {
+      Cycle.run(({ appEvent$ }) => ({
+        output: appEvent$.filter(e => e.type === 'quit')
+      }), {
+        appEvent$: driver,
+        output: event$ => event$.first().forEach(assert)
+      });
+
+      setTimeout(() => {
+        app.emit('quit', {}, 255);
+      }, 1);
+
+      function assert(event) {
+        expect(event).to.have.property('exitCode', 255);
+        done();
+      }
+    });
+  });
+
   it('can prevent default behaviors for events', done => {
     Cycle.run(() => ({
       appEvent$: Observable.just({

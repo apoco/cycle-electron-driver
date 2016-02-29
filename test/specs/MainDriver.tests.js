@@ -373,27 +373,6 @@ describe('MainDriver', () => {
         });
       });
 
-      describe('exit$', () => {
-        it('contains the quit event merged with the exit code', done => {
-          Cycle.run(({ electron }) => {
-            return {
-              output: electron.events.exit$
-            }
-          }, {
-            electron: driver,
-            output: event$ => event$.first().forEach(verify)
-          });
-
-          setTimeout(() => app.emit('quit', { name: 'quit' }, -3289), 1);
-
-          function verify(e) {
-            expect(e).to.have.property('name', 'quit');
-            expect(e).to.have.property('exitCode', -3289);
-            done();
-          }
-        });
-      });
-
       describe('gpuProcessCrash$', () => {
         it('emits when gpu-process-crashed events occur', done => {
           Cycle.run(({ electron }) => {
