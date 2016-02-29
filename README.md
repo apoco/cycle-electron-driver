@@ -11,6 +11,9 @@ If you are already familiar with the `electron` API, here's a map of its interfa
     * `will-finish-launching` - [AppEventsDriver](#appeventsdriver)
     * `ready` - [AppEventsDriver](#appeventsdriver)
     * `window-all-closed` - [AppEventsDriver](#appeventsdriver)
+    * `before-quit` - [AppEventsDriver](#appeventsdriver)
+    * `will-quit` - [AppEventsDriver](#appeventsdriver)
+    * `quit` - [AppEventsDriver](#appeventsdriver)
 
 ## Drivers
 
@@ -19,7 +22,7 @@ of modules they interact with. Thus, two different drivers are provided by `cycl
 
 ### AppEventsDriver
 
-`AppEventsDriver` provides access to electron app events. It only provides a source observable containing all events.
+`AppEventsDriver` provides access to electron app events. It provides a source observable containing all events.
 To create the driver, simply call the constructor with the electron `app`:
 
 ```js
@@ -37,9 +40,26 @@ These events have a `type` property that matches
 [the names of the electron events](https://github.com/atom/electron/blob/master/docs/api/app.md#events). Additional
 event arguments are normalized into the event object properties as follows:
 
-* `will-finish-launching` (no properties)
-* `ready` (no properties)
-* `window-all-closed` (no properties)
+* `quit` - `exitCode`
+
+Additionally, you can provide a sink observable for controlling the behavior of events. The `prevented` Array 
+property of the observable value objects lists the event types that should automatically have their default
+behavior cancelled. Use this, for example, to prevent `before-quit` events if the app is not saved:
+
+```js
+Cycle.run(sources => {  
+  // let isSaved$ = ...
+  
+  return {
+    appEvent$: isSaved$.map(isSaved => ({
+      prevented: isSaved ? [] : ['before-quit']
+    }))
+  };
+
+}, {
+  appEvent$: AppEventsDriver(app)
+});
+```
 
 ### Main process driver
 
@@ -240,39 +260,6 @@ These are raised when the GPU process crashes.
 See the [`gpu-process-crashed`](http://electron.atom.io/docs/v0.36.5/api/app/#event-gpu-process-crashed) event 
 documentation for more information.
 
-
-###### events.beforeAllWindowClose$
-
-These are raised before the application starts closing its windows in response to an exit. To prevent an exit occurring,
-pipe these into the `preventedEvent$` sink:
-
-```js
-function main({ electron: { events: { beforeAllWindowClose$ } } }) {
-  return {
-    electron: Observable.just({
-      preventedEvent$: beforeAllWindowClose$
-    })
-  };
-}
-```
-
-See the [`before-quit`](http://electron.atom.io/docs/v0.36.5/api/app/#event-before-quit) event documentation
-for more information.
-
-###### events.beforeExit$
-
-These are raised after all windows have closed and the application is about to exit. Pipe these to the 
-`preventedEvent$` sink to cancel the exit.
-
-See the [`will-quit`](http://electron.atom.io/docs/v0.36.5/api/app/#event-will-quit) event documentation
-for more information.
-
-###### events.exit$
-
-These events are raised when the electron app has exited. It has an `exitCode` property. 
-
-See the [`quit`](http://electron.atom.io/docs/v0.36.5/api/app/#event-quit) event documentation
-for more information.
 
 ##### paths
 

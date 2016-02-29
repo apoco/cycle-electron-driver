@@ -142,36 +142,6 @@ describe('MainDriver', () => {
         });
       });
 
-      const eventShortcuts = {
-        beforeAllWindowClose$: 'before-quit',
-        beforeExit$: 'will-quit'
-      };
-
-      Object.keys(eventShortcuts).forEach(key => {
-        describe(key, () => {
-          const eventName = eventShortcuts[key];
-
-          it(`emits when ${eventName} events are emitted`, done => {
-            Cycle.run(({ electron }) => {
-              return {
-                receivedEvent$: electron.events[key]
-              }
-            }, {
-              electron: driver,
-              receivedEvent$: events$ => events$.first().forEach(verify)
-            });
-
-            const emittedEvent = {};
-            setTimeout(() => app.emit(eventName, emittedEvent), 1);
-
-            function verify(e) {
-              expect(e).to.equal(emittedEvent);
-              done();
-            }
-          });
-        });
-      });
-
       describe('extraLaunch$', () => {
         it('indicates when additional launches are requested in single-instance mode', done => {
           const args = ['arg1', 'arg2'];
@@ -828,7 +798,7 @@ describe('MainDriver', () => {
             setTimeout(() => {
               expect(app.dock.cancelBounce).to.have.been.calledWith(8346);
               done();
-            }, 11)
+            }, 20)
           });
         });
       });

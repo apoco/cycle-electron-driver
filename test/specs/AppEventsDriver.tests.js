@@ -1,6 +1,8 @@
 import AppEventsDriver from '../../src/AppEventsDriver';
 
 import { expect } from 'chai';
+import { spy } from 'sinon';
+import { Observable } from 'rx';
 import Cycle from '@cycle/core';
 
 import AppStub from '../stubs/App';
@@ -17,7 +19,10 @@ describe('AppEventsDriver', () => {
   [
     'will-finish-launching',
     'ready',
-    'window-all-closed'
+    'window-all-closed',
+    'before-quit',
+    'will-quit',
+    'quit'
   ].forEach(eventName => {
     it(`provides ${eventName} events`, done => {
       Cycle.run(({ app: appEvent$ }) => ({
@@ -28,7 +33,7 @@ describe('AppEventsDriver', () => {
       });
 
       setTimeout(() => {
-        app.emit(eventName);
+        app.emit(eventName, {});
       }, 1);
 
       function assert(event) {
@@ -36,5 +41,28 @@ describe('AppEventsDriver', () => {
         done();
       }
     });
+  });
+
+  it('can prevent default behaviors for events', done => {
+    Cycle.run(() => ({
+      appEvent$: Observable.just({
+        prevented: ['will-quit']
+      })
+    }), {
+      appEvent$: driver
+    });
+
+    setTimeout(() => {
+      const event1 = { preventDefault: spy() };
+      const event2 = { preventDefault: spy() };
+
+      app.emit('before-quit', event1);
+      expect(event1.preventDefault).to.have.not.been.called;
+
+      app.emit('will-quit', event2);
+      expect(event2.preventDefault).to.have.been.called;
+
+      done();
+    }, 1);
   });
 });
