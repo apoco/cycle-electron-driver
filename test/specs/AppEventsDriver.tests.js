@@ -43,24 +43,40 @@ describe('AppEventsDriver', () => {
     });
   });
 
-  describe('quit events', () => {
-    it('contain an exitCode property', done => {
-      Cycle.run(({ appEvent$ }) => ({
-        output: appEvent$.filter(e => e.type === 'quit')
-      }), {
-        appEvent$: driver,
-        output: event$ => event$.first().forEach(assert)
-      });
-
-      setTimeout(() => {
-        app.emit('quit', {}, 255);
-      }, 1);
-
-      function assert(event) {
-        expect(event).to.have.property('exitCode', 255);
-        done();
-      }
+  it('adds an exitCode property to quit events', done => {
+    Cycle.run(({ appEvent$ }) => ({
+      output: appEvent$.filter(e => e.type === 'quit')
+    }), {
+      appEvent$: driver,
+      output: event$ => event$.first().forEach(assert)
     });
+
+    setTimeout(() => {
+      app.emit('quit', {}, 255);
+    }, 1);
+
+    function assert(event) {
+      expect(event).to.have.property('exitCode', 255);
+      done();
+    }
+  });
+
+  it('adds a path property to open-file events', done => {
+    Cycle.run(({ appEvent$ }) => ({
+      output: appEvent$.filter(e => e.type === 'open-file')
+    }), {
+      appEvent$: driver,
+      output: event$ => event$.first().forEach(assert)
+    });
+
+    setTimeout(() => {
+      app.emit('open-file', {}, '/some/path');
+    }, 1);
+
+    function assert(event) {
+      expect(event).to.have.property('path', '/some/path');
+      done();
+    }
   });
 
   it('can prevent default behaviors for events', done => {

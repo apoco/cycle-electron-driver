@@ -14,6 +14,7 @@ If you are already familiar with the `electron` API, here's a map of its interfa
     * `before-quit` - [AppEventsDriver](#appeventsdriver)
     * `will-quit` - [AppEventsDriver](#appeventsdriver)
     * `quit` - [AppEventsDriver](#appeventsdriver)
+    * `open-file` - [AppEventsDriver](#appeventsdriver)
 
 ## Drivers
 
@@ -41,6 +42,7 @@ These events have a `type` property that matches
 event arguments are normalized into the event object properties as follows:
 
 * `quit` - `exitCode`
+* `open-file` - `path`
 
 Additionally, you can provide a sink observable for controlling the behavior of events. The `prevented` Array 
 property of the observable value objects lists the event types that should automatically have their default
@@ -101,7 +103,6 @@ platformInfo:
 events() :: String -> Observable
   extraLaunch$
   activation$
-  fileOpen$
   urlOpen$
   windowOpen$
   windowFocus$
@@ -177,14 +178,6 @@ These events are raised, for OS X, when the application is activated (clicked on
 See the [`activate`](http://electron.atom.io/docs/v0.36.5/api/app/#event-activate) event documentation
 for more information.
 
-
-###### events.fileOpen$
-
-These events are raised when a file is being requested to be opened by your app. The `path` property of an event gives
-the path of the file. Be sure to pipe these to the `preventedEvent$` sink if you want to provide custom handling.
-
-See the [`open-file`](http://electron.atom.io/docs/v0.36.5/api/app/#event-open-file) event documentation
-for more information.
 
 ###### events.urlOpen$
 

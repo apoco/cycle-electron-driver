@@ -79,9 +79,6 @@ function setupEventSources(app, extraLaunch$) {
     setupLifecycleEventSources(app),
     {
       extraLaunch$,
-      get fileOpen$() {
-        return Observable.fromEvent(app, 'open-file', (e, path) => Object.assign(e, {path}))
-      },
       get urlOpen$() {
         return Observable.fromEvent(app, 'open-url', (e, url) => Object.assign(e, {url}))
       },

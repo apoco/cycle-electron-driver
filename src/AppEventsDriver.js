@@ -1,25 +1,24 @@
 import { Observable } from 'rx';
 
-const eventTypes = [
-  'will-finish-launching',
-  'ready',
-  'window-all-closed',
-  'before-quit',
-  'will-quit',
-  'quit'
-];
+const defaultConstructor = e => e;
 
 const eventConstructors = {
-  'quit': (e, exitCode) => Object.assign(e, { exitCode })
+  'will-finish-launching':  defaultConstructor,
+  'ready':                  defaultConstructor,
+  'window-all-closed':      defaultConstructor,
+  'before-quit':            defaultConstructor,
+  'will-quit':              defaultConstructor,
+  'quit':                   (e, exitCode) => Object.assign(e, { exitCode }),
+  'open-file':              (e, path)     => Object.assign(e, { path })
 };
 
 export default function AppEventsDriver(app) {
   return eventBehavior$ => {
 
     const event$ = Observable
-      .merge(eventTypes.map(type => Observable
+      .merge(Object.keys(eventConstructors).map(type => Observable
         .fromEvent(app, type, (...args) => Object.assign(
-          (type in eventConstructors) ? eventConstructors[type].apply(null, args) : args[0],
+          eventConstructors[type].apply(null, args),
           { type }))
       ));
 

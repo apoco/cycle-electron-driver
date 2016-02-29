@@ -189,26 +189,6 @@ describe('MainDriver', () => {
         });
       });
 
-      describe('fileOpen$', () => {
-        it('contains open-file events with a path property', done => {
-          Cycle.run(({ electron }) => {
-            return {
-              output: electron.events.fileOpen$
-            }
-          }, {
-            electron: driver,
-            output: event$ => event$.first().forEach(verify)
-          });
-
-          setTimeout(() => app.emit('open-file', { }, '/home/user/file.txt'), 1);
-
-          function verify(e) {
-            expect(e).to.have.property('path', '/home/user/file.txt');
-            done();
-          }
-        });
-      });
-
       describe('urlOpen$', () => {
         it('contains open-url events with a url property', done => {
           Cycle.run(({ electron }) => {
@@ -517,27 +497,6 @@ describe('MainDriver', () => {
 
         setTimeout(() => {
           expect(app.exit).to.have.been.calledWith(-23);
-          done();
-        }, 1);
-      });
-    });
-
-    describe('preventedEvent$', () => {
-      it('causes `preventDefault` to be called on each event', done => {
-        Cycle.run(({ electron }) => {
-          return {
-            electron: Observable.just({
-              preventedEvent$: electron.events.fileOpen$
-            })
-          }
-        }, {
-          electron: driver
-        });
-
-        const event = { preventDefault: spy() };
-        setTimeout(() => {
-          app.emit('open-file', event);
-          expect(event.preventDefault).to.have.been.called;
           done();
         }, 1);
       });
