@@ -79,9 +79,6 @@ function setupEventSources(app, extraLaunch$) {
     setupLifecycleEventSources(app),
     {
       extraLaunch$,
-      get urlOpen$() {
-        return Observable.fromEvent(app, 'open-url', (e, url) => Object.assign(e, {url}))
-      },
       get loginPrompt$() {
         return Observable.fromEvent(app, 'login', (e, webContents, request, authInfo, callback) => {
           return Object.assign(e, {webContents, request, authInfo, callback});

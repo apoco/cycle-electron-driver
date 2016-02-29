@@ -79,6 +79,24 @@ describe('AppEventsDriver', () => {
     }
   });
 
+  it('adds a url property to open-url events', done => {
+    Cycle.run(({ appEvent$ }) => ({
+      output: appEvent$.filter(e => e.type === 'open-url')
+    }), {
+      appEvent$: driver,
+      output: event$ => event$.first().forEach(assert)
+    });
+
+    setTimeout(() => {
+      app.emit('open-url', {}, 'http://some.domain/some/path');
+    }, 1);
+
+    function assert(event) {
+      expect(event).to.have.property('url', 'http://some.domain/some/path');
+      done();
+    }
+  });
+
   it('can prevent default behaviors for events', done => {
     Cycle.run(() => ({
       appEvent$: Observable.just({

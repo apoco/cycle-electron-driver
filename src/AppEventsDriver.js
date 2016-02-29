@@ -9,7 +9,8 @@ const eventConstructors = {
   'before-quit':            defaultConstructor,
   'will-quit':              defaultConstructor,
   'quit':                   (e, exitCode) => Object.assign(e, { exitCode }),
-  'open-file':              (e, path)     => Object.assign(e, { path })
+  'open-file':              (e, path)     => Object.assign(e, { path }),
+  'open-url':               (e, url)      => Object.assign(e, { url })
 };
 
 export default function AppEventsDriver(app) {

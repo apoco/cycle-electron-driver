@@ -189,26 +189,6 @@ describe('MainDriver', () => {
         });
       });
 
-      describe('urlOpen$', () => {
-        it('contains open-url events with a url property', done => {
-          Cycle.run(({ electron }) => {
-            return {
-              output: electron.events.urlOpen$
-            }
-          }, {
-            electron: driver,
-            output: event$ => event$.first().forEach(verify)
-          });
-
-          setTimeout(() => app.emit('open-url', { }, 'http://somedomain.com/'), 1);
-
-          function verify(e) {
-            expect(e).to.have.property('url', 'http://somedomain.com/');
-            done();
-          }
-        });
-      });
-
       describe('loginPrompt$', () => {
         it('contains login events with additional details', done => {
           Cycle.run(({ electron }) => {
