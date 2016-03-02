@@ -9,7 +9,10 @@ const eventParams = {
   'quit':                   ['exitCode'],
   'open-file':              ['path'],
   'open-url':               ['url'],
-  'activate':               ['hasVisibleWindows']
+  'activate':               ['hasVisibleWindows'],
+  'browser-window-blur':    ['window'],
+  'browser-window-focus':   ['window'],
+  'browser-window-created': ['window']
 };
 
 export default function AppEventsDriver(app) {

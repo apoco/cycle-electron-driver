@@ -16,14 +16,22 @@ describe('AppEventsDriver', () => {
     driver = new AppEventsDriver(app);
   });
 
-  [
-    'will-finish-launching',
-    'ready',
-    'window-all-closed',
-    'before-quit',
-    'will-quit',
-    'quit'
-  ].forEach(eventName => {
+  const eventsToTest = [
+    { name: 'will-finish-launching' },
+    { name: 'ready' },
+    { name: 'window-all-closed' },
+    { name: 'before-quit' },
+    { name: 'will-quit' },
+    { name: 'quit', params: ['exitCode'] },
+    { name: 'open-file', params: ['path'] },
+    { name: 'open-url', params: ['url'] },
+    { name: 'activate', params: ['hasVisibleWindows'] },
+    { name: 'browser-window-blur', params: ['window'] },
+    { name: 'browser-window-focus', params: ['window'] },
+    { name: 'browser-window-created', params: ['window'] }
+  ];
+
+  eventsToTest.forEach(({ name: eventName, params = [] }) => {
     it(`provides ${eventName} events`, done => {
       Cycle.run(({ app: appEvent$ }) => ({
         output: appEvent$.filter(e => e.type === eventName)
@@ -32,87 +40,20 @@ describe('AppEventsDriver', () => {
         output: event$ => event$.first().forEach(assert)
       });
 
+      const origEventObj = {};
+      const paramValues = params.reduce((paramValues, name, i) => Object.assign(paramValues, { [name]: i }), {});
       setTimeout(() => {
-        app.emit(eventName, {});
+        app.emit.apply(app, [eventName, origEventObj].concat(params.map(name => paramValues[name])));
       }, 1);
 
       function assert(event) {
         expect(event).to.exist;
+        params.forEach(param => {
+          expect(event).to.have.property(param, paramValues[param]);
+        });
         done();
       }
     });
-  });
-
-  it('adds an exitCode property to quit events', done => {
-    Cycle.run(({ appEvent$ }) => ({
-      output: appEvent$.filter(e => e.type === 'quit')
-    }), {
-      appEvent$: driver,
-      output: event$ => event$.first().forEach(assert)
-    });
-
-    setTimeout(() => {
-      app.emit('quit', {}, 255);
-    }, 1);
-
-    function assert(event) {
-      expect(event).to.have.property('exitCode', 255);
-      done();
-    }
-  });
-
-  it('adds a path property to open-file events', done => {
-    Cycle.run(({ appEvent$ }) => ({
-      output: appEvent$.filter(e => e.type === 'open-file')
-    }), {
-      appEvent$: driver,
-      output: event$ => event$.first().forEach(assert)
-    });
-
-    setTimeout(() => {
-      app.emit('open-file', {}, '/some/path');
-    }, 1);
-
-    function assert(event) {
-      expect(event).to.have.property('path', '/some/path');
-      done();
-    }
-  });
-
-  it('adds a url property to open-url events', done => {
-    Cycle.run(({ appEvent$ }) => ({
-      output: appEvent$.filter(e => e.type === 'open-url')
-    }), {
-      appEvent$: driver,
-      output: event$ => event$.first().forEach(assert)
-    });
-
-    setTimeout(() => {
-      app.emit('open-url', {}, 'http://some.domain/some/path');
-    }, 1);
-
-    function assert(event) {
-      expect(event).to.have.property('url', 'http://some.domain/some/path');
-      done();
-    }
-  });
-
-  it('adds a hasVisibleWindows property to activate events', done => {
-    Cycle.run(({ appEvent$ }) => ({
-      output: appEvent$.filter(e => e.type === 'activate')
-    }), {
-      appEvent$: driver,
-      output: event$ => event$.first().forEach(assert)
-    });
-
-    setTimeout(() => {
-      app.emit('activate', {}, true);
-    }, 1);
-
-    function assert(event) {
-      expect(event).to.have.property('hasVisibleWindows', true);
-      done();
-    }
   });
 
   it('can prevent default behaviors for events', done => {

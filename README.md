@@ -47,6 +47,7 @@ event arguments are normalized into the event object properties as follows:
 * `open-file` - `path`
 * `open-url` - `url`
 * `activate` - `hasVisibleWindows`
+* `browser-window-blur` - `window`
 
 Additionally, you can provide a sink observable for controlling the behavior of events. The `prevented` Array 
 property of the observable value objects lists the event types that should automatically have their default
