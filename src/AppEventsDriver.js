@@ -1,19 +1,20 @@
 import { Observable } from 'rx';
 
 const eventParams = {
-  'will-finish-launching':  [],
-  'ready':                  [],
-  'window-all-closed':      [],
-  'before-quit':            [],
-  'will-quit':              [],
-  'quit':                   ['exitCode'],
-  'open-file':              ['path'],
-  'open-url':               ['url'],
-  'activate':               ['hasVisibleWindows'],
-  'browser-window-blur':    ['window'],
-  'browser-window-focus':   ['window'],
-  'browser-window-created': ['window'],
-  'certificate-error':      ['webContents', 'url', 'error', 'certificate']
+  'will-finish-launching':      [],
+  'ready':                      [],
+  'window-all-closed':          [],
+  'before-quit':                [],
+  'will-quit':                  [],
+  'quit':                       ['exitCode'],
+  'open-file':                  ['path'],
+  'open-url':                   ['url'],
+  'activate':                   ['hasVisibleWindows'],
+  'browser-window-blur':        ['window'],
+  'browser-window-focus':       ['window'],
+  'browser-window-created':     ['window'],
+  'certificate-error':          ['webContents', 'url', 'error', 'certificate'],
+  'select-client-certificate':  ['webContents', 'url', 'certificateList', 'callback']
 };
 
 export default function AppEventsDriver(app) {

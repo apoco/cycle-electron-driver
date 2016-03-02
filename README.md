@@ -21,11 +21,9 @@ If you are already familiar with the `electron` API, here's a map of its interfa
     * `browser-window-focus` - [AppEventsDriver](#appeventsdriver)
     * `browser-window-created` - [AppEventsDriver](#appeventsdriver)
     * `certificate-error` - [CertErrorOverrideDriver](#certerroroverridedriver)
+    * `select-client-certificate` - [ClientCertDriver](#clientcertdriver)
 
 ## Drivers
-
-An electron application is made up of two processes; the main process and the render process. Each have different sets
-of modules they interact with. Thus, two different drivers are provided by `cycle-electron-driver`.
 
 ### AppEventsDriver
 
@@ -112,6 +110,44 @@ You must have one object for each source event; otherwise the driver does not kn
 cause the SSL requests to succeed or fail. If you do not want to override any certificate errors, do not use this
 driver. If you only want to be notified when these events occur, filter the `AppEventsDriver` events by type
 `certificate-error`.
+
+### ClientCertDriver
+
+`ClientCertDriver` provides a source observable containing client SSL cert request events and consumes an observable
+of client certificate selection objects. 
+
+```js
+import { app } from 'electron';
+import { ClientCertDriver } from 'cycle-electron-driver';
+
+Cycle.run(({ certSelection$ }) => ({
+  certSelection$: certSelection$.map(e => ({ 
+    event: e, 
+    cert: e.certificateList.find(cert => cert.issuerName === 'My Issuer') 
+  }));
+}), {
+  certErr$: ClientCertDriver(app);
+});
+```
+
+Source event objects are based on 
+[electron select-client-certificate events](http://electron.atom.io/docs/v0.36.8/api/app/#event-select-client-certificate)
+and have the following properties:
+
+* `webContents` - The contents of the window that received the certificate prompt
+* `url` - The URL that requested the certificate
+* `certificateList` - An array of available certificates, each of which have the following properties:
+  * `data` - PEM-encoded buffer
+  * `issuerName` - Issuer’s Common Name
+
+Sink objects must be provided for each source event and must contain the following properties:
+
+* `event` - The source event representing the certificate prompt
+* `cert` - One of the objects from the source event's `certificateList` property
+
+Do not use this driver if you want to keep the default electron behavior of always selecting the first client 
+certificate. If you only wish to be notified when client certificates are being selected with the default behavior,
+use the `AppEventsDriver` and filter where `type` equals `select-client-certificate`.
 
 ### Main process driver
 

@@ -3,11 +3,10 @@ import * as index from '../../src';
 import { expect } from 'chai';
 
 describe('The module', () => {
-  it('exports an `AppEventsDriver` function', () => {
-    expect(index.AppEventsDriver).to.be.a('function');
-  });
-
-  it('exports a MainDriver function', () => {
-    expect(index.MainDriver).to.be.a('function');
+  ['AppEventsDriver', 'CertErrorOverrideDriver', 'ClientCertDriver', 'MainDriver'].forEach(name => {
+    it(`exports a ${name} function`, () => {
+      expect(index).to.have.property(name);
+      expect(index[name]).to.be.a('function');
+    });
   });
 });
