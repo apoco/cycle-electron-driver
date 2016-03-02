@@ -12,7 +12,8 @@ const eventParams = {
   'activate':               ['hasVisibleWindows'],
   'browser-window-blur':    ['window'],
   'browser-window-focus':   ['window'],
-  'browser-window-created': ['window']
+  'browser-window-created': ['window'],
+  'certificate-error':      ['webContents', 'url', 'error', 'certificate']
 };
 
 export default function AppEventsDriver(app) {

@@ -17,6 +17,10 @@ If you are already familiar with the `electron` API, here's a map of its interfa
     * `open-file` - [AppEventsDriver](#appeventsdriver)
     * `open-url` - [AppEventsDriver](#appeventsdriver)
     * `activate` - [AppEventsDriver](#appeventsdriver)
+    * `browser-window-blur` - [AppEventsDriver](#appeventsdriver)
+    * `browser-window-focus` - [AppEventsDriver](#appeventsdriver)
+    * `browser-window-created` - [AppEventsDriver](#appeventsdriver)
+    * `certificate-error` - [CertErrorOverrideDriver](#certerroroverridedriver)
 
 ## Drivers
 
@@ -48,6 +52,9 @@ event arguments are normalized into the event object properties as follows:
 * `open-url` - `url`
 * `activate` - `hasVisibleWindows`
 * `browser-window-blur` - `window`
+* `browser-window-focus` - `window`
+* `browser-window-created` - `window`
+* `certificate-error` - `webContents`, `url`, `error`, `certificate`
 
 Additionally, you can provide a sink observable for controlling the behavior of events. The `prevented` Array 
 property of the observable value objects lists the event types that should automatically have their default
@@ -67,6 +74,44 @@ Cycle.run(sources => {
   appEvent$: AppEventsDriver(app)
 });
 ```
+
+### CertErrorOverrideDriver
+
+`CertErrorOverrideDriver` provides a source observable of events indicating when verification of a server's SSL 
+certificate has failed, and consumes a sink observable of objects indicating whether the certificate rejection should
+be overridden. This driver should only rarely be needed, but it can be helpful for cases such as when you are using
+a self-signed certificate during development and want your app to accept that certificate. For example:
+
+```js
+import { app } from 'electron';
+import { CertErrorOverrideDriver } from 'cycle-electron-driver';
+
+Cycle.run(({ certErr$ }) => ({
+  certErr$: certErr$.map(e => ({ event: e, allow: e.certificate.issuerName === 'My Test CA' }));
+}), {
+  certErr$: CertErrorOverrideDriver(app);
+});
+```
+
+The source objects are based on 
+[electron certificate-error events](http://electron.atom.io/docs/v0.36.8/api/app/#event-certificate-error) and have the
+following properties:
+
+* `webContents` - The contents of the window that received the error
+* `url` - The URL being requested
+* `error` - The error code
+* `certificate.data` - A buffer containing the PEM-formatted certificate
+* `certificate.issuerName` - The issuer of the certificate
+
+Sink objects should have these properties:
+
+* `event` - The source event representing the certificate error
+* `allow` - A boolean `true` or `false`. If `true`, the SSL request will be allowed to continue. Else it will fail.
+
+You must have one object for each source event; otherwise the driver does not know whether the certificate error should
+cause the SSL requests to succeed or fail. If you do not want to override any certificate errors, do not use this
+driver. If you only want to be notified when these events occur, filter the `AppEventsDriver` events by type
+`certificate-error`.
 
 ### Main process driver
 

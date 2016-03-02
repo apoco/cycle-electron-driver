@@ -28,7 +28,8 @@ describe('AppEventsDriver', () => {
     { name: 'activate', params: ['hasVisibleWindows'] },
     { name: 'browser-window-blur', params: ['window'] },
     { name: 'browser-window-focus', params: ['window'] },
-    { name: 'browser-window-created', params: ['window'] }
+    { name: 'browser-window-created', params: ['window'] },
+    { name: 'certificate-error', params: ['webContents', 'url', 'error', 'certificate'] }
   ];
 
   eventsToTest.forEach(({ name: eventName, params = [] }) => {
