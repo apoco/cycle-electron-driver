@@ -1,7 +1,6 @@
 import { Observable } from 'rx';
 
 const eventParams = {
-  'window-all-closed':          [],
   'before-quit':                [],
   'will-quit':                  [],
   'quit':                       ['exitCode'],

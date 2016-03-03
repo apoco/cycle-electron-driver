@@ -86,10 +86,8 @@ Cycle.run(sources => {
 
 The source object has the following properties:
 
-##### willFinishLaunching$
-
-Observable containing
-[will-finish-launching](http://electron.atom.io/docs/v0.36.8/api/app/#event-will-finish-launching) events.
+* willFinishLaunching$ - [will-finish-launching](http://electron.atom.io/docs/v0.36.8/api/app/#event-will-finish-launching) events
+* ready$ - [will-finish-launching](http://electron.atom.io/docs/v0.36.8/api/app/#event-ready) events
 
 ### BasicAuthDriver
 

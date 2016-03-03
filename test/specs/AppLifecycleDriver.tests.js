@@ -17,7 +17,8 @@ describe('The AppLifecycleDriver', () => {
   describe('source', () => {
     const basicSources = {
       willFinishLaunching$: 'will-finish-launching',
-      ready$: 'ready'
+      ready$: 'ready',
+      windowAllClosed$: 'window-all-closed'
     };
 
     Object.keys(basicSources).forEach(prop => {
