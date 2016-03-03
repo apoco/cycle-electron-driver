@@ -8,12 +8,12 @@ If you are already familiar with the `electron` API, here's a map of its interfa
 
 * app
   * events
-    * `will-finish-launching` - [AppEventsDriver](#appeventsdriver)
-    * `ready` - [AppEventsDriver](#appeventsdriver)
-    * `window-all-closed` - [AppEventsDriver](#appeventsdriver)
-    * `before-quit` - [AppEventsDriver](#appeventsdriver)
-    * `will-quit` - [AppEventsDriver](#appeventsdriver)
-    * `quit` - [AppEventsDriver](#appeventsdriver)
+    * `will-finish-launching` - [AppLifecycleDriver](#applifecycledriver)
+    * `ready` - [AppLifecycleDriver](#applifecycledriver)
+    * `window-all-closed` - [AppLifecycleDriver](#applifecycledriver)
+    * `before-quit` - [AppLifecycleDriver](#applifecycledriver)
+    * `will-quit` - [AppLifecycleDriver](#applifecycledriver)
+    * `quit` - [AppLifecycleDriver](#applifecycledriver)
     * `open-file` - [AppEventsDriver](#appeventsdriver)
     * `open-url` - [AppEventsDriver](#appeventsdriver)
     * `activate` - [AppEventsDriver](#appeventsdriver)
@@ -23,6 +23,9 @@ If you are already familiar with the `electron` API, here's a map of its interfa
     * `certificate-error` - [CertErrorOverrideDriver](#certerroroverridedriver)
     * `select-client-certificate` - [ClientCertDriver](#clientcertdriver)
     * `login` - [BasicAuthDriver](#basicauthdriver)
+    * `gpu-process-crashed` - [AppEventsDriver](#appeventsdriver)
+  * methods
+    * `quit` - [AppLifecycleDriver](#applifecycledriver)
 
 ## Drivers
 
@@ -74,6 +77,19 @@ Cycle.run(sources => {
   appEvent$: AppEventsDriver(app)
 });
 ```
+
+### AppLifecycleDriver
+
+`AppLifecycleDriver` provides visibility into application lifecycle events & the ability to affect the app lifecycle.
+
+#### Sources
+
+The source object has the following properties:
+
+##### willFinishLaunching$
+
+Observable containing
+[will-finish-launching](http://electron.atom.io/docs/v0.36.8/api/app/#event-will-finish-launching) events.
 
 ### BasicAuthDriver
 
