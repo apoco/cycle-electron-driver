@@ -30,7 +30,8 @@ describe('AppEventsDriver', () => {
     { name: 'browser-window-focus', params: ['window'] },
     { name: 'browser-window-created', params: ['window'] },
     { name: 'certificate-error', params: ['webContents', 'url', 'error', 'certificate'] },
-    { name: 'select-client-certificate', params: ['webContents', 'url', 'certificateList'] }
+    { name: 'select-client-certificate', params: ['webContents', 'url', 'certificateList'] },
+    { name: 'login', params: ['webContents', 'request', 'authInfo'] }
   ];
 
   eventsToTest.forEach(({ name: eventName, params = [] }) => {

@@ -74,16 +74,9 @@ const eventShortcuts = {
 function setupEventSources(app, extraLaunch$) {
   const events = Object.assign(
     eventName => Observable.fromEvent(app, eventName),
-    setupCertEventSources(app),
-    setupWindowEventSources(app),
     setupLifecycleEventSources(app),
     {
-      extraLaunch$,
-      get loginPrompt$() {
-        return Observable.fromEvent(app, 'login', (e, webContents, request, authInfo, callback) => {
-          return Object.assign(e, {webContents, request, authInfo, callback});
-        })
-      }
+      extraLaunch$
     }
   );
 
@@ -102,43 +95,11 @@ function setupLifecycleEventSources(app) {
   };
 }
 
-function setupWindowEventSources(app) {
-  return {
-    get windowOpen$() {
-      return Observable.fromEvent(app, 'browser-window-created', (e, window) => Object.assign(e, {window}));
-    },
-    get windowFocus$() {
-      return Observable.fromEvent(app, 'browser-window-focus', (e, window) => Object.assign(e, {window}));
-    },
-    get windowBlur$() {
-      return Observable.fromEvent(app, 'browser-window-blur', (e, window) => Object.assign(e, {window}));
-    }
-  };
-}
-
-function setupCertEventSources(app) {
-  return {
-    get certError$() {
-      return Observable.fromEvent(app, 'certificate-error', (e, webContents, url, error, certificate, callback) => {
-        return Object.assign(e, {webContents, url, error, certificate, callback})
-      })
-    },
-    get clientCertPrompt$() {
-      return Observable.fromEvent(app, 'select-client-certificate', (e, webContents, url, certificateList, callback) => {
-        return Object.assign(e, {webContents, url, certificateList, callback})
-      })
-    }
-  };
-}
-
 function setupSinkSubscriptions(app, state) {
   return []
     .concat(subscribeToQuits(app, state.quit$))
     .concat(subscribeToExits(app, state.exit$))
     .concat(subscribeToPreventedEvents(state.preventedEvent$))
-    .concat(subscribeToCertTrustOverrides(state.trustedCert$))
-    .concat(subscribeToClientCertSelections(state.clientCertSelection$))
-    .concat(subscribeToLogins(state.login$))
     .concat(subscribeToPathUpdates(app, state.pathUpdates))
     .concat(subscribeToRecentDocChanges(app, state.recentDocs))
     .concat(subscribeToUserTaskChanges(app, state.userTask$))
@@ -161,29 +122,6 @@ function subscribeToExits(app, exit$) {
 function subscribeToPreventedEvents(preventedEvent$) {
   return preventedEvent$ && preventedEvent$
     .forEach(e => e.preventDefault());
-}
-
-function subscribeToCertTrustOverrides(trustedCert$) {
-  return trustedCert$ && trustedCert$
-    .forEach(e => {
-      e.preventDefault();
-      e.callback(true);
-    });
-}
-
-function subscribeToClientCertSelections(clientCertSelection$) {
-  return clientCertSelection$ && clientCertSelection$
-    .forEach(({ prompt, cert }) => {
-      prompt.preventDefault();
-      prompt.callback(cert);
-    });
-}
-
-function subscribeToLogins(login$) {
-  return login$ && login$.forEach(({ prompt, username, password }) => {
-    prompt.preventDefault();
-    prompt.callback(username, password);
-  });
 }
 
 function subscribeToPathUpdates(app, pathUpdates) {

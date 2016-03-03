@@ -14,7 +14,8 @@ const eventParams = {
   'browser-window-focus':       ['window'],
   'browser-window-created':     ['window'],
   'certificate-error':          ['webContents', 'url', 'error', 'certificate'],
-  'select-client-certificate':  ['webContents', 'url', 'certificateList', 'callback']
+  'select-client-certificate':  ['webContents', 'url', 'certificateList', 'callback'],
+  'login':                      ['webContents', 'request', 'authInfo', 'callback']
 };
 
 export default function AppEventsDriver(app) {

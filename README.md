@@ -22,6 +22,7 @@ If you are already familiar with the `electron` API, here's a map of its interfa
     * `browser-window-created` - [AppEventsDriver](#appeventsdriver)
     * `certificate-error` - [CertErrorOverrideDriver](#certerroroverridedriver)
     * `select-client-certificate` - [ClientCertDriver](#clientcertdriver)
+    * `login` - [BasicAuthDriver](#basicauthdriver)
 
 ## Drivers
 
@@ -53,6 +54,7 @@ event arguments are normalized into the event object properties as follows:
 * `browser-window-focus` - `window`
 * `browser-window-created` - `window`
 * `certificate-error` - `webContents`, `url`, `error`, `certificate`
+* `login` - `webContents`, `request`, `authInfo`
 
 Additionally, you can provide a sink observable for controlling the behavior of events. The `prevented` Array 
 property of the observable value objects lists the event types that should automatically have their default
@@ -72,6 +74,29 @@ Cycle.run(sources => {
   appEvent$: AppEventsDriver(app)
 });
 ```
+
+### BasicAuthDriver
+
+`BasicAuthDriver` provides a source of HTTP basic auth prompts and consumes objects that provide the response 
+credentials. 
+
+```js
+import { app } from 'electron';
+import { BasicAuthDriver } from 'cycle-electron-driver';
+
+Cycle.run(({ login$ }) => ({
+  login$: login$.map(e => ({
+    event: e,
+    username: 'someuser',
+    password: 's0m3Pa$sw0rd'
+  }))
+}), {
+  login$: BasicAuthDriver(app)
+});
+```
+
+If you do not use this driver, then the auth prompts are automatically cancelled. Use `AppEventsDriver`
+and watch for events of type `login` if you only want to observe these failed logins.
 
 ### CertErrorOverrideDriver
 
@@ -126,7 +151,7 @@ Cycle.run(({ certSelection$ }) => ({
     cert: e.certificateList.find(cert => cert.issuerName === 'My Issuer') 
   }));
 }), {
-  certErr$: ClientCertDriver(app);
+  certSelection$: ClientCertDriver(app);
 });
 ```
 
@@ -188,12 +213,6 @@ platformInfo:
   isAeroGlassEnabled
 events() :: String -> Observable
   extraLaunch$
-  windowOpen$
-  windowFocus$
-  windowBlur$
-  loginPrompt$
-  clientCertPrompt$
-  certError$
   gpuProcessCrash$
   beforeAllWindowClose$
   beforeExit$
@@ -254,66 +273,6 @@ Values are objects with the following properties:
 * `argv`  - Array of command-line arguments used when this was launched
 * `cwd`   - The working directory of the process that was launched
 
-###### events.windowOpen$
-
-These events are raised when a window, identified by the `window` property, has been created. 
-See the [`browser-window-created`](http://electron.atom.io/docs/v0.36.5/api/app/#event-browser-window-created) event 
-documentation for more information.
-
-###### events.windowFocus$
-
-These events are raised when a window, identified by the `window` property, receives focus. 
-See the [`browser-window-focus`](http://electron.atom.io/docs/v0.36.5/api/app/#event-browser-window-focus) event 
-documentation for more information.
-
-###### events.windowBlur$
-
-These events are raised when a window, identified by the `window` property, loses focus. 
-See the [`browser-window-blur`](http://electron.atom.io/docs/v0.36.5/api/app/#event-browser-window-blur) event 
-documentation for more information.
-
-###### events.loginPrompt$
-
-These events are raised when being prompted to login (with HTTP basic auth). By default, the prompt is cancelled and no
-login takes place. To override this behavior, inspect the `webContents`, `request`, and `authInfo` properties, and pipe
-events to the `login$` property of the sink with the following properties:
-
-```
-{
-  request: <the loginPrompt$ event>,
-  username: <the username to use for logging in>
-  password: <the password>
-}
-```
-
-See the [`login`](http://electron.atom.io/docs/v0.36.5/api/app/#event-login) event documentation for more information.
-
-###### events.clientCertPrompt$
-
-These events are raised when a browser window is prompting for a client certificate selection. By default, electron will
-automatically select the first available client certificate. To override this behavior, you should inspect the
-`webContents` and/or `url`, choose a certificate object from `certificateList`, then pipe an object of this format into
-the `clientCertSelection$` property of the sink:
-
-```
-{
-  prompt: <event object>,
-  cert: <object from event.certificateList>
-}
-```
-
-See the [`select-client-certificate`](http://electron.atom.io/docs/v0.36.5/api/app/#event-select-client-certificate)
-event documentation for more information.
-
-###### events.certError$
-
-These events are raised when the certificate for a URL is not trusted. To override trust failure, first inspect the 
-`webContents`, `url`, `error` string, `certificate.data` PEM buffer, and `certificate.issuerName` properties attached
-to the event. If you want to trust the cert, pipe the event into the `trustedCert$` sink.
-
-See the [`certificate-error`](http://electron.atom.io/docs/v0.36.5/api/app/#event-certificate-error) event 
-documentation for more information.
-
 ###### events.gpuProcessCrash$
 
 These are raised when the GPU process crashes. 
@@ -351,9 +310,6 @@ The sink for the driver should be an observable that produces an object containi
 these sinks can be omitted if not needed. The object properties can be summarized as follows:
 
 ```
-login$
-clientCertSelection$
-trustedCert$
 preventedEvent$
 pathUpdates:
   appData$
@@ -385,46 +341,6 @@ ntlmAllowedOverride$
 appUserModelId$
 quit$
 exit$
-```
-
-##### login$
-
-To perform a login, this `Observable` should emit objects of this format:
-
-```
-{
-  request: <a loginPrompt$ event>,
-  username: <the username to use for logging in>
-  password: <the password>
-}
-```
-
-##### clientCertSelection$
-
-If overriding client certificate selections, read from the `events.clientCertPrompt$` source, select a certificate from
-the `certificateList` property of those events, then emit an object of the format:
-
-```
-{
-  prompt: <source event object>,
-  cert: <object from certificateList property>
-}
-```
-
-##### trustedCert$
-
-This should be a filtering of the `events.certError$` events that should be overridden as trusted.
-
-```js
-function main({ electron }) {
-  return {
-    electron: Observable.just({
-      trustedCert$: electron.events
-        .certError$
-        .filter(e => e.certificate.issuerName === 'example.com')
-    })
-  };
-}
 ```
 
 ##### preventedEvent$
