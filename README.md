@@ -39,7 +39,7 @@ import Cycle from '@cycle/core';
 import { app } from 'electron';
 
 Cycle.run(({ appEvent$ }) => ({
-  ready$: appEvent$.filter(e => e.type === 'ready')
+  fileOpen$: appEvent$.filter(e => e.type === 'file-open')
 }), {
   appEvent$: AppEventsDriver(app)
 });

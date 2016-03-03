@@ -17,7 +17,6 @@ describe('AppEventsDriver', () => {
   });
 
   const eventsToTest = [
-    { name: 'ready' },
     { name: 'window-all-closed' },
     { name: 'before-quit' },
     { name: 'will-quit' },

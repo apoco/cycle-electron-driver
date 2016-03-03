@@ -15,23 +15,31 @@ describe('The AppLifecycleDriver', () => {
   });
 
   describe('source', () => {
-    describe('willFinishLaunching$', () => {
-      it('contains will-finish-launching events', done => {
-        Cycle.run(({ lifecycle }) => ({
-          output: lifecycle.willFinishLaunching$
-        }), {
-          lifecycle: AppLifecycleDriver(app),
-          output: event$ => event$.first().forEach(verify)
+    const basicSources = {
+      willFinishLaunching$: 'will-finish-launching',
+      ready$: 'ready'
+    };
+
+    Object.keys(basicSources).forEach(prop => {
+      describe(prop, () => {
+        const eventName = basicSources[prop];
+        it(`contains ${eventName} events`, done => {
+          Cycle.run(({ lifecycle }) => ({
+            output: lifecycle[prop]
+          }), {
+            lifecycle: AppLifecycleDriver(app),
+            output: event$ => event$.first().forEach(verify)
+          });
+
+          const emittedEvent = {};
+          setTimeout(() => app.emit(eventName, emittedEvent), 1);
+
+          function verify(receivedEvent) {
+            expect(receivedEvent).to.equal(emittedEvent);
+            done();
+          }
         });
-
-        const emittedEvent = {};
-        setTimeout(() => app.emit('will-finish-launching', emittedEvent), 1);
-
-        function verify(receivedEvent) {
-          expect(receivedEvent).to.equal(emittedEvent);
-          done();
-        }
-      });
+      })
     });
   })
 });
