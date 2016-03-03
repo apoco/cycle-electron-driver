@@ -31,7 +31,8 @@ describe('AppEventsDriver', () => {
     { name: 'browser-window-created', params: ['window'] },
     { name: 'certificate-error', params: ['webContents', 'url', 'error', 'certificate'] },
     { name: 'select-client-certificate', params: ['webContents', 'url', 'certificateList'] },
-    { name: 'login', params: ['webContents', 'request', 'authInfo'] }
+    { name: 'login', params: ['webContents', 'request', 'authInfo'] },
+    { name: 'gpu-process-crashed' }
   ];
 
   eventsToTest.forEach(({ name: eventName, params = [] }) => {

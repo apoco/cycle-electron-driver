@@ -95,6 +95,19 @@ Cycle.run(({ login$ }) => ({
 });
 ```
 
+Source events are based on [electron login events](http://electron.atom.io/docs/v0.36.8/api/app/#event-login)
+have the following properties:
+
+* `webContents` - The contents of the window that received the prompt
+* `request` - Information about the HTTP request that received the prompt
+* `authInfo` - Information about the auth prompt
+
+Sink objects must be provided for each source event and must have the following properties:
+
+* `event` - The source event that is being responded to
+* `username`
+* `password`
+
 If you do not use this driver, then the auth prompts are automatically cancelled. Use `AppEventsDriver`
 and watch for events of type `login` if you only want to observe these failed logins.
 
@@ -213,7 +226,6 @@ platformInfo:
   isAeroGlassEnabled
 events() :: String -> Observable
   extraLaunch$
-  gpuProcessCrash$
   beforeAllWindowClose$
   beforeExit$
   exit$
@@ -272,13 +284,6 @@ Values are objects with the following properties:
 
 * `argv`  - Array of command-line arguments used when this was launched
 * `cwd`   - The working directory of the process that was launched
-
-###### events.gpuProcessCrash$
-
-These are raised when the GPU process crashes. 
-See the [`gpu-process-crashed`](http://electron.atom.io/docs/v0.36.5/api/app/#event-gpu-process-crashed) event 
-documentation for more information.
-
 
 ##### paths
 

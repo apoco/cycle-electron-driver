@@ -168,27 +168,6 @@ describe('MainDriver', () => {
           }
         });
       });
-
-      describe('gpuProcessCrash$', () => {
-        it('emits when gpu-process-crashed events occur', done => {
-          Cycle.run(({ electron }) => {
-            return {
-              output: electron.events.gpuProcessCrash$
-            }
-          }, {
-            electron: driver,
-            output: event$ => event$.first().forEach(verify)
-          });
-
-          const event = { };
-          setTimeout(() => app.emit('gpu-process-crashed', event), 1);
-
-          function verify(e) {
-            expect(e).to.equal(event);
-            done();
-          }
-        });
-      });
     });
 
     describe('path', () => {

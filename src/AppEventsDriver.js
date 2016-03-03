@@ -15,7 +15,8 @@ const eventParams = {
   'browser-window-created':     ['window'],
   'certificate-error':          ['webContents', 'url', 'error', 'certificate'],
   'select-client-certificate':  ['webContents', 'url', 'certificateList', 'callback'],
-  'login':                      ['webContents', 'request', 'authInfo', 'callback']
+  'login':                      ['webContents', 'request', 'authInfo', 'callback'],
+  'gpu-process-crashed':        []
 };
 
 export default function AppEventsDriver(app) {

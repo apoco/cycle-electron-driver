@@ -67,24 +67,14 @@ function setupPathSources(app, state$) {
   return paths;
 }
 
-const eventShortcuts = {
-  gpuProcessCrash$: 'gpu-process-crashed'
-};
-
 function setupEventSources(app, extraLaunch$) {
-  const events = Object.assign(
+  return Object.assign(
     eventName => Observable.fromEvent(app, eventName),
     setupLifecycleEventSources(app),
     {
       extraLaunch$
     }
   );
-
-  Object.keys(eventShortcuts).forEach(key => {
-    events[key] = events(eventShortcuts[key]);
-  });
-
-  return events;
 }
 
 function setupLifecycleEventSources(app) {
