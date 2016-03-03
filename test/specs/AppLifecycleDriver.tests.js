@@ -19,7 +19,8 @@ describe('The AppLifecycleDriver', () => {
       willFinishLaunching$: 'will-finish-launching',
       ready$: 'ready',
       windowAllClosed$: 'window-all-closed',
-      beforeQuit$: 'before-quit'
+      beforeQuit$: 'before-quit',
+      willQuit$: 'will-quit'
     };
 
     Object.keys(basicSources).forEach(prop => {
@@ -46,22 +47,30 @@ describe('The AppLifecycleDriver', () => {
   });
 
   describe('sink', () => {
-    it('prevents before-quit default behavior if isQuittingEnabled is false', done => {
-      Cycle.run(({ lifecycle }) => ({
-        lifecycle: Observable.just({
-          isQuittingEnabled: false
-        })
-      }), {
-        lifecycle: AppLifecycleDriver(app)
+    const preventionFlags = {
+      'before-quit': 'isQuittingEnabled',
+      'will-quit': 'isAutoExitEnabled'
+    };
+
+    Object.keys(preventionFlags).forEach(eventName => {
+      const flag = preventionFlags[eventName];
+      it(`prevents ${eventName} default behaviors if ${flag} is false`, done => {
+        Cycle.run(({ lifecycle }) => ({
+          lifecycle: Observable.just({
+            [flag]: false
+          })
+        }), {
+          lifecycle: AppLifecycleDriver(app)
+        });
+
+        setTimeout(() => {
+          const event = { preventDefault: spy() };
+          app.emit(eventName, event);
+
+          expect(event.preventDefault).to.have.been.called;
+          done();
+        }, 1);
       });
-
-      setTimeout(() => {
-        const event = { preventDefault: spy() };
-        app.emit('before-quit', event);
-
-        expect(event.preventDefault).to.have.been.called;
-        done();
-      }, 1);
     });
   });
 });

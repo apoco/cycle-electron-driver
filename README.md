@@ -59,25 +59,6 @@ event arguments are normalized into the event object properties as follows:
 * `certificate-error` - `webContents`, `url`, `error`, `certificate`
 * `login` - `webContents`, `request`, `authInfo`
 
-Additionally, you can provide a sink observable for controlling the behavior of events. The `prevented` Array 
-property of the observable value objects lists the event types that should automatically have their default
-behavior cancelled. Use this, for example, to prevent `before-quit` events if the app is not saved:
-
-```js
-Cycle.run(sources => {  
-  // let isSaved$ = ...
-  
-  return {
-    appEvent$: isSaved$.map(isSaved => ({
-      prevented: isSaved ? [] : ['before-quit']
-    }))
-  };
-
-}, {
-  appEvent$: AppEventsDriver(app)
-});
-```
-
 ### AppLifecycleDriver
 
 `AppLifecycleDriver` provides visibility into application lifecycle events & the ability to affect the app lifecycle.
@@ -95,7 +76,7 @@ The source object has the following properties:
 The sink for `AppLifecycleDriver` should provide objects describing the desired lifecycle state & behavior of the app.
 The following properties are supported:
 
-| property           | default | description                                        |
+| Property           | Default | Description                                        |
 |--------------------|---------|----------------------------------------------------|
 |`isQuittingEnabled` | `true`  | If `false`, `before-quit` events will be cancelled |
 
@@ -297,9 +278,6 @@ function main({ electron }) {
 
 Note that events documented with more than one parameter will be truncated; only the `Event` portion will be received.
 It is recommended that you use one of the more normalized event sources listed below if you're handling an event.
-
-Calling methods on `Event` objects, such as `preventDefault()` is antithetical to the Cycle.js philosophy; to enable
-preventing defaults, use the `preventedEvents` sink listed below.
 
 ###### events.extraLaunch$
 

@@ -4,7 +4,8 @@ const eventMapping = {
   willFinishLaunching$: 'will-finish-launching',
   ready$: 'ready',
   windowAllClosed$: 'window-all-closed',
-  beforeQuit$: 'before-quit'
+  beforeQuit$: 'before-quit',
+  willQuit$: 'will-quit'
 };
 
 export default function AppLifecycleDriver(app) {
@@ -16,10 +17,11 @@ export default function AppLifecycleDriver(app) {
     }), {});
 
     let subscriptions = [];
-    cfg$.startWith({}).forEach(({ isQuittingEnabled = true } = {}) => {
+    cfg$.startWith({}).forEach(({ isQuittingEnabled = true, isAutoExitEnabled = true } = {}) => {
       subscriptions.filter(Boolean).forEach(s => s.dispose());
       subscriptions = [
-        !isQuittingEnabled && source.beforeQuit$.forEach(e => e.preventDefault())
+        !isQuittingEnabled && source.beforeQuit$.forEach(e => e.preventDefault()),
+        !isAutoExitEnabled && source.willQuit$.forEach(e => e.preventDefault())
       ];
     });
 

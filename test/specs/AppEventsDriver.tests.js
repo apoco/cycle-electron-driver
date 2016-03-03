@@ -17,8 +17,6 @@ describe('AppEventsDriver', () => {
   });
 
   const eventsToTest = [
-    { name: 'before-quit' },
-    { name: 'will-quit' },
     { name: 'quit', params: ['exitCode'] },
     { name: 'open-file', params: ['path'] },
     { name: 'open-url', params: ['url'] },
@@ -55,28 +53,5 @@ describe('AppEventsDriver', () => {
         done();
       }
     });
-  });
-
-  it('can prevent default behaviors for events', done => {
-    Cycle.run(() => ({
-      appEvent$: Observable.just({
-        prevented: ['will-quit']
-      })
-    }), {
-      appEvent$: driver
-    });
-
-    setTimeout(() => {
-      const event1 = { preventDefault: spy() };
-      const event2 = { preventDefault: spy() };
-
-      app.emit('before-quit', event1);
-      expect(event1.preventDefault).to.have.not.been.called;
-
-      app.emit('will-quit', event2);
-      expect(event2.preventDefault).to.have.been.called;
-
-      done();
-    }, 1);
   });
 });
