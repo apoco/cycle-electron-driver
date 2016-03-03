@@ -18,7 +18,8 @@ describe('The AppLifecycleDriver', () => {
     const basicSources = {
       willFinishLaunching$: 'will-finish-launching',
       ready$: 'ready',
-      windowAllClosed$: 'window-all-closed'
+      windowAllClosed$: 'window-all-closed',
+      beforeQuit$: 'before-quit'
     };
 
     Object.keys(basicSources).forEach(prop => {
@@ -42,5 +43,25 @@ describe('The AppLifecycleDriver', () => {
         });
       })
     });
-  })
+  });
+
+  describe('sink', () => {
+    it('prevents before-quit default behavior if isQuittingEnabled is false', done => {
+      Cycle.run(({ lifecycle }) => ({
+        lifecycle: Observable.just({
+          isQuittingEnabled: false
+        })
+      }), {
+        lifecycle: AppLifecycleDriver(app)
+      });
+
+      setTimeout(() => {
+        const event = { preventDefault: spy() };
+        app.emit('before-quit', event);
+
+        expect(event.preventDefault).to.have.been.called;
+        done();
+      }, 1);
+    });
+  });
 });

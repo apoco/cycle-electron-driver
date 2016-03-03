@@ -88,6 +88,16 @@ The source object has the following properties:
 
 * willFinishLaunching$ - [will-finish-launching](http://electron.atom.io/docs/v0.36.8/api/app/#event-will-finish-launching) events
 * ready$ - [will-finish-launching](http://electron.atom.io/docs/v0.36.8/api/app/#event-ready) events
+* beforeQuit$ - [before-quit](http://electron.atom.io/docs/v0.36.8/api/app/#event-before-quit) events
+
+#### Sink
+
+The sink for `AppLifecycleDriver` should provide objects describing the desired lifecycle state & behavior of the app.
+The following properties are supported:
+
+| property           | default | description                                        |
+|--------------------|---------|----------------------------------------------------|
+|`isQuittingEnabled` | `true`  | If `false`, `before-quit` events will be cancelled |
 
 ### BasicAuthDriver
 
@@ -329,7 +339,6 @@ The sink for the driver should be an observable that produces an object containi
 these sinks can be omitted if not needed. The object properties can be summarized as follows:
 
 ```
-preventedEvent$
 pathUpdates:
   appData$
   desktop$
@@ -360,20 +369,6 @@ ntlmAllowedOverride$
 appUserModelId$
 quit$
 exit$
-```
-
-##### preventedEvent$
-
-Events emitted by this `Observable` will have their `preventDefault` method invoked.
-
-```js
-function main({ electron }) {
-  return {
-    electron: Observable.just({
-      preventedEvent$: electron.events('before-quit')
-    })
-  };
-}
 ```
 
 ##### pathUpdates

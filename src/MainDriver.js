@@ -89,7 +89,6 @@ function setupSinkSubscriptions(app, state) {
   return []
     .concat(subscribeToQuits(app, state.quit$))
     .concat(subscribeToExits(app, state.exit$))
-    .concat(subscribeToPreventedEvents(state.preventedEvent$))
     .concat(subscribeToPathUpdates(app, state.pathUpdates))
     .concat(subscribeToRecentDocChanges(app, state.recentDocs))
     .concat(subscribeToUserTaskChanges(app, state.userTask$))
@@ -107,11 +106,6 @@ function subscribeToExits(app, exit$) {
   return exit$ && exit$
     .map(val => isNaN(val) ? 0 : val)
     .forEach(code => app.exit(code));
-}
-
-function subscribeToPreventedEvents(preventedEvent$) {
-  return preventedEvent$ && preventedEvent$
-    .forEach(e => e.preventDefault());
 }
 
 function subscribeToPathUpdates(app, pathUpdates) {
