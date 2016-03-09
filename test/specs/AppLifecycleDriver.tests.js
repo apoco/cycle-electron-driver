@@ -44,6 +44,25 @@ describe('The AppLifecycleDriver', () => {
         });
       })
     });
+
+    describe('quit$', () => {
+      it('contains quit events with the exitCode added to the event objects', done => {
+        Cycle.run(({ lifecycle }) => ({
+          output: lifecycle.quit$
+        }), {
+          lifecycle: AppLifecycleDriver(app),
+          output: event$ => event$.first().forEach(verify)
+        });
+
+        const emittedEvent = {};
+        setTimeout(() => app.emit('quit', emittedEvent, 255), 1);
+
+        function verify(receivedEvent) {
+          expect(receivedEvent).to.have.property('exitCode', 255);
+          done();
+        }
+      });
+    });
   });
 
   describe('sink', () => {

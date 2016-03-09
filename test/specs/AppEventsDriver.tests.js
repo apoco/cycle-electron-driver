@@ -17,7 +17,6 @@ describe('AppEventsDriver', () => {
   });
 
   const eventsToTest = [
-    { name: 'quit', params: ['exitCode'] },
     { name: 'open-file', params: ['path'] },
     { name: 'open-url', params: ['url'] },
     { name: 'activate', params: ['hasVisibleWindows'] },

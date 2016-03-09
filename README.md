@@ -49,7 +49,6 @@ These events have a `type` property that matches
 [the names of the electron events](https://github.com/atom/electron/blob/master/docs/api/app.md#events). Additional
 event arguments are normalized into the event object properties as follows:
 
-* `quit` - `exitCode`
 * `open-file` - `path`
 * `open-url` - `url`
 * `activate` - `hasVisibleWindows`
@@ -69,7 +68,10 @@ The source object has the following properties:
 
 * willFinishLaunching$ - [will-finish-launching](http://electron.atom.io/docs/v0.36.8/api/app/#event-will-finish-launching) events
 * ready$ - [will-finish-launching](http://electron.atom.io/docs/v0.36.8/api/app/#event-ready) events
+* windowAllClosed$ - [window-all-closed](http://electron.atom.io/docs/v0.36.8/api/app/#event-window-all-closed) events
 * beforeQuit$ - [before-quit](http://electron.atom.io/docs/v0.36.8/api/app/#event-before-quit) events
+* willQuit$ - [will-quit](http://electron.atom.io/docs/v0.36.8/api/app/#event-will-quit) events
+* quit$ - [quit](http://electron.atom.io/docs/v0.36.8/api/app/#event-quit) events. These contain an additional `exitCode` property.
 
 #### Sink
 
@@ -79,6 +81,7 @@ The following properties are supported:
 | Property           | Default | Description                                        |
 |--------------------|---------|----------------------------------------------------|
 |`isQuittingEnabled` | `true`  | If `false`, `before-quit` events will be cancelled |
+|`isAutoExitEnabled` | `true`  | If `false`, `will-quit` events will be cancelled   |
 
 ### BasicAuthDriver
 

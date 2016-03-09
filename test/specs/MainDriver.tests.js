@@ -440,7 +440,7 @@ describe('MainDriver', () => {
             setTimeout(() => {
               expect(app.dock.cancelBounce).to.have.been.calledWith(8346);
               done();
-            }, 20)
+            }, 25)
           });
         });
       });

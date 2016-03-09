@@ -68,21 +68,7 @@ function setupPathSources(app, state$) {
 }
 
 function setupEventSources(app, extraLaunch$) {
-  return Object.assign(
-    eventName => Observable.fromEvent(app, eventName),
-    setupLifecycleEventSources(app),
-    {
-      extraLaunch$
-    }
-  );
-}
-
-function setupLifecycleEventSources(app) {
-  return {
-    get exit$() {
-      return Observable.fromEvent(app, 'quit', (e, exitCode) => Object.assign(e, {exitCode}))
-    }
-  };
+  return Object.assign(eventName => Observable.fromEvent(app, eventName), { extraLaunch$ });
 }
 
 function setupSinkSubscriptions(app, state) {

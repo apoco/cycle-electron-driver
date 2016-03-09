@@ -1,7 +1,6 @@
 import { Observable } from 'rx';
 
 const eventParams = {
-  'quit':                       ['exitCode'],
   'open-file':                  ['path'],
   'open-url':                   ['url'],
   'activate':                   ['hasVisibleWindows'],
