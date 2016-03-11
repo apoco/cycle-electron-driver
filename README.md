@@ -78,10 +78,12 @@ The source object has the following properties:
 The sink for `AppLifecycleDriver` should provide objects describing the desired lifecycle state & behavior of the app.
 The following properties are supported:
 
-| Property           | Default | Description                                        |
-|--------------------|---------|----------------------------------------------------|
-|`isQuittingEnabled` | `true`  | If `false`, `before-quit` events will be cancelled |
-|`isAutoExitEnabled` | `true`  | If `false`, `will-quit` events will be cancelled   |
+| Property           | Default    | Description                                                            |
+|--------------------|------------|------------------------------------------------------------------------|
+|`state`             | `'started'`| Set to 'quitting' to initiate a quit event, 'exiting' to force an exit |
+|`exitCode`          | 0          | If `state` is set to `'exiting'`, sends this as the exit code          |
+|`isQuittingEnabled` | `true`     | If `false`, `before-quit` events will be cancelled                     |
+|`isAutoExitEnabled` | `true`     | If `false`, `will-quit` events will be cancelled                       |
 
 ### BasicAuthDriver
 
@@ -348,7 +350,6 @@ dock:
   icon$
 ntlmAllowedOverride$
 appUserModelId$
-quit$
 exit$
 ```
 
@@ -442,10 +443,6 @@ recognized as being part of the local intranet.
 This causes the Windows 
 [Application User Model ID](https://msdn.microsoft.com/en-us/library/windows/desktop/dd378459(v=vs.85).aspx) to change
 to the values of the `Observable`.
-
-##### quit$
-
-When this `Observable` produces a value, an application quit is issued. Use `exit$` instead to forcefully terminate.
 
 ##### exit$
 

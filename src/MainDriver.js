@@ -73,7 +73,6 @@ function setupEventSources(app, extraLaunch$) {
 
 function setupSinkSubscriptions(app, state) {
   return []
-    .concat(subscribeToQuits(app, state.quit$))
     .concat(subscribeToExits(app, state.exit$))
     .concat(subscribeToPathUpdates(app, state.pathUpdates))
     .concat(subscribeToRecentDocChanges(app, state.recentDocs))
@@ -82,10 +81,6 @@ function setupSinkSubscriptions(app, state) {
     .concat(subscribeToAppUserModelIdChanges(app, state.appUserModelId$))
     .concat(subscribeToNewChromiumParams(app, state.newChromiumParam$))
     .concat(subscribeToDockSinks(app, state.dock));
-}
-
-function subscribeToQuits(app, quit$) {
-  return quit$ && quit$.forEach(() => app.quit());
 }
 
 function subscribeToExits(app, exit$) {

@@ -242,24 +242,6 @@ describe('MainDriver', () => {
   });
 
   describe('sink', () => {
-    describe('quit$', () => {
-      it('causes the electron app to quit', done => {
-        Cycle.run(() => {
-          return {
-            electron: Observable.just({
-              quit$: Observable.just({})
-            })
-          }
-        }, {
-          electron: driver
-        });
-
-        setTimeout(() => {
-          expect(app.quit).to.have.been.called;
-          done();
-        }, 1);
-      });
-    });
 
     describe('exit$', () => {
       it('causes an exit with code 0 by default', done => {

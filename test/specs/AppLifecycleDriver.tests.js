@@ -91,5 +91,20 @@ describe('The AppLifecycleDriver', () => {
         }, 1);
       });
     });
+
+    it('initiates a quit if `state` is set to `quitting`', done => {
+      Cycle.run(({ lifecycle }) => ({
+        lifecycle: Observable.just({
+          state: 'quitting'
+        })
+      }), {
+        lifecycle: AppLifecycleDriver(app)
+      });
+
+      setTimeout(() => {
+        expect(app.quit).to.have.been.called;
+        done();
+      }, 1);
+    });
   });
 });
