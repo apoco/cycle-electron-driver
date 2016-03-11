@@ -23,17 +23,21 @@ export default function AppLifecycleDriver(app) {
     });
 
     let subscriptions = [];
-    cfg$.startWith({}).forEach(({ state = 'started', isQuittingEnabled = true, isAutoExitEnabled = true } = {}) => {
-      subscriptions.filter(Boolean).forEach(s => s.dispose());
-      subscriptions = [
-        !isQuittingEnabled && source.beforeQuit$.forEach(e => e.preventDefault()),
-        !isAutoExitEnabled && source.willQuit$.forEach(e => e.preventDefault())
-      ];
+    cfg$
+      .startWith({})
+      .forEach(({ state = 'started', exitCode, isQuittingEnabled = true, isAutoExitEnabled = true } = {}) => {
+        subscriptions.filter(Boolean).forEach(s => s.dispose());
+        subscriptions = [
+          !isQuittingEnabled && source.beforeQuit$.forEach(e => e.preventDefault()),
+          !isAutoExitEnabled && source.willQuit$.forEach(e => e.preventDefault())
+        ];
 
-      if (state === 'started') {
-        app.quit();
-      }
-    });
+        if (state === 'quitting') {
+          app.quit();
+        } else if (state === 'exiting') {
+          app.exit(exitCode);
+        }
+      });
 
     return source;
   };

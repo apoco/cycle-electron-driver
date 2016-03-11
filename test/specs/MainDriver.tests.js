@@ -243,42 +243,6 @@ describe('MainDriver', () => {
 
   describe('sink', () => {
 
-    describe('exit$', () => {
-      it('causes an exit with code 0 by default', done => {
-        Cycle.run(() => {
-          return {
-            electron: Observable.just({
-              exit$: Observable.just({})
-            })
-          }
-        }, {
-          electron: driver
-        });
-
-        setTimeout(() => {
-          expect(app.exit).to.have.been.calledWith(0);
-          done();
-        }, 1);
-      });
-
-      it('exits with a numeric exit code when a value is sent', done => {
-        Cycle.run(() => {
-          return {
-            electron: Observable.just({
-              exit$: Observable.just(-23)
-            })
-          }
-        }, {
-          electron: driver
-        });
-
-        setTimeout(() => {
-          expect(app.exit).to.have.been.calledWith(-23);
-          done();
-        }, 1);
-      });
-    });
-
     describe('pathUpdates', () => {
       pathNames.forEach(key => {
         const prop = `${key}$`;

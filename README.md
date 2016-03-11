@@ -26,6 +26,7 @@ If you are already familiar with the `electron` API, here's a map of its interfa
     * `gpu-process-crashed` - [AppEventsDriver](#appeventsdriver)
   * methods
     * `quit` - [AppLifecycleDriver](#applifecycledriver)
+    * `exit` - [AppLifecycleDriver](#applifecycledriver)
 
 ## Drivers
 
@@ -350,7 +351,6 @@ dock:
   icon$
 ntlmAllowedOverride$
 appUserModelId$
-exit$
 ```
 
 ##### pathUpdates
@@ -443,8 +443,3 @@ recognized as being part of the local intranet.
 This causes the Windows 
 [Application User Model ID](https://msdn.microsoft.com/en-us/library/windows/desktop/dd378459(v=vs.85).aspx) to change
 to the values of the `Observable`.
-
-##### exit$
-
-When an exit value is received, it will cause the application to immediately exit. If the value is a number, that number
-will be the exit code. Use `quit$` for a more graceful way to end an application.

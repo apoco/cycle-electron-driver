@@ -106,5 +106,36 @@ describe('The AppLifecycleDriver', () => {
         done();
       }, 1);
     });
+
+    it('initiates an exit if `state` is set to `exiting`', done => {
+      Cycle.run(({ lifecycle }) => ({
+        lifecycle: Observable.just({
+          state: 'exiting'
+        })
+      }), {
+        lifecycle: AppLifecycleDriver(app)
+      });
+
+      setTimeout(() => {
+        expect(app.exit).to.have.been.called;
+        done();
+      }, 1);
+    });
+
+    it('passes a specific exit code if `state` is `exiting` and `exitCode` is specified', done => {
+      Cycle.run(({ lifecycle }) => ({
+        lifecycle: Observable.just({
+          state: 'exiting',
+          exitCode: 255
+        })
+      }), {
+        lifecycle: AppLifecycleDriver(app)
+      });
+
+      setTimeout(() => {
+        expect(app.exit).to.have.been.calledWith(255);
+        done();
+      }, 1);
+    });
   });
 });
