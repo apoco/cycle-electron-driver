@@ -20,6 +20,8 @@ export default function AppStub() {
     setAppUserModelId: spy(),
     exit: spy(),
     quit: spy(),
+    show: spy(),
+    hide: spy(),
     dock: {
       bounce: stub(),
       cancelBounce: spy(),

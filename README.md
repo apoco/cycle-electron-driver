@@ -27,6 +27,7 @@ If you are already familiar with the `electron` API, here's a map of its interfa
   * methods
     * `quit` - [AppLifecycleDriver](#applifecycledriver)
     * `exit` - [AppLifecycleDriver](#applifecycledriver)
+    * `hide` - [AppVisibilityDriver](#appvisibilitydriver)
 
 ## Drivers
 
@@ -79,12 +80,30 @@ The source object has the following properties:
 The sink for `AppLifecycleDriver` should provide objects describing the desired lifecycle state & behavior of the app.
 The following properties are supported:
 
-| Property           | Default    | Description                                                            |
-|--------------------|------------|------------------------------------------------------------------------|
-|`state`             | `'started'`| Set to 'quitting' to initiate a quit event, 'exiting' to force an exit |
-|`exitCode`          | 0          | If `state` is set to `'exiting'`, sends this as the exit code          |
-|`isQuittingEnabled` | `true`     | If `false`, `before-quit` events will be cancelled                     |
-|`isAutoExitEnabled` | `true`     | If `false`, `will-quit` events will be cancelled                       |
+| Property           | Default    | Description                                                                |
+|--------------------|------------|----------------------------------------------------------------------------|
+|`state`             | `'started'`| Set to `'quitting'` to initiate a quit event, `'exiting'` to force an exit |
+|`exitCode`          | 0          | If `state` is set to `'exiting'`, sends this as the exit code              |
+|`isQuittingEnabled` | `true`     | If `false`, `before-quit` events will be cancelled                         |
+|`isAutoExitEnabled` | `true`     | If `false`, `will-quit` events will be cancelled                           |
+
+### AppVisibilityDriver
+
+`AppVisibilityDriver` consumes a sink of boolean values that show/hide the application's windows (OS X only).
+
+```js
+import { app } from 'electron';
+import { AppVisibilityDriver } from 'cycle-electron-driver';
+
+Cycle.run(() => {
+  // ...
+  return {
+    visibility$: appState$.map(state => state.shouldHide)
+  };
+}, {
+  visibility$: AppVisibilityDriver(app)
+});
+```
 
 ### BasicAuthDriver
 
