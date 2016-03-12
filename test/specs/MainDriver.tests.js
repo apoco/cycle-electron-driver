@@ -9,11 +9,6 @@ import { Observable } from 'rx';
 
 import AppStub from '../stubs/App';
 
-const pathNames = [
-  'appData', 'desktop', 'documents', 'downloads', 'exe',
-  'home', 'module', 'music', 'pictures', 'temp', 'userData', 'videos'
-];
-
 describe('MainDriver', () => {
   let app = null, driver = null;
 
@@ -170,50 +165,6 @@ describe('MainDriver', () => {
       });
     });
 
-    describe('path', () => {
-      describe('.app$ property', () => {
-        it('calls the getAppPath app method', done => {
-          app.getAppPath.returns('/some/path');
-
-          Cycle.run(({ electron }) => {
-            return {
-              output: electron.paths.app$
-            }
-          }, {
-            electron: driver,
-            output: path$ => path$.first().forEach(verify)
-          });
-
-          function verify(path) {
-            expect(path).to.equal('/some/path');
-            done();
-          }
-        });
-      });
-
-      pathNames.forEach(key => {
-        describe(`.${key}$ property`, () => {
-          it(`calls the getPath app method with a "${key}" parameter`, done => {
-            app.getPath.withArgs(key).returns('/some/path');
-
-            Cycle.run(({ electron }) => {
-              return {
-                output: electron.paths[`${key}$`]
-              }
-            }, {
-              electron: driver,
-              output: path$ => path$.first().forEach(verify)
-            });
-
-            function verify(path) {
-              expect(path).to.equal('/some/path');
-              done();
-            }
-          });
-        });
-      });
-    });
-
     describe('badgeLabel$', () => {
       it('reflects the current and future badge labels', done => {
         app.dock.getBadge.returns('Label 1');
@@ -242,37 +193,6 @@ describe('MainDriver', () => {
   });
 
   describe('sink', () => {
-
-    describe('pathUpdates', () => {
-      pathNames.forEach(key => {
-        const prop = `${key}$`;
-        describe(prop, () => {
-          it(`updates the ${key} electron path`, done => {
-            app.getPath.withArgs(key).returns('/old/value');
-
-            Cycle.run(({ electron }) => {
-              return {
-                electron: Observable.just({
-                  pathUpdates: {
-                    [prop]: Observable.just('/new/value')
-                  }
-                }),
-                output: electron.paths[prop]
-              }
-            }, {
-              electron: driver,
-              output: $values => $values.skip(1).first().forEach(assert)
-            });
-
-            function assert(value) {
-              expect(value).to.equal('/new/value');
-              expect(app.setPath).to.have.been.calledWith(key, value);
-              done();
-            }
-          });
-        });
-      });
-    });
 
     describe('recentDocs', () => {
       describe('add$', () => {

@@ -28,6 +28,8 @@ If you are already familiar with the `electron` API, here's a map of its interfa
     * `quit` - [AppLifecycleDriver](#applifecycledriver)
     * `exit` - [AppLifecycleDriver](#applifecycledriver)
     * `hide` - [AppVisibilityDriver](#appvisibilitydriver)
+    * `show` - [AppVisibilityDriver](#appvisibilitydriver)
+    * `getAppPath` - [AppPathsDriver](#apppathsdriver)
 
 ## Drivers
 
@@ -86,6 +88,35 @@ The following properties are supported:
 |`exitCode`          | 0          | If `state` is set to `'exiting'`, sends this as the exit code              |
 |`isQuittingEnabled` | `true`     | If `false`, `before-quit` events will be cancelled                         |
 |`isAutoExitEnabled` | `true`     | If `false`, `will-quit` events will be cancelled                           |
+
+### AppPathsDriver
+
+`AppPathsDriver` enables the getting/setting of FS paths used by your app.
+
+#### source
+
+The source for the driver is an object with observable properties that generally match the 
+[electron path names](http://electron.atom.io/docs/v0.36.8/api/app/#appgetpathname) with the idiomatic `$` suffix
+(e.g. `home$`, `appData$`). Additionally, an `app$` property gives access to 
+[app.getAppPath()](http://electron.atom.io/docs/v0.36.8/api/app/#appgetapppath).
+
+```js
+import { join } from 'path';
+import { app } from 'electron';
+import { AppPathsDriver } from 'cycle-electron-driver';
+
+Cycle.run(({ appPaths }) => ({
+  appPaths: appPaths.appData$.map(dataPath => ({ downloads: join(dataPath, 'downloads') }))
+}), {
+  appPaths: AppPathsDriver(app)
+});
+```
+
+#### sink
+
+The sink for the driver is an observable of objects with properties matching
+[the electron path names](http://electron.atom.io/docs/v0.36.8/api/app/#appgetpathname). This will only cause the 
+specified paths to be set.
 
 ### AppVisibilityDriver
 
@@ -259,20 +290,6 @@ events() :: String -> Observable
   beforeAllWindowClose$
   beforeExit$
   exit$
-paths:
-  app$
-  appData$
-  desktop$
-  documents$
-  downloads$
-  exe$
-  home$
-  module$
-  music$
-  pictures$
-  temp$
-  userData$
-  videos$
 badgeLabel$
 ```
 
@@ -311,26 +328,6 @@ Values are objects with the following properties:
 
 * `argv`  - Array of command-line arguments used when this was launched
 * `cwd`   - The working directory of the process that was launched
-
-##### paths
-
-The `paths` property contains observables for various file paths used by the electron app:
-
-* `app$`       - The current application directory
-* `appData$`   - The directory for application data
-* `desktop$`   - The directory for the user's desktop files
-* `documents$` - The directory for the user's documents
-* `downloads$` - The directory for the user's downloaded files
-* `exe$`       - The path to the application executable
-* `home$`      - The user's home directory
-* `module$`    - The path to the `libchromiumcontent` library
-* `music$`     - The directory for the user's music files
-* `pictures$`  - The directory for the user's image files
-* `temp$`      - The directory for storing temporary data
-* `userData$`  - The directory for storing user-specific application data
-* `videos$`    - The directory for the user's video files
-
-Changing these paths can be done through the `paths` sinks, except for `app$` which is read-only.
 
 ##### badgeLabel$
 

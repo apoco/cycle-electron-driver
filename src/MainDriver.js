@@ -1,7 +1,5 @@
 import { Observable, Subject } from 'rx';
 
-import pathNames from './pathNames';
-
 export default function AppDriver(app, opts = {}) {
   let extraLaunch$ = null;
 
@@ -34,7 +32,6 @@ export default function AppDriver(app, opts = {}) {
       platformInfo: {
         get isAeroGlassEnabled() { return app.isAeroGlassEnabled(); }
       },
-      paths: setupPathSources(app, state$),
       events: setupEventSources(app, extraLaunch$),
       get badgeLabel$() {
         return Observable
@@ -45,52 +42,18 @@ export default function AppDriver(app, opts = {}) {
   };
 }
 
-function setupPathSources(app, state$) {
-  const paths = {
-    get app$() {
-      return Observable.just(app.getAppPath());
-    }
-  };
-
-  pathNames.forEach(prop => {
-    const observableName = `${prop}$`;
-    Object.defineProperty(paths, observableName, {
-      get() {
-        const pathUpdates = state$
-          .flatMapLatest(state => {
-            return (state && state.pathUpdates && state.pathUpdates[observableName]) || Observable.empty()
-          });
-        return Observable.just(app.getPath(prop)).merge(pathUpdates);
-      }
-    });
-  });
-  return paths;
-}
-
 function setupEventSources(app, extraLaunch$) {
   return Object.assign(eventName => Observable.fromEvent(app, eventName), { extraLaunch$ });
 }
 
 function setupSinkSubscriptions(app, state) {
   return []
-    .concat(subscribeToPathUpdates(app, state.pathUpdates))
     .concat(subscribeToRecentDocChanges(app, state.recentDocs))
     .concat(subscribeToUserTaskChanges(app, state.userTask$))
     .concat(subscribeToNTMLSettingChanges(app, state.ntlmAllowedOverride$))
     .concat(subscribeToAppUserModelIdChanges(app, state.appUserModelId$))
     .concat(subscribeToNewChromiumParams(app, state.newChromiumParam$))
     .concat(subscribeToDockSinks(app, state.dock));
-}
-
-function subscribeToPathUpdates(app, pathUpdates) {
-  if (!pathUpdates) {
-    return null;
-  }
-
-  return pathNames.map(name => {
-    const prop = `${name}$`;
-    return pathUpdates[prop] && pathUpdates[prop].forEach(value => app.setPath(name, value));
-  });
 }
 
 function subscribeToRecentDocChanges(app, recentDocs) {
