@@ -93,13 +93,6 @@ The following properties are supported:
 
 `AppPathsDriver` enables the getting/setting of FS paths used by your app.
 
-#### source
-
-The source for the driver is an object with observable properties that generally match the 
-[electron path names](http://electron.atom.io/docs/v0.36.8/api/app/#appgetpathname) with the idiomatic `$` suffix
-(e.g. `home$`, `appData$`). Additionally, an `app$` property gives access to 
-[app.getAppPath()](http://electron.atom.io/docs/v0.36.8/api/app/#appgetapppath).
-
 ```js
 import { join } from 'path';
 import { app } from 'electron';
@@ -111,6 +104,13 @@ Cycle.run(({ appPaths }) => ({
   appPaths: AppPathsDriver(app)
 });
 ```
+
+#### source
+
+The source for the driver is an object with observable properties that generally match the 
+[electron path names](http://electron.atom.io/docs/v0.36.8/api/app/#appgetpathname) with the idiomatic `$` suffix
+(e.g. `home$`, `appData$`). Additionally, an `app$` property gives access to 
+[app.getAppPath()](http://electron.atom.io/docs/v0.36.8/api/app/#appgetapppath).
 
 #### sink
 

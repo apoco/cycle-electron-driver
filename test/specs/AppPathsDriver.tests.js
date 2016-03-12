@@ -53,7 +53,7 @@ describe('The AppPathsDriver', () => {
               expect(path).to.equal('/original/path')
             }),
             output2: path$ => path$.forEach(path => {
-              expect(app.setPath).to.have.been.calledWith(newPath);
+              expect(app.setPath).to.have.been.calledWith(name, newPath);
               expect(path).to.equal(newPath);
               done();
             })

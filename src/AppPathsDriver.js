@@ -6,7 +6,7 @@ export default function AppPathsDriver(app) {
   return path$ => pathNames.reduce((sources, name) => {
     const pathChange$ = path$.map(paths => paths[name]).filter(Boolean);
 
-    pathChange$.forEach(path => app.setPath(path));
+    pathChange$.forEach(path => app.setPath(name, path));
 
     return Object.defineProperty(sources, name + '$', {
       get() {
