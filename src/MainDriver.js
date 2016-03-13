@@ -25,7 +25,6 @@ export default function AppDriver(app, opts = {}) {
 
     return {
       appInfo: {
-        get name() { return app.getName() },
         get locale() { return app.getLocale() }
       },
       platformInfo: {

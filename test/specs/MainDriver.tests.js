@@ -36,26 +36,6 @@ describe('MainDriver', () => {
 
   describe('source', () => {
     describe('appInfo', () => {
-      describe('name property', () => {
-        it('calls the getName method of the electron app', done => {
-          app.getName.returns('The app name');
-
-          Cycle.run(({ electron }) => {
-            return {
-              output: Observable.just(electron.appInfo.name)
-            };
-          }, {
-            electron: driver,
-            output: value$ => value$.first().forEach(verify)
-          });
-
-          function verify(value) {
-            expect(value).to.equal('The app name');
-            done();
-          }
-        });
-      });
-
       describe('locale property', () => {
         it('calls the getLocale method of the electron app', done => {
           app.getLocale.returns('fr-CA');

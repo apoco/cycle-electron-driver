@@ -14,6 +14,20 @@ describe('The AppMetadataDriver', () => {
     app = new AppStub();
   });
 
+  it('provides the app\'s name', done => {
+    app.getName.returns('Some arbitrary app');
+
+    Cycle.run(({ metadata$ }) => ({
+      output: metadata$
+    }), {
+      metadata$: new AppMetadataDriver(app),
+      output: metadata$ => metadata$.first().forEach(metadata => {
+        expect(metadata).to.have.property('name', 'Some arbitrary app');
+        done();
+      })
+    });
+  });
+
   it('provides the app\'s version', done => {
     app.getVersion.returns('1.2.3');
 

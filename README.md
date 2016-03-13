@@ -31,6 +31,7 @@ If you are already familiar with the `electron` API, here's a map of its interfa
     * `show` - [AppVisibilityDriver](#appvisibilitydriver)
     * `getAppPath` - [AppPathsDriver](#apppathsdriver)
     * `getVersion` - [AppMetadataDriver](#appmetadatadriver)
+    * `getName` - [AppMetadataDriver](#appmetadatadriver)
 
 ## Drivers
 
@@ -95,6 +96,7 @@ The following properties are supported:
 `AppMetadataDriver` provides a source observable of objects describing the app. The objects have the following 
 properties:
 
+* `name`
 * `version`
 
 ### AppPathsDriver
@@ -288,7 +290,6 @@ need to use. To summarize the overall structure, it looks something like this:
 
 ```
 appInfo:
-  name
   locale
 platformInfo:
   isAeroGlassEnabled
@@ -304,7 +305,6 @@ badgeLabel$
 
 The `appInfo` object provides the following metadata about the electron app:
 
-* `name`
 * `locale`
 
 ##### platformInfo
