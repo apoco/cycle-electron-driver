@@ -30,6 +30,7 @@ If you are already familiar with the `electron` API, here's a map of its interfa
     * `hide` - [AppVisibilityDriver](#appvisibilitydriver)
     * `show` - [AppVisibilityDriver](#appvisibilitydriver)
     * `getAppPath` - [AppPathsDriver](#apppathsdriver)
+    * `getVersion` - [AppMetadataDriver](#appmetadatadriver)
 
 ## Drivers
 
@@ -88,6 +89,13 @@ The following properties are supported:
 |`exitCode`          | 0          | If `state` is set to `'exiting'`, sends this as the exit code              |
 |`isQuittingEnabled` | `true`     | If `false`, `before-quit` events will be cancelled                         |
 |`isAutoExitEnabled` | `true`     | If `false`, `will-quit` events will be cancelled                           |
+
+### AppMetadataDriver
+
+`AppMetadataDriver` provides a source observable of objects describing the app. The objects have the following 
+properties:
+
+* `version`
 
 ### AppPathsDriver
 
@@ -281,7 +289,6 @@ need to use. To summarize the overall structure, it looks something like this:
 ```
 appInfo:
   name
-  version
   locale
 platformInfo:
   isAeroGlassEnabled
@@ -298,7 +305,6 @@ badgeLabel$
 The `appInfo` object provides the following metadata about the electron app:
 
 * `name`
-* `version`
 * `locale`
 
 ##### platformInfo

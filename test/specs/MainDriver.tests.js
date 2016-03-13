@@ -56,26 +56,6 @@ describe('MainDriver', () => {
         });
       });
 
-      describe('version property', () => {
-        it('calls the getVersion method of the electron app', done => {
-          app.getVersion.returns('5.2.4');
-
-          Cycle.run(({ electron }) => {
-            return {
-              output: Observable.just(electron.appInfo.version)
-            };
-          }, {
-            electron: driver,
-            output: value$ => value$.first().forEach(verify)
-          });
-
-          function verify(value) {
-            expect(value).to.equal('5.2.4');
-            done();
-          }
-        });
-      });
-
       describe('locale property', () => {
         it('calls the getLocale method of the electron app', done => {
           app.getLocale.returns('fr-CA');
