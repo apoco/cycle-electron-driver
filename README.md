@@ -32,6 +32,7 @@ If you are already familiar with the `electron` API, here's a map of its interfa
     * `getAppPath` - [AppPathsDriver](#apppathsdriver)
     * `getVersion` - [AppMetadataDriver](#appmetadatadriver)
     * `getName` - [AppMetadataDriver](#appmetadatadriver)
+    * `getLocale` - [AppMetadataDriver](#appmetadatadriver)
 
 ## Drivers
 
@@ -98,6 +99,7 @@ properties:
 
 * `name`
 * `version`
+* `locale`
 
 ### AppPathsDriver
 
@@ -289,8 +291,6 @@ The source object provided by `MainDriver` contains multiple properties and obse
 need to use. To summarize the overall structure, it looks something like this:
 
 ```
-appInfo:
-  locale
 platformInfo:
   isAeroGlassEnabled
 events() :: String -> Observable
@@ -300,12 +300,6 @@ events() :: String -> Observable
   exit$
 badgeLabel$
 ```
-
-##### appInfo
-
-The `appInfo` object provides the following metadata about the electron app:
-
-* `locale`
 
 ##### platformInfo
 

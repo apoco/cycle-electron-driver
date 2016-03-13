@@ -35,28 +35,6 @@ describe('MainDriver', () => {
   });
 
   describe('source', () => {
-    describe('appInfo', () => {
-      describe('locale property', () => {
-        it('calls the getLocale method of the electron app', done => {
-          app.getLocale.returns('fr-CA');
-
-          Cycle.run(({ electron }) => {
-            return {
-              output: Observable.just(electron.appInfo.locale)
-            };
-          }, {
-            electron: driver,
-            output: value$ => value$.first().forEach(verify)
-          });
-
-          function verify(value) {
-            expect(value).to.equal('fr-CA');
-            done();
-          }
-        });
-      });
-    });
-
     describe('platformInfo', () => {
       describe('isAeroGlassEnabled property', () => {
         it('calls the isAeroGlassEnabled method of the app', done => {

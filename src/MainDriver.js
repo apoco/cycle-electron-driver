@@ -24,9 +24,6 @@ export default function AppDriver(app, opts = {}) {
     });
 
     return {
-      appInfo: {
-        get locale() { return app.getLocale() }
-      },
       platformInfo: {
         get isAeroGlassEnabled() { return app.isAeroGlassEnabled(); }
       },

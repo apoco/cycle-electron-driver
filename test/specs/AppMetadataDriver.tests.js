@@ -41,4 +41,18 @@ describe('The AppMetadataDriver', () => {
       })
     });
   });
+
+  it('provides the app\'s locale', done => {
+    app.getLocale.returns('es-MX');
+
+    Cycle.run(({ metadata$ }) => ({
+      output: metadata$
+    }), {
+      metadata$: new AppMetadataDriver(app),
+      output: metadata$ => metadata$.first().forEach(metadata => {
+        expect(metadata).to.have.property('locale', 'es-MX');
+        done();
+      })
+    });
+  });
 });
