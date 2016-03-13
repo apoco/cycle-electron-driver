@@ -33,6 +33,7 @@ If you are already familiar with the `electron` API, here's a map of its interfa
     * `getVersion` - [AppMetadataDriver](#appmetadatadriver)
     * `getName` - [AppMetadataDriver](#appmetadatadriver)
     * `getLocale` - [AppMetadataDriver](#appmetadatadriver)
+    * `addRecentDocument` - [RecentDocsDriver](#recentdocsdriver)
 
 ## Drivers
 
@@ -260,6 +261,14 @@ Do not use this driver if you want to keep the default electron behavior of alwa
 certificate. If you only wish to be notified when client certificates are being selected with the default behavior,
 use the `AppEventsDriver` and filter where `type` equals `select-client-certificate`.
 
+### RecentDocsDriver
+
+`RecentDocsDriver` provides a sink for changing the recent documents of the app. Each object in the observable should
+contain one or more of the following properties:
+
+* `clear` - If set to `true`, the recent documents list for the app is cleared.
+* `add` - If set to a string, the path to a document to add to the recent documents list.
+
 ### Main process driver
 
 To create the driver for the main process, call the `MainDriver` function with the Electron app:
@@ -352,9 +361,6 @@ pathUpdates:
   temp$
   userData$
   videos$
-recentDocs:
-  add$
-  clear$
 newChromiumParam$
 userTask$
 dock:
@@ -385,13 +391,6 @@ Provide one of the following sinks to change the file path used by electron:
 * `temp$`      - The directory for storing temporary data
 * `userData$`  - The directory for storing user-specific application data
 * `videos$`    - The directory for the user's video files
-
-##### recentDocs
-
-The `recentDocs` object has the following available sinks:
-
-* `add$`    - The strings produced by this observable will be added to the OS's recent documents for the app
-* `clear$`  - When this observable produces values, it clears the recent documents for the app
 
 ##### newChromiumParam$
 

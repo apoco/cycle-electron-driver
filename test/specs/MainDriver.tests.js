@@ -132,46 +132,6 @@ describe('MainDriver', () => {
 
   describe('sink', () => {
 
-    describe('recentDocs', () => {
-      describe('add$', () => {
-        it('calls the addRecentDocument app method', done => {
-          Cycle.run(() => {
-            return {
-              electron: Observable.just({
-                recentDocs: {
-                  add$: Observable.just('/some/path')
-                }
-              })
-            }
-          }, { electron: driver });
-
-          setTimeout(() => {
-            expect(app.addRecentDocument).to.have.been.calledWith('/some/path');
-            done();
-          }, 1)
-        });
-      });
-
-      describe('clear$', () => {
-        it('calls the clearRecentDocuments app method', done => {
-          Cycle.run(() => {
-            return {
-              electron: Observable.just({
-                recentDocs: {
-                  clear$: Observable.just({})
-                }
-              })
-            }
-          }, { electron: driver });
-
-          setTimeout(() => {
-            expect(app.clearRecentDocuments).to.have.been.called;
-            done();
-          }, 1)
-        });
-      });
-    });
-
     describe('userTask$', () => {
       const tasks = [{ title: 'Task 1' }, { title: 'Task 2' }];
 

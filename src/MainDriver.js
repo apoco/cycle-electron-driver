@@ -43,23 +43,11 @@ function setupEventSources(app, extraLaunch$) {
 
 function setupSinkSubscriptions(app, state) {
   return []
-    .concat(subscribeToRecentDocChanges(app, state.recentDocs))
     .concat(subscribeToUserTaskChanges(app, state.userTask$))
     .concat(subscribeToNTMLSettingChanges(app, state.ntlmAllowedOverride$))
     .concat(subscribeToAppUserModelIdChanges(app, state.appUserModelId$))
     .concat(subscribeToNewChromiumParams(app, state.newChromiumParam$))
     .concat(subscribeToDockSinks(app, state.dock));
-}
-
-function subscribeToRecentDocChanges(app, recentDocs) {
-  if (!recentDocs) {
-    return null;
-  }
-
-  return [
-    recentDocs.add$ && recentDocs.add$.forEach(path => app.addRecentDocument(path)),
-    recentDocs.clear$ && recentDocs.clear$.forEach(() => app.clearRecentDocuments())
-  ];
 }
 
 function subscribeToUserTaskChanges(app, userTask$) {
