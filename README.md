@@ -34,6 +34,8 @@ If you are already familiar with the `electron` API, here's a map of its interfa
     * `getName` - [AppMetadataDriver](#appmetadatadriver)
     * `getLocale` - [AppMetadataDriver](#appmetadatadriver)
     * `addRecentDocument` - [RecentDocsDriver](#recentdocsdriver)
+    * `clearRecentDocuments` - [RecentDocsDriver](#recentdocsdriver)
+    * `setUserTasks` - [AppTasksDriver](#apptasksdriver)
 
 ## Drivers
 
@@ -130,6 +132,19 @@ The source for the driver is an object with observable properties that generally
 The sink for the driver is an observable of objects with properties matching
 [the electron path names](http://electron.atom.io/docs/v0.36.8/api/app/#appgetpathname). This will only cause the 
 specified paths to be set.
+
+### AppTasksDriver
+
+`AppTasksDriver` consumes a sink observable containing arrays of app tasks. Tasks should have the following properties:
+
+* `program` - The application executable; use `process.execPath` to use the currently-executing app executable.
+* `arguments` - An array of strings to use as program arguments
+* `title` - The title to give the task
+* `description` - The full description of the task
+* `iconPath` - Path to the icon to show for the task
+* `iconIndex` - If `iconPath` contains multiple icons, the index of the icon to use for the task
+
+This only takes effect on a Windows platform.
 
 ### AppVisibilityDriver
 
@@ -269,6 +284,22 @@ contain one or more of the following properties:
 * `clear` - If set to `true`, the recent documents list for the app is cleared.
 * `add` - If set to a string, the path to a document to add to the recent documents list.
 
+```js
+import Cycle from '@cycle/core';
+import { app } from 'electron';
+import { RecentDocsDriver } from 'cycle-electron-driver';
+
+Cycle.run(() => {
+  //...
+  
+  return {
+    recentDoc$: model.openedDoc$.map(doc => ({ add: doc }))
+  }
+}), {
+  recentDoc$: RecentDocsDriver(app)
+});
+```
+
 ### Main process driver
 
 To create the driver for the main process, call the `MainDriver` function with the Electron app:
@@ -361,8 +392,7 @@ pathUpdates:
   temp$
   userData$
   videos$
-newChromiumParam$
-userTask$
+newChromiumParam$AppTasksDriver
 dock:
   bounce:
     start$
@@ -402,18 +432,6 @@ The `newChromiumParam$` sink should produce objects with the following propertie
 
 Note that these are write-only and cannot be undone. In other words, you cannot remove a switch or argument once it has
 been included.
-
-##### userTask$
-
-This sink should emit array of task objects to set the user tasks for the application (Windows only). The objects should
-have the following properties:
-
-* `program` - The application executable; use `process.execPath` to use the currently-executing app executable.
-* `arguments` - An array of strings to use as program arguments
-* `title` - The title to give the task
-* `description` - The full description of the task
-* `iconPath` - Path to the icon to show for the task
-* `iconIndex` - If `iconPath` contains multiple icons, the index of the icon to use for the task
 
 ##### dock
 

@@ -43,15 +43,10 @@ function setupEventSources(app, extraLaunch$) {
 
 function setupSinkSubscriptions(app, state) {
   return []
-    .concat(subscribeToUserTaskChanges(app, state.userTask$))
     .concat(subscribeToNTMLSettingChanges(app, state.ntlmAllowedOverride$))
     .concat(subscribeToAppUserModelIdChanges(app, state.appUserModelId$))
     .concat(subscribeToNewChromiumParams(app, state.newChromiumParam$))
     .concat(subscribeToDockSinks(app, state.dock));
-}
-
-function subscribeToUserTaskChanges(app, userTask$) {
-  return userTask$ && userTask$.forEach(tasks => app.setUserTasks(tasks));
 }
 
 function subscribeToNTMLSettingChanges(app, override$) {
