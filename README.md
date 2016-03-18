@@ -29,15 +29,59 @@ If you are already familiar with the `electron` API, here's a map of its interfa
     * `exit` - [AppLifecycleDriver](#applifecycledriver)
     * `hide` - [AppVisibilityDriver](#appvisibilitydriver)
     * `show` - [AppVisibilityDriver](#appvisibilitydriver)
-    * `getAppPath` - [AppPathsDriver](#apppathsdriver)
+    * `getAppPath` - [AppConfigDriver](#appconfigdriver)
+    * `getPath` - [AppConfigDriver](#appconfigdriver)
+    * `setPath` - [AppConfigDriver](#appconfigdriver)
     * `getVersion` - [AppMetadataDriver](#appmetadatadriver)
     * `getName` - [AppMetadataDriver](#appmetadatadriver)
     * `getLocale` - [AppMetadataDriver](#appmetadatadriver)
     * `addRecentDocument` - [RecentDocsDriver](#recentdocsdriver)
     * `clearRecentDocuments` - [RecentDocsDriver](#recentdocsdriver)
-    * `setUserTasks` - [AppTasksDriver](#apptasksdriver)
+    * `setUserTasks` - [AppConfigDriver](#appconfigdriver)
 
 ## Drivers
+
+### AppConfigDriver
+
+`AppConfigDriver` enables the getting/setting of configuration used by your app.
+
+```js
+import { join } from 'path';
+import { app } from 'electron';
+import { AppPathsDriver } from 'cycle-electron-driver';
+
+Cycle.run(({ config: { appPaths } }) => ({
+  appPaths: appPaths.appData$.map(dataPath => ({ downloads: join(dataPath, 'downloads') }))
+}), {
+  config: AppConfigDriver(app)
+});
+```
+
+#### source
+
+The source for the driver is an object with the following structure.
+
+* `paths` - An object with observable properties that match the 
+  [electron path names](http://electron.atom.io/docs/v0.36.8/api/app/#appgetpathname) with the idiomatic `$` suffix
+  (e.g. `home$`, `appData$`). Additionally, an `app$` property gives access to 
+  [app.getAppPath()](http://electron.atom.io/docs/v0.36.8/api/app/#appgetapppath).
+* `task$` - An observable of `Task` arrays.
+
+#### sink
+
+The sink for the driver is an observable of objects describing the configuration settings to change. The following 
+structure is supported:
+
+* `paths` - An object with properties matching
+  [the electron path names](http://electron.atom.io/docs/v0.36.8/api/app/#appgetpathname). Only the specified cause 
+  the paths specified to be set.
+* `tasks`: An array of `Task` objects (Windows only). These have the following properties:
+  * `program` - The application executable; use `process.execPath` to use the currently-executing app executable.
+  * `arguments` - An array of strings to use as program arguments
+  * `title` - The title to give the task
+  * `description` - The full description of the task
+  * `iconPath` - Path to the icon to show for the task
+  * `iconIndex` - If `iconPath` contains multiple icons, the index of the icon to use for the task
 
 ### AppEventsDriver
 
@@ -103,48 +147,6 @@ properties:
 * `name`
 * `version`
 * `locale`
-
-### AppPathsDriver
-
-`AppPathsDriver` enables the getting/setting of FS paths used by your app.
-
-```js
-import { join } from 'path';
-import { app } from 'electron';
-import { AppPathsDriver } from 'cycle-electron-driver';
-
-Cycle.run(({ appPaths }) => ({
-  appPaths: appPaths.appData$.map(dataPath => ({ downloads: join(dataPath, 'downloads') }))
-}), {
-  appPaths: AppPathsDriver(app)
-});
-```
-
-#### source
-
-The source for the driver is an object with observable properties that generally match the 
-[electron path names](http://electron.atom.io/docs/v0.36.8/api/app/#appgetpathname) with the idiomatic `$` suffix
-(e.g. `home$`, `appData$`). Additionally, an `app$` property gives access to 
-[app.getAppPath()](http://electron.atom.io/docs/v0.36.8/api/app/#appgetapppath).
-
-#### sink
-
-The sink for the driver is an observable of objects with properties matching
-[the electron path names](http://electron.atom.io/docs/v0.36.8/api/app/#appgetpathname). This will only cause the 
-specified paths to be set.
-
-### AppTasksDriver
-
-`AppTasksDriver` consumes a sink observable containing arrays of app tasks. Tasks should have the following properties:
-
-* `program` - The application executable; use `process.execPath` to use the currently-executing app executable.
-* `arguments` - An array of strings to use as program arguments
-* `title` - The title to give the task
-* `description` - The full description of the task
-* `iconPath` - Path to the icon to show for the task
-* `iconIndex` - If `iconPath` contains multiple icons, the index of the icon to use for the task
-
-This only takes effect on a Windows platform.
 
 ### AppVisibilityDriver
 

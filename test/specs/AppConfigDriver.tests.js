@@ -1,4 +1,4 @@
-import AppPathsDriver from '../../src/AppPathsDriver';
+import AppConfigDriver from '../../src/AppConfigDriver';
 import pathNames from '../../src/pathNames';
 
 import { expect } from 'chai';
@@ -8,24 +8,24 @@ import Cycle from '@cycle/core';
 
 import AppStub from '../stubs/App';
 
-describe('The AppPathsDriver', () => {
+describe('The AppConfigDriver', () => {
   let app = null;
 
   beforeEach(() => {
     app = new AppStub();
   });
 
-  describe('source', () => {
+  describe('paths source', () => {
     pathNames.forEach(name => {
       const source = `${name}$`;
       describe(source, () => {
         it(`gets the path named "${name}"`, done => {
           app.getPath.withArgs(name).returns('/some/path');
 
-          Cycle.run(({ paths }) => ({
+          Cycle.run(({ config: { paths } }) => ({
             output: paths[source].first().forEach(assert)
           }), {
-            paths: AppPathsDriver(app)
+            config: AppConfigDriver(app)
           });
 
           function assert(path) {
@@ -39,16 +39,16 @@ describe('The AppPathsDriver', () => {
           const newPath = '/new/path';
           app.getPath.withArgs(name).onFirstCall().returns(originalPath);
 
-          Cycle.run(({ paths }) => {
+          Cycle.run(({ config: { paths } }) => {
             const path$ = paths[source];
 
             return {
-              paths: Observable.just({ [name]: newPath }),
+              config: Observable.just({ paths: { [name]: newPath } }),
               output1: path$.first(),
               output2: path$.skip(1).first()
             }
           }, {
-            paths: AppPathsDriver(app),
+            config: AppConfigDriver(app),
             output1: path$ => path$.forEach(path => {
               expect(path).to.equal('/original/path')
             }),
@@ -66,10 +66,10 @@ describe('The AppPathsDriver', () => {
       it('calls app.getAppPath()', done => {
         app.getAppPath.returns('/some/path');
 
-        Cycle.run(({ paths }) => ({
+        Cycle.run(({ config: { paths } }) => ({
           output: paths.app$.first().forEach(assert)
         }), {
-          paths: AppPathsDriver(app)
+          config: AppConfigDriver(app)
         });
 
         function assert(path) {
@@ -77,6 +77,27 @@ describe('The AppPathsDriver', () => {
           done();
         }
       });
+    });
+  });
+
+  describe('tasks sink property', () => {
+
+    it('calls `app.setUserTasks()`', done => {
+      const tasks = [
+        { title: 'Task 1' },
+        { title: 'Task 2' }
+      ];
+
+      Cycle.run(() => ({
+        config$: Observable.just({ tasks })
+      }), {
+        config$: AppConfigDriver(app)
+      });
+
+      setTimeout(() => {
+        expect(app.setUserTasks).to.have.been.calledWith(tasks);
+        done();
+      }, 1);
     });
   });
 });
