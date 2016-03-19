@@ -284,23 +284,6 @@ describe('MainDriver', () => {
       });
     });
 
-    describe('ntlmAllowedOverride$', () => {
-      it('calls the allowNTLMCredentialsForAllDomains app method', done => {
-        Cycle.run(() => {
-          return {
-            electron: Observable.just({
-              ntlmAllowedOverride$: Observable.just(true)
-            })
-          }
-        }, { electron: driver });
-
-        setTimeout(() => {
-          expect(app.allowNTLMCredentialsForAllDomains).to.have.been.calledWith(true);
-          done();
-        }, 1)
-      });
-    });
-
     describe('appUserModelId$', () => {
       it('causes the setAppUserModelId method of the app to be called', done => {
         Cycle.run(() => ({

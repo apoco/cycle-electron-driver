@@ -61,6 +61,7 @@ Cycle.run(({ config: { appPaths } }) => ({
 
 The source for the driver is an object with the following structure.
 
+* `allowNTMLForNonIntranet$` - Gives the current `allowNTMLForNonIntranet` config setting.
 * `paths` - An object with observable properties that match the 
   [electron path names](http://electron.atom.io/docs/v0.36.8/api/app/#appgetpathname) with the idiomatic `$` suffix
   (e.g. `home$`, `appData$`). Additionally, an `app$` property gives access to 
@@ -72,9 +73,10 @@ The source for the driver is an object with the following structure.
 The sink for the driver is an observable of objects describing the configuration settings to change. The following 
 structure is supported:
 
+* `allowNTMLForNonIntranet` - If set to `true`, enable NTLM auth for all domains. Otherwise, only intranet sites.
 * `paths` - An object with properties matching
-  [the electron path names](http://electron.atom.io/docs/v0.36.8/api/app/#appgetpathname). Only the specified cause 
-  the paths specified to be set.
+  [the electron path names](http://electron.atom.io/docs/v0.36.8/api/app/#appgetpathname). Only the specified paths
+  are changed.
 * `tasks`: An array of `Task` objects (Windows only). These have the following properties:
   * `program` - The application executable; use `process.execPath` to use the currently-executing app executable.
   * `arguments` - An array of strings to use as program arguments

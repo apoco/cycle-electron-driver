@@ -43,14 +43,9 @@ function setupEventSources(app, extraLaunch$) {
 
 function setupSinkSubscriptions(app, state) {
   return []
-    .concat(subscribeToNTMLSettingChanges(app, state.ntlmAllowedOverride$))
     .concat(subscribeToAppUserModelIdChanges(app, state.appUserModelId$))
     .concat(subscribeToNewChromiumParams(app, state.newChromiumParam$))
     .concat(subscribeToDockSinks(app, state.dock));
-}
-
-function subscribeToNTMLSettingChanges(app, override$) {
-  return override$ && override$.forEach(enabled => app.allowNTLMCredentialsForAllDomains(enabled));
 }
 
 function subscribeToAppUserModelIdChanges(app, id$) {
