@@ -1,12 +1,13 @@
-import { Observable } from 'rx';
+import { Observable } from 'rxjs';
+import { adapt } from '@cycle/run/lib/adapt';
 
 export default function CertErrorOverrideDriver(app) {
   return (override$) => {
-    override$
+    Observable.from(override$)
       .filter(({ event }) => event && event.callback)
       .forEach(({ event: { callback }, allow = false }) => callback(allow));
 
-    return Observable.fromEvent(
+    return adapt(Observable.fromEvent(
       app,
       'certificate-error',
       (event, webContents, url, error, certificate, callback) => {
@@ -16,6 +17,6 @@ export default function CertErrorOverrideDriver(app) {
           { webContents, url, error, certificate, callback }
         )
       }
-    )
+    ));
   }
 }

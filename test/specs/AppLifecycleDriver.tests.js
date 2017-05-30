@@ -2,8 +2,8 @@ import AppLifecycleDriver from '../../src/AppLifecycleDriver';
 
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { Observable } from 'rx';
-import Cycle from '@cycle/core';
+import { Observable } from 'rxjs';
+import { run } from '@cycle/rxjs-run';
 
 import AppStub from '../stubs/App';
 
@@ -27,11 +27,11 @@ describe('The AppLifecycleDriver', () => {
       describe(prop, () => {
         const eventName = basicSources[prop];
         it(`contains ${eventName} events`, done => {
-          Cycle.run(({ lifecycle }) => ({
+          run(({ lifecycle }) => ({
             output: lifecycle[prop]
           }), {
             lifecycle: AppLifecycleDriver(app),
-            output: event$ => event$.first().forEach(verify)
+            output: event$ => Observable.from(event$).first().forEach(verify)
           });
 
           const emittedEvent = {};
@@ -47,11 +47,11 @@ describe('The AppLifecycleDriver', () => {
 
     describe('quit$', () => {
       it('contains quit events with the exitCode added to the event objects', done => {
-        Cycle.run(({ lifecycle }) => ({
+        run(({ lifecycle }) => ({
           output: lifecycle.quit$
         }), {
           lifecycle: AppLifecycleDriver(app),
-          output: event$ => event$.first().forEach(verify)
+          output: event$ => Observable.from(event$).first().forEach(verify)
         });
 
         const emittedEvent = {};
@@ -74,8 +74,8 @@ describe('The AppLifecycleDriver', () => {
     Object.keys(preventionFlags).forEach(eventName => {
       const flag = preventionFlags[eventName];
       it(`prevents ${eventName} default behaviors if ${flag} is false`, done => {
-        Cycle.run(({ lifecycle }) => ({
-          lifecycle: Observable.just({
+        run(({ lifecycle }) => ({
+          lifecycle: Observable.of({
             [flag]: false
           })
         }), {
@@ -93,8 +93,8 @@ describe('The AppLifecycleDriver', () => {
     });
 
     it('initiates a quit if `state` is set to `quitting`', done => {
-      Cycle.run(({ lifecycle }) => ({
-        lifecycle: Observable.just({
+      run(({ lifecycle }) => ({
+        lifecycle: Observable.of({
           state: 'quitting'
         })
       }), {
@@ -108,8 +108,8 @@ describe('The AppLifecycleDriver', () => {
     });
 
     it('initiates an exit if `state` is set to `exiting`', done => {
-      Cycle.run(({ lifecycle }) => ({
-        lifecycle: Observable.just({
+      run(({ lifecycle }) => ({
+        lifecycle: Observable.of({
           state: 'exiting'
         })
       }), {
@@ -123,8 +123,8 @@ describe('The AppLifecycleDriver', () => {
     });
 
     it('passes a specific exit code if `state` is `exiting` and `exitCode` is specified', done => {
-      Cycle.run(({ lifecycle }) => ({
-        lifecycle: Observable.just({
+      run(({ lifecycle }) => ({
+        lifecycle: Observable.of({
           state: 'exiting',
           exitCode: 255
         })

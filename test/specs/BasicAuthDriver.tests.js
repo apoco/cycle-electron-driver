@@ -2,8 +2,8 @@ import BasicAuthDriver from '../../src/BasicAuthDriver';
 
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { Observable } from 'rx';
-import Cycle from '@cycle/core';
+import { Observable } from 'rxjs';
+import { run } from '@cycle/rxjs-run';
 
 import AppStub from '../stubs/App';
 
@@ -16,11 +16,11 @@ describe('The BasicAuthDriver', () => {
 
   describe('source', () => {
     it('contains objects representing login prompts', done => {
-      Cycle.run(({ login$ }) => ({
+      run(({ login$ }) => ({
         output: login$
       }), {
         login$: BasicAuthDriver(app),
-        output: login$ => login$.first().forEach(assert)
+        output: login$ => Observable.from(login$).first().forEach(assert)
       });
 
       const webContents = {};
@@ -37,11 +37,11 @@ describe('The BasicAuthDriver', () => {
     });
 
     it('prevents the default handling for login prompts', done => {
-      Cycle.run(({ login$ }) => ({
+      run(({ login$ }) => ({
         output: login$
       }), {
         login$: BasicAuthDriver(app),
-        output: login$ => login$.first().forEach(assert)
+        output: login$ => Observable.from(login$).first().forEach(assert)
       });
 
       const origEvent = { preventDefault: spy() };
@@ -56,7 +56,7 @@ describe('The BasicAuthDriver', () => {
 
   describe('sink', () => {
     it('calls the event callback with the specified username & password', done => {
-      Cycle.run(({ login$ }) => ({
+      run(({ login$ }) => ({
         login$: login$.map(e => ({ event: e, username: 'jimbo', password: 'p&ssW0rd' }))
       }), {
         login$: BasicAuthDriver(app)

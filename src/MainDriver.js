@@ -1,11 +1,12 @@
-import { Observable, Subject } from 'rx';
+import { Observable, Subject } from 'rxjs';
+import { adapt } from '@cycle/run/lib/adapt';
 
 export default function AppDriver(app, opts = {}) {
   let extraLaunch$ = null;
 
   if (opts.isSingleInstance) {
     extraLaunch$ = new Subject();
-    const shouldQuit = app.makeSingleInstance((argv, cwd) => extraLaunch$.onNext({ argv, cwd }));
+    const shouldQuit = app.makeSingleInstance((argv, cwd) => extraLaunch$.next({ argv, cwd }));
 
     if (shouldQuit) {
       app.quit();
@@ -15,7 +16,9 @@ export default function AppDriver(app, opts = {}) {
     extraLaunch$ = Observable.empty();
   }
 
-  return state$ => {
+  return stateXs$ => {
+    const state$ = Observable.from(stateXs$);
+
     let subscriptions = [];
 
     state$.forEach(state => {
@@ -29,9 +32,9 @@ export default function AppDriver(app, opts = {}) {
       },
       events: setupEventSources(app, extraLaunch$),
       get badgeLabel$() {
-        return Observable
-          .just(app.dock.getBadge())
-          .concat(state$.flatMap(({ dock: { badgeLabel$ = Observable.empty() } = {} } = {}) => badgeLabel$));
+        return adapt(Observable
+          .of(app.dock.getBadge())
+          .concat(state$.flatMap(({ dock: { badgeLabel$ = Observable.empty() } = {} } = {}) => badgeLabel$)));
       }
     }
   };

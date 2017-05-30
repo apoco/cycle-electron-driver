@@ -1,4 +1,5 @@
-import { Observable } from 'rx';
+import { Observable } from 'rxjs';
+import { adapt } from '@cycle/run/lib/adapt';
 
 const eventMapping = {
   willFinishLaunching$: 'will-finish-launching',
@@ -9,10 +10,12 @@ const eventMapping = {
 };
 
 export default function AppLifecycleDriver(app) {
-  return cfg$ => {
+  return cfgXs$ => {
+    const cfg$ = Observable.from(cfgXs$);
+
     const source = Object.keys(eventMapping).reduce((obj, prop) => Object.defineProperty(obj, prop, {
       get() {
-        return Observable.fromEvent(app, eventMapping[prop]);
+        return adapt(Observable.fromEvent(app, eventMapping[prop]));
       }
     }), {});
 

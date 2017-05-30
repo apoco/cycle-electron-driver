@@ -4,8 +4,8 @@ import { expect } from 'chai';
 import { spy } from 'sinon';
 
 import Promise from 'bluebird';
-import Cycle from '@cycle/core';
-import { Observable } from 'rx';
+import { Observable } from 'rxjs';
+import { run } from '@cycle/rxjs-run';
 
 import AppStub from '../stubs/App';
 
@@ -20,9 +20,9 @@ describe('MainDriver', () => {
   it('quits if isSingleInstance option is true and makeSingleInstance returns true', done => {
     app.makeSingleInstance.returns(true);
 
-    Cycle.run(() => {
+    run(() => {
       return {
-        electron: Observable.just({})
+        electron: Observable.of({})
       }
     }, {
       electron: new MainDriver(app, { isSingleInstance: true })
@@ -40,11 +40,11 @@ describe('MainDriver', () => {
         it('calls the isAeroGlassEnabled method of the app', done => {
           app.isAeroGlassEnabled.returns(true);
 
-          Cycle.run(({ electron }) => ({
-            output: Observable.just(electron.platformInfo.isAeroGlassEnabled)
+          run(({ electron }) => ({
+            output: Observable.of(electron.platformInfo.isAeroGlassEnabled)
           }), {
             electron: driver,
-            output: value$ => value$.first().forEach(isEnabled => {
+            output: value$ => Observable.from(value$).first().forEach(isEnabled => {
               expect(isEnabled).to.be.true;
               done();
             })
@@ -56,13 +56,13 @@ describe('MainDriver', () => {
     describe('events', () => {
       describe('function', () => {
         it('listens to the specified event', done => {
-          Cycle.run(({ electron }) => {
+          run(({ electron }) => {
             return {
               receivedEvent$: electron.events('ready')
             }
           }, {
             electron: driver,
-            receivedEvent$: events$ => events$.first().forEach(verify)
+            receivedEvent$: events$ => Observable.from(events$).first().forEach(verify)
           });
 
           const emittedEvent = {};
@@ -81,13 +81,13 @@ describe('MainDriver', () => {
           const workingDir = '/some/path';
           app.makeSingleInstance.returns(false);
 
-          Cycle.run(({ electron }) => {
+          run(({ electron }) => {
             return {
               output: electron.events.extraLaunch$
             }
           }, {
             electron: new MainDriver(app, { isSingleInstance: true }),
-            output: value$ => value$.forEach(assert)
+            output: value$ => Observable.from(value$).forEach(assert)
           });
 
           setTimeout(() => {
@@ -108,16 +108,16 @@ describe('MainDriver', () => {
         app.dock.getBadge.returns('Label 1');
         let valueCount = 0;
 
-        Cycle.run(({ electron }) => ({
-          electron: Observable.just({
+        run(({ electron }) => ({
+          electron: Observable.of({
             dock: {
-              badgeLabel$: Observable.timer(5).map('Label 2')
+              badgeLabel$: Observable.timer(5).mapTo('Label 2')
             }
           }),
           output: electron.badgeLabel$
         }), {
           electron: driver,
-          output: value$ => value$.forEach(label => {
+          output: value$ => Observable.from(value$).forEach(label => {
             valueCount++;
             expect(label).to.equal(`Label ${valueCount}`);
             if (valueCount === 2) {
@@ -148,11 +148,11 @@ describe('MainDriver', () => {
 
           function testBounceStart(bounce, assertions) {
             return new Promise(resolve => {
-              Cycle.run(() => ({
-                electron: Observable.just({
+              run(() => ({
+                electron: Observable.of({
                   dock: {
                     bounce: {
-                      start$: Observable.just(bounce)
+                      start$: Observable.of(bounce)
                     }
                   }
                 })
@@ -170,11 +170,11 @@ describe('MainDriver', () => {
           it('causes previously-started bounces to be cancelled', done => {
             app.dock.bounce.returns(8346);
 
-            Cycle.run(() => ({
-              electron: Observable.just({
+            run(() => ({
+              electron: Observable.of({
                 dock: {
                   bounce: {
-                    start$: Observable.just({ id: 'auth-has-expired', type: 'critical' }),
+                    start$: Observable.of({ id: 'auth-has-expired', type: 'critical' }),
                     cancel$: Observable.timer(5).map(() => 'auth-has-expired')
                   }
                 }
@@ -204,10 +204,10 @@ describe('MainDriver', () => {
 
         function testVisibility(value, assertions) {
           return new Promise(resolve => {
-            Cycle.run(() => ({
-              electron: Observable.just({
+            run(() => ({
+              electron: Observable.of({
                 dock: {
-                  visibility$: Observable.just(value)
+                  visibility$: Observable.of(value)
                 }
               })
             }), { electron: driver });
@@ -224,10 +224,10 @@ describe('MainDriver', () => {
         it('causes app.dock.setIcon to be called', done => {
           const img = {};
 
-          Cycle.run(() => ({
-            electron: Observable.just({
+          run(() => ({
+            electron: Observable.of({
               dock: {
-                icon$: Observable.just(img)
+                icon$: Observable.of(img)
               }
             })
           }), { electron: driver });
@@ -243,10 +243,10 @@ describe('MainDriver', () => {
         it('causes app.dock.setMenu to be called', done => {
           const menu = {};
 
-          Cycle.run(() => ({
-            electron: Observable.just({
+          run(() => ({
+            electron: Observable.of({
               dock: {
-                menu$: Observable.just(menu)
+                menu$: Observable.of(menu)
               }
             })
           }), { electron: driver });
@@ -261,9 +261,9 @@ describe('MainDriver', () => {
 
     describe('newChromiumParam$', () => {
       it('calls appendSwitch and appendArgument for each switch & argument', done => {
-        Cycle.run(() => ({
-          electron: Observable.just({
-            newChromiumParam$: Observable.just({
+        run(() => ({
+          electron: Observable.of({
+            newChromiumParam$: Observable.of({
               switches: [
                 { 'switch': 'prefetch', value: 1 },
                 { 'switch': 'aggressive-cache-discard' }
@@ -286,9 +286,9 @@ describe('MainDriver', () => {
 
     describe('appUserModelId$', () => {
       it('causes the setAppUserModelId method of the app to be called', done => {
-        Cycle.run(() => ({
-          electron: Observable.just({
-            appUserModelId$: Observable.just('new-user-model-id')
+        run(() => ({
+          electron: Observable.of({
+            appUserModelId$: Observable.of('new-user-model-id')
           })
         }), { electron: driver });
 

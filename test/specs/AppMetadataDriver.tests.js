@@ -2,8 +2,8 @@ import AppMetadataDriver from '../../src/AppMetadataDriver';
 
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { Observable } from 'rx';
-import Cycle from '@cycle/core';
+import { Observable } from 'rxjs';
+import { run } from '@cycle/rxjs-run';
 
 import AppStub from '../stubs/App';
 
@@ -17,11 +17,11 @@ describe('The AppMetadataDriver', () => {
   it('provides the app\'s name', done => {
     app.getName.returns('Some arbitrary app');
 
-    Cycle.run(({ metadata$ }) => ({
+    run(({ metadata$ }) => ({
       output: metadata$
     }), {
       metadata$: new AppMetadataDriver(app),
-      output: metadata$ => metadata$.first().forEach(metadata => {
+      output: metadata$ => Observable.from(metadata$).first().forEach(metadata => {
         expect(metadata).to.have.property('name', 'Some arbitrary app');
         done();
       })
@@ -31,11 +31,11 @@ describe('The AppMetadataDriver', () => {
   it('provides the app\'s version', done => {
     app.getVersion.returns('1.2.3');
 
-    Cycle.run(({ metadata$ }) => ({
+    run(({ metadata$ }) => ({
       output: metadata$
     }), {
       metadata$: new AppMetadataDriver(app),
-      output: metadata$ => metadata$.first().forEach(metadata => {
+      output: metadata$ => Observable.from(metadata$).first().forEach(metadata => {
         expect(metadata).to.have.property('version', '1.2.3');
         done();
       })
@@ -45,11 +45,11 @@ describe('The AppMetadataDriver', () => {
   it('provides the app\'s locale', done => {
     app.getLocale.returns('es-MX');
 
-    Cycle.run(({ metadata$ }) => ({
+    run(({ metadata$ }) => ({
       output: metadata$
     }), {
       metadata$: new AppMetadataDriver(app),
-      output: metadata$ => metadata$.first().forEach(metadata => {
+      output: metadata$ => Observable.from(metadata$).first().forEach(metadata => {
         expect(metadata).to.have.property('locale', 'es-MX');
         done();
       })
