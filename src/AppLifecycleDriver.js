@@ -1,5 +1,5 @@
-import { Observable } from 'rxjs';
-import { adapt } from '@cycle/run/lib/adapt';
+import xs from 'xstream';
+import fromEvent from 'xstream/extra/fromEvent';
 
 const eventMapping = {
   willFinishLaunching$: 'will-finish-launching',
@@ -10,35 +10,41 @@ const eventMapping = {
 };
 
 export default function AppLifecycleDriver(app) {
-  return cfgXs$ => {
-    const cfg$ = Observable.from(cfgXs$);
+  return cfg$ => {
 
     const source = Object.keys(eventMapping).reduce((obj, prop) => Object.defineProperty(obj, prop, {
       get() {
-        return adapt(Observable.fromEvent(app, eventMapping[prop]));
+        return fromEvent(app, eventMapping[prop])
       }
     }), {});
 
     Object.defineProperty(source, 'quit$', {
       get() {
-        return Observable.fromEvent(app, 'quit', (e, exitCode) => Object.assign({ exitCode }, e));
+        return fromEvent(app, 'quit')
+          .map(([ev, exitCode]) => Object.assign(ev, { exitCode }));
       }
     });
 
     let subscriptions = [];
     cfg$
       .startWith({})
-      .forEach(({ state = 'started', exitCode, isQuittingEnabled = true, isAutoExitEnabled = true } = {}) => {
-        subscriptions.filter(Boolean).forEach(s => s.dispose());
-        subscriptions = [
-          !isQuittingEnabled && source.beforeQuit$.forEach(e => e.preventDefault()),
-          !isAutoExitEnabled && source.willQuit$.forEach(e => e.preventDefault())
-        ];
+      .addListener({
+        next: ({ state = 'started', exitCode, isQuittingEnabled = true, isAutoExitEnabled = true } = {}) => {
+          subscriptions.filter(Boolean).forEach(s => s.dispose());
+          subscriptions = [
+            !isQuittingEnabled && source.beforeQuit$.addListener({
+              next: e => e.preventDefault()
+            }),
+            !isAutoExitEnabled && source.willQuit$.addListener({
+              next: e => e.preventDefault()
+            })
+          ];
 
-        if (state === 'quitting') {
-          app.quit();
-        } else if (state === 'exiting') {
-          app.exit(exitCode);
+          if (state === 'quitting') {
+            app.quit();
+          } else if (state === 'exiting') {
+            app.exit(exitCode);
+          }
         }
       });
 

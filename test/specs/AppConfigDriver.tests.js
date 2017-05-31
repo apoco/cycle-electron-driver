@@ -3,8 +3,8 @@ import pathNames from '../../src/pathNames';
 
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { Observable } from 'rxjs';
-import { run } from '@cycle/rxjs-run';
+import xs from 'xstream';
+import { run } from '@cycle/run';
 
 import AppStub from '../stubs/App';
 
@@ -24,7 +24,7 @@ describe('The AppConfigDriver', () => {
             app.getPath.withArgs(name).returns('/some/path');
 
             run(({ config: { paths } }) => ({
-              output: paths[source].first().forEach(assert)
+              output: paths[source].take(1).addListener({ next: assert })
             }), {
               config: AppConfigDriver(app)
             });
@@ -41,22 +41,24 @@ describe('The AppConfigDriver', () => {
             app.getPath.withArgs(name).onFirstCall().returns(originalPath);
 
             run(({ config: { paths } }) => {
-              const path$ = paths[source];
+              const path$ = paths[source].remember();
 
               return {
-                config: Observable.of({ paths: { [name]: newPath } }),
-                output1: path$.first(),
-                output2: path$.skip(1).first()
+                config: xs.of({ paths: { [name]: newPath } }),
+                output1: path$.take(1),
+                output2: path$.drop(1).take(1)
               }
             }, {
               config: AppConfigDriver(app),
-              output1: path$ => Observable.from(path$).forEach(path => {
-                expect(path).to.equal('/original/path')
+              output1: path$ => path$.addListener({
+                next: path => expect(path).to.equal('/original/path')
               }),
-              output2: path$ => Observable.from(path$).forEach(path => {
-                expect(app.setPath).to.have.been.calledWith(name, newPath);
-                expect(path).to.equal(newPath);
-                done();
+              output2: path$ => path$.addListener({
+                next: path => {
+                  expect(app.setPath).to.have.been.calledWith(name, newPath);
+                  expect(path).to.equal(newPath);
+                  done();
+                }
               })
             });
           });
@@ -68,7 +70,7 @@ describe('The AppConfigDriver', () => {
           app.getAppPath.returns('/some/path');
 
           run(({ config: { paths } }) => ({
-            output: paths.app$.first().forEach(assert)
+            output: paths.app$.take(1).addListener({ next: assert })
           }), {
             config: AppConfigDriver(app)
           });
@@ -84,20 +86,24 @@ describe('The AppConfigDriver', () => {
     describe('allowNTMLForNonIntranet$', () => {
       it('reflects changes to the allowNTMLForNonIntranet config setting', done => {
         run(({ config }) => ({
-          config: Observable.of({
+          config: xs.of({
             allowNTMLForNonIntranet: true
           }),
           output: config.allowNTMLForNonIntranet$
         }), {
           config: AppConfigDriver(app),
           output: value$ => {
-            Observable.from(value$).first().forEach(value => {
-              expect(value).to.be.false;
+            value$.take(1).addListener({
+              next: value => {
+                expect(value).to.be.false;
+              }
             });
-            Observable.from(value$).skip(1).first().forEach(value => {
-              expect(value).to.be.true;
-              expect(app.allowNTLMCredentialsForAllDomains).to.have.been.calledWith(true);
-              done();
+            value$.drop(1).take(1).addListener({
+              next: value => {
+                expect(value).to.be.true;
+                expect(app.allowNTLMCredentialsForAllDomains).to.have.been.calledWith(true);
+                done();
+              }
             })
           }
         });
@@ -114,7 +120,7 @@ describe('The AppConfigDriver', () => {
       ];
 
       run(() => ({
-        config$: Observable.of({ tasks })
+        config$: xs.of({ tasks })
       }), {
         config$: AppConfigDriver(app)
       });

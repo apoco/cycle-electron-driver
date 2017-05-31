@@ -2,8 +2,7 @@ import AppMetadataDriver from '../../src/AppMetadataDriver';
 
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { Observable } from 'rxjs';
-import { run } from '@cycle/rxjs-run';
+import { run } from '@cycle/run';
 
 import AppStub from '../stubs/App';
 
@@ -21,9 +20,11 @@ describe('The AppMetadataDriver', () => {
       output: metadata$
     }), {
       metadata$: new AppMetadataDriver(app),
-      output: metadata$ => Observable.from(metadata$).first().forEach(metadata => {
-        expect(metadata).to.have.property('name', 'Some arbitrary app');
-        done();
+      output: metadata$ => metadata$.take(1).addListener({
+        next: metadata => {
+          expect(metadata).to.have.property('name', 'Some arbitrary app');
+          done();
+        }
       })
     });
   });
@@ -35,9 +36,11 @@ describe('The AppMetadataDriver', () => {
       output: metadata$
     }), {
       metadata$: new AppMetadataDriver(app),
-      output: metadata$ => Observable.from(metadata$).first().forEach(metadata => {
-        expect(metadata).to.have.property('version', '1.2.3');
-        done();
+      output: metadata$ => metadata$.take(1).addListener({
+        next: metadata => {
+          expect(metadata).to.have.property('version', '1.2.3');
+          done();
+        }
       })
     });
   });
@@ -49,9 +52,11 @@ describe('The AppMetadataDriver', () => {
       output: metadata$
     }), {
       metadata$: new AppMetadataDriver(app),
-      output: metadata$ => Observable.from(metadata$).first().forEach(metadata => {
-        expect(metadata).to.have.property('locale', 'es-MX');
-        done();
+      output: metadata$ => metadata$.take(1).addListener({
+        next: metadata => {
+          expect(metadata).to.have.property('locale', 'es-MX');
+          done();
+        }
       })
     });
   });

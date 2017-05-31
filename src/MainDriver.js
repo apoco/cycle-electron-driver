@@ -1,29 +1,30 @@
-import { Observable, Subject } from 'rxjs';
-import { adapt } from '@cycle/run/lib/adapt';
+import xs from 'xstream';
+import fromEvent from 'xstream/extra/fromEvent';
 
 export default function AppDriver(app, opts = {}) {
   let extraLaunch$ = null;
 
   if (opts.isSingleInstance) {
-    extraLaunch$ = new Subject();
-    const shouldQuit = app.makeSingleInstance((argv, cwd) => extraLaunch$.next({ argv, cwd }));
+    extraLaunch$ = xs.never();
+    const shouldQuit = app.makeSingleInstance((argv, cwd) => extraLaunch$.shamefullySendNext({ argv, cwd }));
 
     if (shouldQuit) {
       app.quit();
     }
 
   } else {
-    extraLaunch$ = Observable.empty();
+    extraLaunch$ = xs.empty();
   }
 
-  return stateXs$ => {
-    const state$ = Observable.from(stateXs$);
+  return state$ => {
 
     let subscriptions = [];
 
-    state$.forEach(state => {
-      subscriptions.filter(Boolean).forEach(s => s.dispose());
-      subscriptions = setupSinkSubscriptions(app, state);
+    state$.addListener({
+      next: state => {
+        subscriptions.filter(Boolean).forEach(s => s.dispose());
+        subscriptions = setupSinkSubscriptions(app, state);
+      }
     });
 
     return {
@@ -32,16 +33,16 @@ export default function AppDriver(app, opts = {}) {
       },
       events: setupEventSources(app, extraLaunch$),
       get badgeLabel$() {
-        return adapt(Observable
-          .of(app.dock.getBadge())
-          .concat(state$.flatMap(({ dock: { badgeLabel$ = Observable.empty() } = {} } = {}) => badgeLabel$)));
+        return state$.map(({ dock: { badgeLabel$ = xs.empty() } = {} } = {}) => badgeLabel$)
+          .flatten()
+          .startWith(app.dock.getBadge());
       }
     }
   };
 }
 
 function setupEventSources(app, extraLaunch$) {
-  return Object.assign(eventName => Observable.fromEvent(app, eventName), { extraLaunch$ });
+  return Object.assign(eventName => fromEvent(app, eventName), { extraLaunch$ });
 }
 
 function setupSinkSubscriptions(app, state) {
@@ -52,20 +53,24 @@ function setupSinkSubscriptions(app, state) {
 }
 
 function subscribeToAppUserModelIdChanges(app, id$) {
-  return id$ && id$.forEach(id => app.setAppUserModelId(id));
+  return id$ && id$.addListener({
+    next: id => app.setAppUserModelId(id)
+  });
 }
 
 function subscribeToNewChromiumParams(app, param$) {
-  return param$ && param$.forEach(({ switches = [], args = [] } = {}) => {
-    switches.forEach(obj => {
-      const applyArgs = [obj.switch];
-      if ('value' in obj) {
-        applyArgs.push(obj.value);
-      }
-      app.appendSwitch.apply(app, applyArgs);
-    });
+  return param$ && param$.addListener({
+    next: ({ switches = [], args = [] } = {}) => {
+      switches.forEach(obj => {
+        const applyArgs = [obj.switch];
+        if ('value' in obj) {
+          applyArgs.push(obj.value);
+        }
+        app.appendSwitch.apply(app, applyArgs);
+      });
 
-    args.forEach(arg => app.appendArgument(arg));
+      args.forEach(arg => app.appendArgument(arg));
+    }
   });
 }
 
@@ -89,21 +94,27 @@ function subscribeToDockBounceSinks(app, bounce) {
   const nativeIds = {};
 
   return [
-    bounce.start$ && bounce.start$.forEach(({ id, type = 'informational' } = {}) => {
-      nativeIds[id] = app.dock.bounce(type);
-    }),
-    bounce.cancel$ && bounce.cancel$.forEach(id => {
-      const nativeId = nativeIds[id];
-      if (nativeId) {
-        app.dock.cancelBounce(nativeId);
+    bounce.start$ && bounce.start$.addListener({
+      next: ({ id, type = 'informational' } = {}) => {
+        nativeIds[id] = app.dock.bounce(type);
       }
-      delete nativeIds[id];
+    }),
+    bounce.cancel$ && bounce.cancel$.addListener({
+      next: id => {
+        const nativeId = nativeIds[id];
+        if (nativeId) {
+          app.dock.cancelBounce(nativeId);
+        }
+        delete nativeIds[id];
+      }
     })
   ];
 }
 
 function subscribeToDockBadgeLabels(app, badgeLabel$) {
-  return badgeLabel$ && badgeLabel$.forEach(label => app.dock.setBadge(label));
+  return badgeLabel$ && badgeLabel$.addListener({
+    next: label => app.dock.setBadge(label)
+  });
 }
 
 function subscribeToDockVisibility(app, visibility$) {
@@ -112,15 +123,23 @@ function subscribeToDockVisibility(app, visibility$) {
   }
 
   return [
-    visibility$.filter(value => value === false).forEach(() => app.dock.hide()),
-    visibility$.filter(value => value === true).forEach(() => app.dock.show())
+    visibility$.filter(value => value === false).addListener({
+      next: () => app.dock.hide()
+    }),
+    visibility$.filter(value => value === true).addListener({
+      next: () => app.dock.show()
+    })
   ];
 }
 
 function subscribeToDockMenus(app, menu$) {
-  return menu$ && menu$.forEach(menu => app.dock.setMenu(menu));
+  return menu$ && menu$.addListener({
+    next: menu => app.dock.setMenu(menu)
+  });
 }
 
 function subscribeToDockIcons(app, icon$) {
-  return icon$ && icon$.forEach(icon => app.dock.setIcon(icon));
+  return icon$ && icon$.addListener({
+    next: icon => app.dock.setIcon(icon)
+  });
 }

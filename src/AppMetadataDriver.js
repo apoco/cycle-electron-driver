@@ -1,10 +1,9 @@
-import { Observable } from 'rxjs';
-import { adapt } from '@cycle/run/lib/adapt';
+import xs from 'xstream';
 
 export default function AppMetadataDriver(app) {
-  return () => adapt(Observable.of({
+  return () => xs.of({
     get name() { return app.getName(); },
     get version() { return app.getVersion(); },
     get locale() { return app.getLocale(); }
-  }));
+  });
 }
