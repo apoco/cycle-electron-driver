@@ -1,5 +1,8 @@
+import { Observable } from 'rxjs';
+import { adapt } from '@cycle/run/lib/adapt';
+
 export default function AppVisibilityDriver(app) {
   return visibility$ => {
-    visibility$.forEach(isVisible => isVisible ? app.show() : app.hide());
+    adapt(Observable.from(visibility$).forEach(isVisible => isVisible ? app.show() : app.hide()));
   };
 }

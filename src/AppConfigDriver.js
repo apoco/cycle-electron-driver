@@ -1,9 +1,11 @@
-import { Observable } from 'rx';
+import { Observable } from 'rxjs';
+import { adapt } from '@cycle/run/lib/adapt';
 
 import pathNames from './pathNames';
 
 export default function AppPathsDriver(app) {
-  return config$ => {
+  return configXs$ => {
+    const config$ = Observable.from(configXs$);
 
     const task$ = config$.map(config => config.tasks).filter(Boolean);
     task$.forEach(tasks => app.setUserTasks(tasks));
@@ -15,7 +17,7 @@ export default function AppPathsDriver(app) {
 
     return {
       allowNTMLForNonIntranet$: allowNTMLForNonIntranet$.startWith(false),
-      task$: task$.startWith([]),
+      task$: adapt(task$.startWith([])),
       paths: pathNames.reduce((sources, name) => {
         const pathChange$ = config$
           .map(config => config.paths && config.paths[name])
@@ -25,14 +27,15 @@ export default function AppPathsDriver(app) {
 
         return Object.defineProperty(sources, name + '$', {
           get() {
-            return Observable
-              .just(app.getPath(name))
+            return adapt(Observable
+              .of(app.getPath(name))
               .concat(pathChange$)
-              .distinct();
+              .distinct()
+            );
           }
         })
       }, {
-        app$: Observable.just(app.getAppPath())
+        app$: adapt(Observable.of(app.getAppPath()))
       })
     };
   }

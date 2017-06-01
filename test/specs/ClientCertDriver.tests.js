@@ -2,8 +2,8 @@ import ClientCertDriver from '../../src/ClientCertDriver';
 
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { Observable } from 'rx';
-import Cycle from '@cycle/core';
+import { Observable } from 'rxjs';
+import { run } from '@cycle/rxjs-run';
 
 import AppStub from '../stubs/App';
 
@@ -16,11 +16,11 @@ describe('The ClientCertDriver', () => {
 
   describe('source', () => {
     it('produces an object for each select-client-certificate event from the electron app', done => {
-      Cycle.run(({ certPrompt$ }) => ({
+      run(({ certPrompt$ }) => ({
         output: certPrompt$
       }), {
         certPrompt$: ClientCertDriver(app),
-        output: certPrompt$ => certPrompt$.first().forEach(assert)
+        output: certPrompt$ => Observable.from(certPrompt$).first().forEach(assert)
       });
 
       const webContents = {};
@@ -39,11 +39,11 @@ describe('The ClientCertDriver', () => {
     });
 
     it('prevents the default behavior for events', done => {
-      Cycle.run(({ certPrompt$ }) => ({
+      run(({ certPrompt$ }) => ({
         output: certPrompt$
       }), {
         certPrompt$: ClientCertDriver(app),
-        output: prompt$ => prompt$.forEach(() => {})
+        output: prompt$ => Observable.from(prompt$).forEach(() => {})
       });
 
       const origEvent = { preventDefault: spy() };
@@ -57,7 +57,7 @@ describe('The ClientCertDriver', () => {
 
   describe('sink', () => {
     it('calls the event callback with the indicated certificate', done => {
-      Cycle.run(({ certPrompt$ }) => ({
+      run(({ certPrompt$ }) => ({
         certPrompt$: certPrompt$.map(event => ({ event, cert: event.certificateList[1] }))
       }), {
         certPrompt$: ClientCertDriver(app)

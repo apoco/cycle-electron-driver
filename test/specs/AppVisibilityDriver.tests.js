@@ -2,8 +2,8 @@ import AppVisibilityDriver from '../../src/AppVisibilityDriver';
 
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { Observable } from 'rx';
-import Cycle from '@cycle/core';
+import { Observable } from 'rxjs';
+import { run } from '@cycle/rxjs-run';
 
 import AppStub from '../stubs/App';
 
@@ -15,8 +15,8 @@ describe('AppVisibilityDriver', () => {
   });
 
   it('calls `app.hide()` for `false` values', done => {
-    Cycle.run(() => ({
-      visibility$: Observable.just(false)
+    run(() => ({
+      visibility$: Observable.of(false)
     }), {
       visibility$: AppVisibilityDriver(app)
     });
@@ -28,8 +28,8 @@ describe('AppVisibilityDriver', () => {
   });
 
   it('calls `app.show()` for `true` values', done => {
-    Cycle.run(() => ({
-      visibility$: Observable.just(true)
+    run(() => ({
+      visibility$: Observable.of(true)
     }), {
       visibility$: AppVisibilityDriver(app)
     });

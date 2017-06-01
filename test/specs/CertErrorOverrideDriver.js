@@ -2,8 +2,8 @@ import CertErrorOverrideDriver from '../../src/CertErrorOverrideDriver';
 
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { Observable } from 'rx';
-import Cycle from '@cycle/core';
+import { Observable } from 'rxjs';
+import { run } from '@cycle/rxjs-run';
 
 import AppStub from '../stubs/App';
 
@@ -16,11 +16,11 @@ describe('The CertErrorOverrideDriver', () => {
 
   describe('source', () => {
     it('produces values for each certificate-error event', done => {
-      Cycle.run(({ certErr$ }) => ({
+      run(({ certErr$ }) => ({
         output: certErr$
       }), {
         certErr$: new CertErrorOverrideDriver(app),
-        output: certErr$ => certErr$.first().forEach(assert)
+        output: certErr$ => Observable.from(certErr$).first().forEach(assert)
       });
 
       const certErrorEvent = {};
@@ -42,7 +42,7 @@ describe('The CertErrorOverrideDriver', () => {
     });
 
     it('prevents the default behavior of events', done => {
-      Cycle.run(({ certErr$ }) => ({
+      run(({ certErr$ }) => ({
         certErr$: certErr$.map(e => ({ event: e, allow: true }))
       }), {
         certErr$: new CertErrorOverrideDriver(app)
@@ -59,7 +59,7 @@ describe('The CertErrorOverrideDriver', () => {
 
   describe('sink', () => {
     it('calls the certificate-error callback with the value of the allow flag', done => {
-      Cycle.run(({ certErr$ }) => ({
+      run(({ certErr$ }) => ({
         certErr$: certErr$.map(e => ({ event: e, allow: e.certificate.issuerName === 'Dev issuer' }))
       }), {
         certErr$: new CertErrorOverrideDriver(app)

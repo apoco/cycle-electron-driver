@@ -2,8 +2,8 @@ import AppEventsDriver from '../../src/AppEventsDriver';
 
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { Observable } from 'rx';
-import Cycle from '@cycle/core';
+import { Observable } from 'rxjs';
+import { run } from '@cycle/rxjs-run';
 
 import AppStub from '../stubs/App';
 
@@ -31,11 +31,11 @@ describe('AppEventsDriver', () => {
 
   eventsToTest.forEach(({ name: eventName, params = [] }) => {
     it(`provides ${eventName} events`, done => {
-      Cycle.run(({ app: appEvent$ }) => ({
+      run(({ app: appEvent$ }) => ({
         output: appEvent$.filter(e => e.type === eventName)
       }), {
         app: driver,
-        output: event$ => event$.first().forEach(assert)
+        output: event$ => Observable.from(event$).first().forEach(assert)
       });
 
       const origEventObj = {};
