@@ -16,6 +16,9 @@
     "cycle.js",
     "electron"
   ],
+  "dependencies": {
+    "@cycle/run": "*"
+  },
   "peerDependencies": {
     "@cycle/run": "^3.1.0",
     "electron-prebuilt": "^0.36.0",
