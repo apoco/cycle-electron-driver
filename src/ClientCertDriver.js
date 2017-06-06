@@ -1,18 +1,19 @@
-import { Observable } from 'rxjs';
-import { adapt } from '@cycle/run/lib/adapt';
+import fromEvent from 'xstream/extra/fromEvent';
 
 export default function ClientCertDriver(app) {
   return prompt$ => {
     Observable.from(prompt$)
       .filter(({ event: { callback } }) => callback)
-      .forEach(({ event: { callback }, cert }) => callback(cert));
+      .addListener({
+        next: ({ event: { callback }, cert }) => callback(cert)
+      });
 
-    return adapt(Observable.fromEvent(
-      app,
-      'select-client-certificate',
-      ({ preventDefault }, webContents, url, certificateList, callback) => {
+    return fromEvent(app, 'select-client-certificate')
+      .map(arg => {
+        arg = Array.isArray(arg) ? arg : [arg];
+        const [{ preventDefault }, webContents, url, certificateList, callback] = arg;
         preventDefault && preventDefault();
         return { webContents, url, certificateList, callback };
-      }));
-  }
+      });
+  };
 }

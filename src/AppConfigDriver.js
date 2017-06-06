@@ -1,5 +1,5 @@
-import { Observable } from 'rxjs';
-import { adapt } from '@cycle/run/lib/adapt';
+import xs from 'xstream';
+import dropRepeats from 'xstream/extra/dropRepeats';
 
 import pathNames from './pathNames';
 
@@ -8,12 +8,16 @@ export default function AppPathsDriver(app) {
     const config$ = Observable.from(configXs$);
 
     const task$ = config$.map(config => config.tasks).filter(Boolean);
-    task$.forEach(tasks => app.setUserTasks(tasks));
+    task$.addListener({
+      next: tasks => app.setUserTasks(tasks)
+    });
 
     const allowNTMLForNonIntranet$ = config$
       .map(config => config.allowNTMLForNonIntranet)
       .filter(value => typeof(value) === 'boolean');
-    allowNTMLForNonIntranet$.forEach(value => app.allowNTLMCredentialsForAllDomains(value));
+    allowNTMLForNonIntranet$.addListener({
+      next: value => app.allowNTLMCredentialsForAllDomains(value)
+    });
 
     return {
       allowNTMLForNonIntranet$: allowNTMLForNonIntranet$.startWith(false),
@@ -23,19 +27,19 @@ export default function AppPathsDriver(app) {
           .map(config => config.paths && config.paths[name])
           .filter(Boolean);
 
-        pathChange$.forEach(path => app.setPath(name, path));
+        pathChange$.addListener({
+          next: path => app.setPath(name, path)
+        });
 
         return Object.defineProperty(sources, name + '$', {
           get() {
-            return adapt(Observable
-              .of(app.getPath(name))
-              .concat(pathChange$)
-              .distinct()
-            );
+            return pathChange$
+              .startWith(app.getPath(name))
+              .compose(dropRepeats());
           }
         })
       }, {
-        app$: adapt(Observable.of(app.getAppPath()))
+        app$: xs.of(app.getAppPath())
       })
     };
   }

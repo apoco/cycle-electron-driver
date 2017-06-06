@@ -1,6 +1,5 @@
-import { Observable } from 'rxjs';
-import { adapt } from '@cycle/run/lib/adapt';
-
+import xs from 'xstream';
+import fromEvent from 'xstream/extra/fromEvent';
 const eventParams = {
   'open-file':                  ['path'],
   'open-url':                   ['url'],
@@ -15,11 +14,17 @@ const eventParams = {
 };
 
 export default function AppEventsDriver(app) {
-  const events = Object.keys(eventParams).map(type => Observable
-    .fromEvent(app, type, (event, ...args) => eventParams[type].reduce(
-      (event, param, i) => Object.assign(event, { [param]: args[i] }),
-      Object.assign(event, { type })))
+  const events = Object.keys(eventParams).map(type =>
+    fromEvent(app, type)
+      .map(arg => {
+        arg = Array.isArray(arg) ? arg : [arg];
+        const [event, ...paramValues] = arg;
+        return eventParams[type].reduce(
+          (ev, param, i) => Object.assign(ev, { [param]: paramValues[i] }),
+          Object.assign(event, { type })
+        )
+      })
   );
 
-  return () => adapt(Observable.merge(...events));
+  return () => xs.merge(...events);
 }

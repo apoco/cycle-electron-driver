@@ -2,8 +2,8 @@ import RecentDocsDriver from '../../src/RecentDocsDriver';
 
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { Observable } from 'rxjs';
-import { run } from '@cycle/rxjs-run';
+import xs from 'xstream';
+import { run } from '@cycle/run';
 
 import AppStub from '../stubs/App';
 
@@ -16,7 +16,7 @@ describe('RecentDocsDriver', () => {
 
   it('performs clear operations before adds', done => {
     run(() => ({
-      recentDoc$: Observable.of({
+      recentDoc$: xs.of({
         clear: true,
         add: '/some/path'
       })

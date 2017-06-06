@@ -1,17 +1,19 @@
-import { Observable } from 'rxjs';
-import { adapt } from '@cycle/run/lib/adapt';
+import xs from 'xstream';
+import fromEvent from 'xstream/extra/fromEvent';
 
 export default function BasicAuthDriver(app) {
   return login$ => {
-    Observable.from(login$)
-      .filter(({ event }) => event.callback)
-      .forEach(({ event, username, password }) => event.callback(username, password));
+    login$
+      .filter(({event}) => event.callback)
+      .addListener({
+        next: ({event, username, password}) => event.callback(username, password)
+      });
 
-    return adapt(Observable.fromEvent(
-      app,
-      'login',
-      (e, webContents, request, authInfo, callback) => {
-        e.preventDefault && e.preventDefault();
+    return fromEvent(app, 'login')
+      .map(arg => {
+        arg = Array.isArray(arg) ? arg : [arg];
+        const [ev, webContents, request, authInfo, callback] = arg;
+        ev.preventDefault && ev.preventDefault();
         return { webContents, request, authInfo, callback };
       }));
   };

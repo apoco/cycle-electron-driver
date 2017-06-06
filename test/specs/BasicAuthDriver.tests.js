@@ -2,8 +2,7 @@ import BasicAuthDriver from '../../src/BasicAuthDriver';
 
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { Observable } from 'rxjs';
-import { run } from '@cycle/rxjs-run';
+import { run } from '@cycle/run';
 
 import AppStub from '../stubs/App';
 
@@ -20,7 +19,7 @@ describe('The BasicAuthDriver', () => {
         output: login$
       }), {
         login$: BasicAuthDriver(app),
-        output: login$ => Observable.from(login$).first().forEach(assert)
+        output: login$ => login$.take(1).addListener({ next: assert })
       });
 
       const webContents = {};
@@ -41,7 +40,7 @@ describe('The BasicAuthDriver', () => {
         output: login$
       }), {
         login$: BasicAuthDriver(app),
-        output: login$ => Observable.from(login$).first().forEach(assert)
+        output: login$ => login$.take(1).addListener({ next: assert })
       });
 
       const origEvent = { preventDefault: spy() };

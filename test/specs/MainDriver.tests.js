@@ -4,8 +4,9 @@ import { expect } from 'chai';
 import { spy } from 'sinon';
 
 import Promise from 'bluebird';
-import { Observable } from 'rxjs';
-import { run } from '@cycle/rxjs-run';
+import xs from 'xstream';
+import delay from 'xstream/extra/delay';
+import { run } from '@cycle/run';
 
 import AppStub from '../stubs/App';
 
@@ -22,7 +23,7 @@ describe('MainDriver', () => {
 
     run(() => {
       return {
-        electron: Observable.of({})
+        electron: xs.of({})
       }
     }, {
       electron: new MainDriver(app, { isSingleInstance: true })
@@ -41,12 +42,14 @@ describe('MainDriver', () => {
           app.isAeroGlassEnabled.returns(true);
 
           run(({ electron }) => ({
-            output: Observable.of(electron.platformInfo.isAeroGlassEnabled)
+            output: xs.of(electron.platformInfo.isAeroGlassEnabled)
           }), {
             electron: driver,
-            output: value$ => Observable.from(value$).first().forEach(isEnabled => {
-              expect(isEnabled).to.be.true;
-              done();
+            output: value$ => value$.take(1).addListener({
+              next: isEnabled => {
+                expect(isEnabled).to.be.true;
+                done();
+              }
             })
           });
         });
@@ -62,7 +65,7 @@ describe('MainDriver', () => {
             }
           }, {
             electron: driver,
-            receivedEvent$: events$ => Observable.from(events$).first().forEach(verify)
+            receivedEvent$: events$ => events$.take(1).addListener({ next: verify })
           });
 
           const emittedEvent = {};
@@ -87,7 +90,7 @@ describe('MainDriver', () => {
             }
           }, {
             electron: new MainDriver(app, { isSingleInstance: true }),
-            output: value$ => Observable.from(value$).forEach(assert)
+            output: value$ => value$.addListener({ next: assert })
           });
 
           setTimeout(() => {
@@ -109,20 +112,22 @@ describe('MainDriver', () => {
         let valueCount = 0;
 
         run(({ electron }) => ({
-          electron: Observable.of({
+          electron: xs.of({
             dock: {
-              badgeLabel$: Observable.timer(5).mapTo('Label 2')
+              badgeLabel$: xs.of('Label 2').compose(delay(5))
             }
           }),
           output: electron.badgeLabel$
         }), {
           electron: driver,
-          output: value$ => Observable.from(value$).forEach(label => {
-            valueCount++;
-            expect(label).to.equal(`Label ${valueCount}`);
-            if (valueCount === 2) {
-              expect(app.dock.setBadge).to.have.been.calledWith('Label 2');
-              done();
+          output: value$ => value$.addListener({
+            next: label => {
+              valueCount++;
+              expect(label).to.equal(`Label ${valueCount}`);
+              if (valueCount === 2) {
+                expect(app.dock.setBadge).to.have.been.calledWith('Label 2');
+                done();
+              }
             }
           })
         });
@@ -149,10 +154,10 @@ describe('MainDriver', () => {
           function testBounceStart(bounce, assertions) {
             return new Promise(resolve => {
               run(() => ({
-                electron: Observable.of({
+                electron: xs.of({
                   dock: {
                     bounce: {
-                      start$: Observable.of(bounce)
+                      start$: xs.of(bounce)
                     }
                   }
                 })
@@ -171,11 +176,11 @@ describe('MainDriver', () => {
             app.dock.bounce.returns(8346);
 
             run(() => ({
-              electron: Observable.of({
+              electron: xs.of({
                 dock: {
                   bounce: {
-                    start$: Observable.of({ id: 'auth-has-expired', type: 'critical' }),
-                    cancel$: Observable.timer(5).map(() => 'auth-has-expired')
+                    start$: xs.of({ id: 'auth-has-expired', type: 'critical' }),
+                    cancel$: xs.of('auth-has-expired').compose(delay(5))
                   }
                 }
               })
@@ -205,9 +210,9 @@ describe('MainDriver', () => {
         function testVisibility(value, assertions) {
           return new Promise(resolve => {
             run(() => ({
-              electron: Observable.of({
+              electron: xs.of({
                 dock: {
-                  visibility$: Observable.of(value)
+                  visibility$: xs.of(value)
                 }
               })
             }), { electron: driver });
@@ -225,9 +230,9 @@ describe('MainDriver', () => {
           const img = {};
 
           run(() => ({
-            electron: Observable.of({
+            electron: xs.of({
               dock: {
-                icon$: Observable.of(img)
+                icon$: xs.of(img)
               }
             })
           }), { electron: driver });
@@ -244,9 +249,9 @@ describe('MainDriver', () => {
           const menu = {};
 
           run(() => ({
-            electron: Observable.of({
+            electron: xs.of({
               dock: {
-                menu$: Observable.of(menu)
+                menu$: xs.of(menu)
               }
             })
           }), { electron: driver });
@@ -262,8 +267,8 @@ describe('MainDriver', () => {
     describe('newChromiumParam$', () => {
       it('calls appendSwitch and appendArgument for each switch & argument', done => {
         run(() => ({
-          electron: Observable.of({
-            newChromiumParam$: Observable.of({
+          electron: xs.of({
+            newChromiumParam$: xs.of({
               switches: [
                 { 'switch': 'prefetch', value: 1 },
                 { 'switch': 'aggressive-cache-discard' }
@@ -287,8 +292,8 @@ describe('MainDriver', () => {
     describe('appUserModelId$', () => {
       it('causes the setAppUserModelId method of the app to be called', done => {
         run(() => ({
-          electron: Observable.of({
-            appUserModelId$: Observable.of('new-user-model-id')
+          electron: xs.of({
+            appUserModelId$: xs.of('new-user-model-id')
           })
         }), { electron: driver });
 

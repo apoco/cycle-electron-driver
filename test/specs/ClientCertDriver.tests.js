@@ -2,8 +2,7 @@ import ClientCertDriver from '../../src/ClientCertDriver';
 
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { Observable } from 'rxjs';
-import { run } from '@cycle/rxjs-run';
+import { run } from '@cycle/run';
 
 import AppStub from '../stubs/App';
 
@@ -20,7 +19,7 @@ describe('The ClientCertDriver', () => {
         output: certPrompt$
       }), {
         certPrompt$: ClientCertDriver(app),
-        output: certPrompt$ => Observable.from(certPrompt$).first().forEach(assert)
+        output: certPrompt$ => certPrompt$.take(1).addListener({ next: assert })
       });
 
       const webContents = {};
@@ -43,7 +42,7 @@ describe('The ClientCertDriver', () => {
         output: certPrompt$
       }), {
         certPrompt$: ClientCertDriver(app),
-        output: prompt$ => Observable.from(prompt$).forEach(() => {})
+        output: prompt$ => prompt$.addListener({ next: () => {} })
       });
 
       const origEvent = { preventDefault: spy() };

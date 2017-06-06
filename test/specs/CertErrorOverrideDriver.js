@@ -2,8 +2,7 @@ import CertErrorOverrideDriver from '../../src/CertErrorOverrideDriver';
 
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { Observable } from 'rxjs';
-import { run } from '@cycle/rxjs-run';
+import { run } from '@cycle/run';
 
 import AppStub from '../stubs/App';
 
@@ -20,7 +19,7 @@ describe('The CertErrorOverrideDriver', () => {
         output: certErr$
       }), {
         certErr$: new CertErrorOverrideDriver(app),
-        output: certErr$ => Observable.from(certErr$).first().forEach(assert)
+       output: certErr$ => certErr$.take(1).addListener({ next: assert })
       });
 
       const certErrorEvent = {};

@@ -2,8 +2,8 @@ import AppLifecycleDriver from '../../src/AppLifecycleDriver';
 
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { Observable } from 'rxjs';
-import { run } from '@cycle/rxjs-run';
+import xs from 'xstream';
+import { run } from '@cycle/run';
 
 import AppStub from '../stubs/App';
 
@@ -31,7 +31,7 @@ describe('The AppLifecycleDriver', () => {
             output: lifecycle[prop]
           }), {
             lifecycle: AppLifecycleDriver(app),
-            output: event$ => Observable.from(event$).first().forEach(verify)
+            output: event$ => event$.take(1).addListener({ next: verify })
           });
 
           const emittedEvent = {};
@@ -51,7 +51,7 @@ describe('The AppLifecycleDriver', () => {
           output: lifecycle.quit$
         }), {
           lifecycle: AppLifecycleDriver(app),
-          output: event$ => Observable.from(event$).first().forEach(verify)
+          output: event$ => event$.take(1).addListener({ next: verify })
         });
 
         const emittedEvent = {};
@@ -75,7 +75,7 @@ describe('The AppLifecycleDriver', () => {
       const flag = preventionFlags[eventName];
       it(`prevents ${eventName} default behaviors if ${flag} is false`, done => {
         run(({ lifecycle }) => ({
-          lifecycle: Observable.of({
+          lifecycle: xs.of({
             [flag]: false
           })
         }), {
@@ -94,7 +94,7 @@ describe('The AppLifecycleDriver', () => {
 
     it('initiates a quit if `state` is set to `quitting`', done => {
       run(({ lifecycle }) => ({
-        lifecycle: Observable.of({
+        lifecycle: xs.of({
           state: 'quitting'
         })
       }), {
@@ -109,7 +109,7 @@ describe('The AppLifecycleDriver', () => {
 
     it('initiates an exit if `state` is set to `exiting`', done => {
       run(({ lifecycle }) => ({
-        lifecycle: Observable.of({
+        lifecycle: xs.of({
           state: 'exiting'
         })
       }), {
@@ -124,7 +124,7 @@ describe('The AppLifecycleDriver', () => {
 
     it('passes a specific exit code if `state` is `exiting` and `exitCode` is specified', done => {
       run(({ lifecycle }) => ({
-        lifecycle: Observable.of({
+        lifecycle: xs.of({
           state: 'exiting',
           exitCode: 255
         })
