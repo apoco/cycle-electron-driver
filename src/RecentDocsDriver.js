@@ -1,3 +1,6 @@
+import { Observable } from 'rxjs';
+import { adapt } from '@cycle/run/lib/adapt';
+
 export default function RecentDocsDriver(app) {
   return recentDoc$ => {
     recentDoc$.addListener({
@@ -9,6 +12,6 @@ export default function RecentDocsDriver(app) {
           app.addRecentDocument(ops.add);
         }
       }
-    });
+    }));
   };
 }

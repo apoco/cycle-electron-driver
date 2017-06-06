@@ -2,7 +2,7 @@ import fromEvent from 'xstream/extra/fromEvent';
 
 export default function ClientCertDriver(app) {
   return prompt$ => {
-    prompt$
+    Observable.from(prompt$)
       .filter(({ event: { callback } }) => callback)
       .addListener({
         next: ({ event: { callback }, cert }) => callback(cert)

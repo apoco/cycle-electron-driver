@@ -1,6 +1,5 @@
 import xs from 'xstream';
 import fromEvent from 'xstream/extra/fromEvent';
-
 const eventParams = {
   'open-file':                  ['path'],
   'open-url':                   ['url'],

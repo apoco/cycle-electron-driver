@@ -2,7 +2,6 @@ import AppEventsDriver from '../../src/AppEventsDriver';
 
 import { expect } from 'chai';
 import { spy } from 'sinon';
-
 import { run } from '@cycle/run';
 
 import AppStub from '../stubs/App';

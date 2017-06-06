@@ -19,7 +19,7 @@ describe('The CertErrorOverrideDriver', () => {
         output: certErr$
       }), {
         certErr$: new CertErrorOverrideDriver(app),
-        output: certErr$ => certErr$.take(1).addListener({ next: assert })
+       output: certErr$ => certErr$.take(1).addListener({ next: assert })
       });
 
       const certErrorEvent = {};

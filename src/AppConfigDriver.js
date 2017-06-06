@@ -4,7 +4,8 @@ import dropRepeats from 'xstream/extra/dropRepeats';
 import pathNames from './pathNames';
 
 export default function AppPathsDriver(app) {
-  return config$ => {
+  return configXs$ => {
+    const config$ = Observable.from(configXs$);
 
     const task$ = config$.map(config => config.tasks).filter(Boolean);
     task$.addListener({
@@ -20,7 +21,7 @@ export default function AppPathsDriver(app) {
 
     return {
       allowNTMLForNonIntranet$: allowNTMLForNonIntranet$.startWith(false),
-      task$: task$.startWith([]),
+      task$: adapt(task$.startWith([])),
       paths: pathNames.reduce((sources, name) => {
         const pathChange$ = config$
           .map(config => config.paths && config.paths[name])

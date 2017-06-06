@@ -2,7 +2,7 @@ import fromEvent from 'xstream/extra/fromEvent';
 
 export default function CertErrorOverrideDriver(app) {
   return (override$) => {
-    override$
+    Observable.from(override$)
       .filter(({ event }) => event && event.callback)
       .addListener({
         next: ({ event: { callback }, allow = false }) => callback(allow)

@@ -52,7 +52,7 @@ describe('The AppMetadataDriver', () => {
       output: metadata$
     }), {
       metadata$: new AppMetadataDriver(app),
-      output: metadata$ => metadata$.take(1).addListener({
+     output: metadata$ => metadata$.take(1).addListener({
         next: metadata => {
           expect(metadata).to.have.property('locale', 'es-MX');
           done();

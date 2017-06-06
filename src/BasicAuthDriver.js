@@ -15,6 +15,6 @@ export default function BasicAuthDriver(app) {
         const [ev, webContents, request, authInfo, callback] = arg;
         ev.preventDefault && ev.preventDefault();
         return { webContents, request, authInfo, callback };
-      })
+      }));
   };
 }
